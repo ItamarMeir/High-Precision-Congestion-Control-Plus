@@ -47,7 +47,7 @@ private:
 LteSpectrumModelTestCase::LteSpectrumModelTestCase (const char* str, uint16_t earfcn, uint8_t bw, std::vector<double> fcs)
   :   TestCase (std::string ("SpectrumModel ") + str)
 {
-  NS_LOG_FUNCTION (this << str << earfcn << bw);
+  NS_LOG_FUNCTION (str << earfcn << bw);
   m_actual = LteSpectrumValueHelper::GetSpectrumModel (earfcn, bw);
   m_expected = Create<SpectrumModel> (fcs);
 }
@@ -59,7 +59,7 @@ LteSpectrumModelTestCase::~LteSpectrumModelTestCase ()
 void 
 LteSpectrumModelTestCase::DoRun (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_TEST_ASSERT_MSG_SPECTRUM_MODEL_EQ_TOL ((*m_actual), (*m_expected), 0.0000001, "spectrum model mismatch");
 }
 
@@ -85,7 +85,7 @@ LteNoisePsdTestCase::LteNoisePsdTestCase (const char* str, uint16_t earfcn, uint
     m_actual (LteSpectrumValueHelper::CreateNoisePowerSpectralDensity (earfcn, bw, noiseFigureDb)),
     m_expected (Create<SpectrumValue> (expected))
 {
-  NS_LOG_FUNCTION (this << str << earfcn << bw << noiseFigureDb);
+  NS_LOG_FUNCTION (str << earfcn << bw << noiseFigureDb);
 }
 
 LteNoisePsdTestCase::~LteNoisePsdTestCase ()
@@ -122,7 +122,7 @@ LteTxPsdTestCase::LteTxPsdTestCase (const char* str, uint16_t earfcn, uint8_t bw
     m_actual (LteSpectrumValueHelper::CreateTxPowerSpectralDensity (earfcn, bw, txPowerDbm, activeRbs)),
     m_expected (Create<SpectrumValue> (expected))
 {
-  NS_LOG_FUNCTION (this << str << earfcn << bw << txPowerDbm);
+  NS_LOG_FUNCTION (str << earfcn << bw << txPowerDbm);
 }
 
 LteTxPsdTestCase::~LteTxPsdTestCase ()

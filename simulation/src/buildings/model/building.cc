@@ -113,74 +113,74 @@ Building::Building (double xMin,
 
 Building::Building () 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_buildingId = BuildingList::Add(this);
 }
 
 Building::~Building () 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 Building::DoDispose () 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t
 Building::GetId (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_buildingId;
 }
 
 void
 Building::SetBoundaries (Box boundaries)
 {
-  NS_LOG_FUNCTION (this << boundaries);
+  NS_LOG_FUNCTION (boundaries);
   m_buildingBounds = boundaries;
 }
 
 void
 Building::SetBuildingType (Building::BuildingType_t t)
 {
-  NS_LOG_FUNCTION (this << t);
+  NS_LOG_FUNCTION (t);
   m_buildingType = t;
 }
 
 void 
 Building::SetExtWallsType (Building::ExtWallsType_t t)
 {
-  NS_LOG_FUNCTION (this << t);
+  NS_LOG_FUNCTION (t);
   m_externalWalls = t;
 }
 
 void
 Building::SetNFloors (uint16_t nfloors)
 {
-  NS_LOG_FUNCTION (this << nfloors);
+  NS_LOG_FUNCTION (nfloors);
   m_floors = nfloors;
 }
 
 void
 Building::SetNRoomsX (uint16_t nroomx)
 {
-  NS_LOG_FUNCTION (this << nroomx);
+  NS_LOG_FUNCTION (nroomx);
   m_roomsX = nroomx;
 }
 
 void
 Building::SetNRoomsY (uint16_t nroomy)
 {
-  NS_LOG_FUNCTION (this << nroomy);
+  NS_LOG_FUNCTION (nroomy);
   m_roomsY = nroomy;
 }
 
 Box
 Building::GetBoundaries () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_buildingBounds;
 }
 

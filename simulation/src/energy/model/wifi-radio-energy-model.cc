@@ -76,7 +76,7 @@ WifiRadioEnergyModel::GetTypeId (void)
 
 WifiRadioEnergyModel::WifiRadioEnergyModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_currentState = WifiPhy::IDLE;  // initially IDLE
   m_lastUpdateTime = Seconds (0.0);
   m_energyDepletionCallback.Nullify ();
@@ -94,7 +94,7 @@ WifiRadioEnergyModel::~WifiRadioEnergyModel ()
 void
 WifiRadioEnergyModel::SetEnergySource (Ptr<EnergySource> source)
 {
-  NS_LOG_FUNCTION (this << source);
+  NS_LOG_FUNCTION (source);
   NS_ASSERT (source != NULL);
   m_source = source;
 }
@@ -114,7 +114,7 @@ WifiRadioEnergyModel::GetIdleCurrentA (void) const
 void
 WifiRadioEnergyModel::SetIdleCurrentA (double idleCurrentA)
 {
-  NS_LOG_FUNCTION (this << idleCurrentA);
+  NS_LOG_FUNCTION (idleCurrentA);
   m_idleCurrentA = idleCurrentA;
 }
 
@@ -127,7 +127,7 @@ WifiRadioEnergyModel::GetCcaBusyCurrentA (void) const
 void
 WifiRadioEnergyModel::SetCcaBusyCurrentA (double CcaBusyCurrentA)
 {
-  NS_LOG_FUNCTION (this << CcaBusyCurrentA);
+  NS_LOG_FUNCTION (CcaBusyCurrentA);
   m_ccaBusyCurrentA = CcaBusyCurrentA;
 }
 
@@ -140,7 +140,7 @@ WifiRadioEnergyModel::GetTxCurrentA (void) const
 void
 WifiRadioEnergyModel::SetTxCurrentA (double txCurrentA)
 {
-  NS_LOG_FUNCTION (this << txCurrentA);
+  NS_LOG_FUNCTION (txCurrentA);
   m_txCurrentA = txCurrentA;
 }
 
@@ -153,7 +153,7 @@ WifiRadioEnergyModel::GetRxCurrentA (void) const
 void
 WifiRadioEnergyModel::SetRxCurrentA (double rxCurrentA)
 {
-  NS_LOG_FUNCTION (this << rxCurrentA);
+  NS_LOG_FUNCTION (rxCurrentA);
   m_rxCurrentA = rxCurrentA;
 }
 
@@ -166,7 +166,7 @@ WifiRadioEnergyModel::GetSwitchingCurrentA (void) const
 void
 WifiRadioEnergyModel::SetSwitchingCurrentA (double switchingCurrentA)
 {
-  NS_LOG_FUNCTION (this << switchingCurrentA);
+  NS_LOG_FUNCTION (switchingCurrentA);
   m_switchingCurrentA = switchingCurrentA;
 }
 
@@ -181,7 +181,7 @@ void
 WifiRadioEnergyModel::SetEnergyDepletionCallback (
   WifiRadioEnergyDepletionCallback callback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (callback.IsNull ())
     {
       NS_LOG_DEBUG ("WifiRadioEnergyModel:Setting NULL energy depletion callback!");
@@ -192,7 +192,7 @@ WifiRadioEnergyModel::SetEnergyDepletionCallback (
 void
 WifiRadioEnergyModel::ChangeState (int newState)
 {
-  NS_LOG_FUNCTION (this << newState);
+  NS_LOG_FUNCTION (newState);
 
   Time duration = Simulator::Now () - m_lastUpdateTime;
   NS_ASSERT (duration.GetNanoSeconds () >= 0); // check if duration is valid
@@ -289,7 +289,7 @@ WifiRadioEnergyModel::DoGetCurrentA (void) const
 void
 WifiRadioEnergyModel::SetWifiRadioState (const WifiPhy::State state)
 {
-  NS_LOG_FUNCTION (this << state);
+  NS_LOG_FUNCTION (state);
   m_currentState = state;
   std::string stateName;
   switch (state)

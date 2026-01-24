@@ -76,18 +76,18 @@ ArpCache::ArpCache ()
   : m_device (0), 
     m_interface (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ArpCache::~ArpCache ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 
 ArpCache::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Flush ();
   m_device = 0;
   m_interface = 0;
@@ -101,7 +101,7 @@ ArpCache::DoDispose (void)
 void
 ArpCache::SetDevice (Ptr<NetDevice> device, Ptr<Ipv4Interface> interface)
 {
-  NS_LOG_FUNCTION (this << device << interface);
+  NS_LOG_FUNCTION (device << interface);
   m_device = device;
   m_interface = interface;
 }
@@ -121,19 +121,19 @@ ArpCache::GetInterface (void) const
 void 
 ArpCache::SetAliveTimeout (Time aliveTimeout)
 {
-  NS_LOG_FUNCTION (this << aliveTimeout);
+  NS_LOG_FUNCTION (aliveTimeout);
   m_aliveTimeout = aliveTimeout;
 }
 void 
 ArpCache::SetDeadTimeout (Time deadTimeout)
 {
-  NS_LOG_FUNCTION (this << deadTimeout);
+  NS_LOG_FUNCTION (deadTimeout);
   m_deadTimeout = deadTimeout;
 }
 void 
 ArpCache::SetWaitReplyTimeout (Time waitReplyTimeout)
 {
-  NS_LOG_FUNCTION (this << waitReplyTimeout);
+  NS_LOG_FUNCTION (waitReplyTimeout);
   m_waitReplyTimeout = waitReplyTimeout;
 }
 
@@ -157,14 +157,14 @@ void
 ArpCache::SetArpRequestCallback (Callback<void, Ptr<const ArpCache>,
                                           Ipv4Address> arpRequestCallback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_arpRequestCallback = arpRequestCallback;
 }
 
 void 
 ArpCache::StartWaitReplyTimer (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_waitReplyTimer.IsRunning ())
     {
       NS_LOG_LOGIC ("Starting WaitReplyTimer at " << Simulator::Now () << " for " <<
@@ -177,7 +177,7 @@ ArpCache::StartWaitReplyTimer (void)
 void
 ArpCache::HandleWaitReplyTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ArpCache::Entry* entry;
   bool restartWaitReplyTimer = false;
   for (CacheI i = m_arpCache.begin (); i != m_arpCache.end (); i++) 
@@ -224,7 +224,7 @@ ArpCache::HandleWaitReplyTimeout (void)
 void 
 ArpCache::Flush (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (CacheI i = m_arpCache.begin (); i != m_arpCache.end (); i++) 
     {
       delete (*i).second;
@@ -251,7 +251,7 @@ ArpCache::Lookup (Ipv4Address to)
 ArpCache::Entry *
 ArpCache::Add (Ipv4Address to)
 {
-  NS_LOG_FUNCTION (this << to);
+  NS_LOG_FUNCTION (to);
   NS_ASSERT (m_arpCache.find (to) == m_arpCache.end ());
 
   ArpCache::Entry *entry = new ArpCache::Entry (this);
@@ -265,7 +265,7 @@ ArpCache::Entry::Entry (ArpCache *arp)
     m_state (ALIVE),
     m_retries (0)
 {
-  NS_LOG_FUNCTION (this << arp);
+  NS_LOG_FUNCTION (arp);
 }
 
 
@@ -289,7 +289,7 @@ ArpCache::Entry::IsWaitReply (void)
 void 
 ArpCache::Entry::MarkDead (void) 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_state = DEAD;
   ClearRetries ();
   UpdateSeen ();
@@ -297,7 +297,7 @@ ArpCache::Entry::MarkDead (void)
 void
 ArpCache::Entry::MarkAlive (Address macAddress) 
 {
-  NS_LOG_FUNCTION (this << macAddress);
+  NS_LOG_FUNCTION (macAddress);
   NS_ASSERT (m_state == WAIT_REPLY);
   m_macAddress = macAddress;
   m_state = ALIVE;
@@ -308,7 +308,7 @@ ArpCache::Entry::MarkAlive (Address macAddress)
 bool
 ArpCache::Entry::UpdateWaitReply (Ptr<Packet> waiting)
 {
-  NS_LOG_FUNCTION (this << waiting);
+  NS_LOG_FUNCTION (waiting);
   NS_ASSERT (m_state == WAIT_REPLY);
   /* We are already waiting for an answer so
    * we dump the previously waiting packet and
@@ -324,7 +324,7 @@ ArpCache::Entry::UpdateWaitReply (Ptr<Packet> waiting)
 void 
 ArpCache::Entry::MarkWaitReply (Ptr<Packet> waiting)
 {
-  NS_LOG_FUNCTION (this << waiting);
+  NS_LOG_FUNCTION (waiting);
   NS_ASSERT (m_state == ALIVE || m_state == DEAD);
   NS_ASSERT (m_pending.empty ());
   m_state = WAIT_REPLY;
@@ -347,7 +347,7 @@ ArpCache::Entry::GetIpv4Address (void) const
 void 
 ArpCache::Entry::SetIpv4Address (Ipv4Address destination)
 {
-  NS_LOG_FUNCTION (this << destination);
+  NS_LOG_FUNCTION (destination);
   m_ipv4Address = destination;
 }
 Time
@@ -381,7 +381,7 @@ ArpCache::Entry::IsExpired (void) const
 Ptr<Packet> 
 ArpCache::Entry::DequeuePending (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_pending.empty ())
     {
       return 0;
@@ -396,7 +396,7 @@ ArpCache::Entry::DequeuePending (void)
 void 
 ArpCache::Entry::UpdateSeen (void)
 {
-  NS_LOG_FUNCTION (this << m_macAddress << m_ipv4Address);
+  NS_LOG_FUNCTION (m_macAddress << m_ipv4Address);
   m_lastSeen = Simulator::Now ();
 }
 uint32_t
@@ -407,14 +407,14 @@ ArpCache::Entry::GetRetries (void) const
 void
 ArpCache::Entry::IncrementRetries (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_retries++;
   UpdateSeen ();
 }
 void
 ArpCache::Entry::ClearRetries (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_retries = 0;
 }
 

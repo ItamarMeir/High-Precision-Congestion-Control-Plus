@@ -52,20 +52,20 @@ ObjectBase::GetTypeId (void)
 
 ObjectBase::~ObjectBase () 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 ObjectBase::NotifyConstructionCompleted (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 ObjectBase::ConstructSelf (const AttributeConstructionList &attributes)
 {
   // loop over the inheritance tree back to the Object base class.
-  NS_LOG_FUNCTION (this << &attributes);
+  NS_LOG_FUNCTION (&attributes);
   TypeId tid = GetInstanceTypeId ();
   do {
       // loop over all attributes in object type
@@ -146,7 +146,7 @@ ObjectBase::DoSet (Ptr<const AttributeAccessor> accessor,
                    Ptr<const AttributeChecker> checker,
                    const AttributeValue &value)
 {
-  NS_LOG_FUNCTION (this << accessor << checker << &value);
+  NS_LOG_FUNCTION (accessor << checker << &value);
   Ptr<AttributeValue> v = checker->CreateValidValue (value);
   if (v == 0)
     {
@@ -159,7 +159,7 @@ ObjectBase::DoSet (Ptr<const AttributeAccessor> accessor,
 void
 ObjectBase::SetAttribute (std::string name, const AttributeValue &value)
 {
-  NS_LOG_FUNCTION (this << name << &value);
+  NS_LOG_FUNCTION (name << &value);
   struct TypeId::AttributeInformation info;
   TypeId tid = GetInstanceTypeId ();
   if (!tid.LookupAttributeByName (name, &info))
@@ -179,7 +179,7 @@ ObjectBase::SetAttribute (std::string name, const AttributeValue &value)
 bool 
 ObjectBase::SetAttributeFailSafe (std::string name, const AttributeValue &value)
 {
-  NS_LOG_FUNCTION (this << name << &value);
+  NS_LOG_FUNCTION (name << &value);
   struct TypeId::AttributeInformation info;
   TypeId tid = GetInstanceTypeId ();
   if (!tid.LookupAttributeByName (name, &info))
@@ -197,7 +197,7 @@ ObjectBase::SetAttributeFailSafe (std::string name, const AttributeValue &value)
 void
 ObjectBase::GetAttribute (std::string name, AttributeValue &value) const
 {
-  NS_LOG_FUNCTION (this << name << &value);
+  NS_LOG_FUNCTION (name << &value);
   struct TypeId::AttributeInformation info;
   TypeId tid = GetInstanceTypeId ();
   if (!tid.LookupAttributeByName (name, &info))
@@ -232,7 +232,7 @@ ObjectBase::GetAttribute (std::string name, AttributeValue &value) const
 bool
 ObjectBase::GetAttributeFailSafe (std::string name, AttributeValue &value) const
 {
-  NS_LOG_FUNCTION (this << name << &value);
+  NS_LOG_FUNCTION (name << &value);
   struct TypeId::AttributeInformation info;
   TypeId tid = GetInstanceTypeId ();
   if (!tid.LookupAttributeByName (name, &info))
@@ -267,7 +267,7 @@ ObjectBase::GetAttributeFailSafe (std::string name, AttributeValue &value) const
 bool 
 ObjectBase::TraceConnectWithoutContext (std::string name, const CallbackBase &cb)
 {
-  NS_LOG_FUNCTION (this << name << &cb);
+  NS_LOG_FUNCTION (name << &cb);
   TypeId tid = GetInstanceTypeId ();
   Ptr<const TraceSourceAccessor> accessor = tid.LookupTraceSourceByName (name);
   if (accessor == 0)
@@ -280,7 +280,7 @@ ObjectBase::TraceConnectWithoutContext (std::string name, const CallbackBase &cb
 bool 
 ObjectBase::TraceConnect (std::string name, std::string context, const CallbackBase &cb)
 {
-  NS_LOG_FUNCTION (this << name << context << &cb);
+  NS_LOG_FUNCTION (name << context << &cb);
   TypeId tid = GetInstanceTypeId ();
   Ptr<const TraceSourceAccessor> accessor = tid.LookupTraceSourceByName (name);
   if (accessor == 0)
@@ -293,7 +293,7 @@ ObjectBase::TraceConnect (std::string name, std::string context, const CallbackB
 bool 
 ObjectBase::TraceDisconnectWithoutContext (std::string name, const CallbackBase &cb)
 {
-  NS_LOG_FUNCTION (this << name << &cb);
+  NS_LOG_FUNCTION (name << &cb);
   TypeId tid = GetInstanceTypeId ();
   Ptr<const TraceSourceAccessor> accessor = tid.LookupTraceSourceByName (name);
   if (accessor == 0)
@@ -306,7 +306,7 @@ ObjectBase::TraceDisconnectWithoutContext (std::string name, const CallbackBase 
 bool 
 ObjectBase::TraceDisconnect (std::string name, std::string context, const CallbackBase &cb)
 {
-  NS_LOG_FUNCTION (this << name << context << &cb);
+  NS_LOG_FUNCTION (name << context << &cb);
   TypeId tid = GetInstanceTypeId ();
   Ptr<const TraceSourceAccessor> accessor = tid.LookupTraceSourceByName (name);
   if (accessor == 0)

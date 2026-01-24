@@ -75,7 +75,7 @@ OkumuraHataPropagationLossModelTestCase::~OkumuraHataPropagationLossModelTestCas
 void
 OkumuraHataPropagationLossModelTestCase::DoRun (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
 
   Ptr<MobilityModel> mma = CreateObject<ConstantPositionMobilityModel> ();

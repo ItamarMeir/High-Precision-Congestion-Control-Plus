@@ -85,12 +85,12 @@ WifiPhy::GetTypeId (void)
 
 WifiPhy::WifiPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 WifiPhy::~WifiPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 

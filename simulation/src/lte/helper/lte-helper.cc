@@ -58,7 +58,7 @@ NS_OBJECT_ENSURE_REGISTERED (LteHelper);
 
 LteHelper::LteHelper (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbNetDeviceFactory.SetTypeId (LteEnbNetDevice::GetTypeId ());
   m_enbAntennaModelFactory.SetTypeId (IsotropicAntennaModel::GetTypeId ());
   m_ueAntennaModelFactory.SetTypeId (IsotropicAntennaModel::GetTypeId ());
@@ -68,7 +68,7 @@ LteHelper::LteHelper (void)
 void 
 LteHelper::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_downlinkChannel = m_channelFactory.Create<SpectrumChannel> ();
   m_uplinkChannel = m_channelFactory.Create<SpectrumChannel> ();
 
@@ -119,7 +119,7 @@ LteHelper::DoStart (void)
 
 LteHelper::~LteHelper (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId LteHelper::GetTypeId (void)
@@ -159,7 +159,7 @@ TypeId LteHelper::GetTypeId (void)
 void
 LteHelper::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_downlinkChannel = 0;
   m_uplinkChannel = 0;
   Object::DoDispose ();
@@ -169,7 +169,7 @@ LteHelper::DoDispose ()
 void 
 LteHelper::SetEpcHelper (Ptr<EpcHelper> h)
 {
-  NS_LOG_FUNCTION (this << h);
+  NS_LOG_FUNCTION (h);
   m_epcHelper = h;
   // it does not make sense to use RLC/SM when also using the EPC
   if (m_epsBearerToRlcMapping == RLC_SM_ALWAYS)
@@ -181,7 +181,7 @@ LteHelper::SetEpcHelper (Ptr<EpcHelper> h)
 void 
 LteHelper::SetSchedulerType (std::string type) 
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   m_schedulerFactory = ObjectFactory ();
   m_schedulerFactory.SetTypeId (type);
 }
@@ -189,7 +189,7 @@ LteHelper::SetSchedulerType (std::string type)
 void 
 LteHelper::SetSchedulerAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this << n);
+  NS_LOG_FUNCTION (n);
   m_schedulerFactory.Set (n, v);
 }
 
@@ -197,7 +197,7 @@ LteHelper::SetSchedulerAttribute (std::string n, const AttributeValue &v)
 void 
 LteHelper::SetPathlossModelType (std::string type) 
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   m_dlPathlossModelFactory = ObjectFactory ();
   m_dlPathlossModelFactory.SetTypeId (type);
   m_ulPathlossModelFactory = ObjectFactory ();
@@ -207,7 +207,7 @@ LteHelper::SetPathlossModelType (std::string type)
 void 
 LteHelper::SetPathlossModelAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this << n);
+  NS_LOG_FUNCTION (n);
   m_dlPathlossModelFactory.Set (n, v);
   m_ulPathlossModelFactory.Set (n, v);
 }
@@ -215,7 +215,7 @@ LteHelper::SetPathlossModelAttribute (std::string n, const AttributeValue &v)
 void
 LteHelper::SetEnbDeviceAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbNetDeviceFactory.Set (n, v);
 }
 
@@ -223,35 +223,35 @@ LteHelper::SetEnbDeviceAttribute (std::string n, const AttributeValue &v)
 void 
 LteHelper::SetEnbAntennaModelType (std::string type)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbAntennaModelFactory.SetTypeId (type);
 }
 
 void 
 LteHelper::SetEnbAntennaModelAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbAntennaModelFactory.Set (n, v);
 }
 
 void 
 LteHelper::SetUeAntennaModelType (std::string type)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ueAntennaModelFactory.SetTypeId (type);
 }
 
 void 
 LteHelper::SetUeAntennaModelAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ueAntennaModelFactory.Set (n, v);
 }
 
 void 
 LteHelper::SetFadingModel (std::string type) 
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   m_fadingModelType = type;
   if (!type.empty ())
     {
@@ -269,7 +269,7 @@ LteHelper::SetFadingModelAttribute (std::string n, const AttributeValue &v)
 void 
 LteHelper::SetSpectrumChannelType (std::string type) 
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   m_channelFactory.SetTypeId (type);
 }
 
@@ -283,7 +283,7 @@ LteHelper::SetSpectrumChannelAttribute (std::string n, const AttributeValue &v)
 NetDeviceContainer
 LteHelper::InstallEnbDevice (NodeContainer c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Start ();  // will run DoStart () if necessary
   NetDeviceContainer devices;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
@@ -298,7 +298,7 @@ LteHelper::InstallEnbDevice (NodeContainer c)
 NetDeviceContainer
 LteHelper::InstallUeDevice (NodeContainer c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NetDeviceContainer devices;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
     {
@@ -404,7 +404,7 @@ LteHelper::InstallSingleEnbDevice (Ptr<Node> n)
 Ptr<NetDevice>
 LteHelper::InstallSingleUeDevice (Ptr<Node> n)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<LteSpectrumPhy> dlPhy = CreateObject<LteSpectrumPhy> ();
   Ptr<LteSpectrumPhy> ulPhy = CreateObject<LteSpectrumPhy> ();
 
@@ -457,7 +457,7 @@ LteHelper::InstallSingleUeDevice (Ptr<Node> n)
 void
 LteHelper::Attach (NetDeviceContainer ueDevices, Ptr<NetDevice> enbDevice)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (NetDeviceContainer::Iterator i = ueDevices.Begin (); i != ueDevices.End (); ++i)
     {
       Attach (*i, enbDevice);
@@ -467,7 +467,7 @@ LteHelper::Attach (NetDeviceContainer ueDevices, Ptr<NetDevice> enbDevice)
 void
 LteHelper::Attach (Ptr<NetDevice> ueDevice, Ptr<NetDevice> enbDevice)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // setup RRC connection
   Ptr<LteEnbRrc> enbRrc = enbDevice->GetObject<LteEnbNetDevice> ()->GetRrc ();
   uint16_t rnti = enbRrc->AddUe (ueDevice->GetObject<LteUeNetDevice> ()->GetImsi ());
@@ -499,7 +499,7 @@ LteHelper::Attach (Ptr<NetDevice> ueDevice, Ptr<NetDevice> enbDevice)
 void
 LteHelper::AttachToClosestEnb (NetDeviceContainer ueDevices, NetDeviceContainer enbDevices)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (NetDeviceContainer::Iterator i = ueDevices.Begin (); i != ueDevices.End (); ++i)
     {
       AttachToClosestEnb (*i, enbDevices);
@@ -509,7 +509,7 @@ LteHelper::AttachToClosestEnb (NetDeviceContainer ueDevices, NetDeviceContainer 
 void
 LteHelper::AttachToClosestEnb (Ptr<NetDevice> ueDevice, NetDeviceContainer enbDevices)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG (enbDevices.GetN () > 0, "empty enb device container");
   Vector uepos = ueDevice->GetNode ()->GetObject<MobilityModel> ()->GetPosition ();
   double minDistance = std::numeric_limits<double>::infinity ();
@@ -531,7 +531,7 @@ LteHelper::AttachToClosestEnb (Ptr<NetDevice> ueDevice, NetDeviceContainer enbDe
 void
 LteHelper::ActivateEpsBearer (NetDeviceContainer ueDevices, EpsBearer bearer, Ptr<EpcTft> tft)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (NetDeviceContainer::Iterator i = ueDevices.Begin (); i != ueDevices.End (); ++i)
     {
       ActivateEpsBearer (*i, bearer, tft);
@@ -542,7 +542,7 @@ LteHelper::ActivateEpsBearer (NetDeviceContainer ueDevices, EpsBearer bearer, Pt
 void
 LteHelper::ActivateEpsBearer (Ptr<NetDevice> ueDevice, EpsBearer bearer, Ptr<EpcTft> tft)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_INFO (" setting up Radio Bearer");
   Ptr<LteEnbNetDevice> enbDevice = ueDevice->GetObject<LteUeNetDevice> ()->GetTargetEnb ();
   Ptr<LteEnbRrc> enbRrc = enbDevice->GetObject<LteEnbNetDevice> ()->GetRrc ();

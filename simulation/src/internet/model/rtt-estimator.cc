@@ -68,7 +68,7 @@ RttEstimator::GetTypeId (void)
 void
 RttEstimator::SetMinRto (Time minRto)
 {
-  NS_LOG_FUNCTION (this << minRto);
+  NS_LOG_FUNCTION (minRto);
   m_minRto = minRto;
 }
 Time
@@ -79,7 +79,7 @@ RttEstimator::GetMinRto (void) const
 void
 RttEstimator::SetCurrentEstimate (Time estimate)
 {
-  NS_LOG_FUNCTION (this << estimate);
+  NS_LOG_FUNCTION (estimate);
   m_currentEstimatedRtt = estimate;
 }
 Time
@@ -123,7 +123,7 @@ RttHistory::RttHistory (SequenceNumber32 s, uint64_t c, Time t, uint64_t marked,
     marked (marked),
     retx (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RttHistory::RttHistory (const RttHistory& h)
@@ -134,7 +134,7 @@ RttHistory::RttHistory (const RttHistory& h)
     marked (h.marked),
     retx (h.retx)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 // Base class methods
@@ -150,7 +150,7 @@ RttEstimator::RttEstimator ()
     m_nonMarked(0),
     m_alpha(0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   //note next=1 everywhere since first segment will have sequence 1
 
   // We need attributes initialized here, not later, so use the
@@ -168,17 +168,17 @@ RttEstimator::RttEstimator (const RttEstimator& c)
     m_nSamples (c.m_nSamples), m_multiplier (c.m_multiplier), m_sentBytes (c.m_sentBytes),
     m_g (c.m_g), m_marked (c.m_marked), m_nonMarked (c.m_nonMarked), m_alpha (c.m_alpha)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RttEstimator::~RttEstimator ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void RttEstimator::SentSeq (SequenceNumber32 seq, uint32_t size)
 {
-  NS_LOG_FUNCTION (this << seq << size);
+  NS_LOG_FUNCTION (seq << size);
   // Note that a particular sequence has been sent
   if (seq == m_next)
     { // This is the next expected one, just log at end
@@ -212,7 +212,7 @@ void RttEstimator::SentSeq (SequenceNumber32 seq, uint32_t size)
 
 Time RttEstimator::AckSeq (SequenceNumber32 ackSeq, bool markedFlag)
 {
-  NS_LOG_FUNCTION (this << ackSeq);
+  NS_LOG_FUNCTION (ackSeq);
   // An ack has been received, calculate rtt and log this measurement
   // Note we use a linear search (O(n)) for this since for the common
   // case the ack'ed packet will be at the head of the list
@@ -269,7 +269,7 @@ Time RttEstimator::AckSeq (SequenceNumber32 ackSeq, bool markedFlag)
 
 void RttEstimator::ClearSent ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Clear all history entries
   m_next = 1;
   m_history.clear ();
@@ -277,20 +277,20 @@ void RttEstimator::ClearSent ()
 
 void RttEstimator::IncreaseMultiplier ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_multiplier = (m_multiplier*2 < m_maxMultiplier) ? m_multiplier*2 : m_maxMultiplier;
   NS_LOG_DEBUG ("Multiplier increased to " << m_multiplier);
 }
 
 void RttEstimator::ResetMultiplier ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_multiplier = 1;
 }
 
 void RttEstimator::Reset (SequenceNumber32 seq)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Reset to initial state
   m_next = seq;
   m_currentEstimatedRtt = m_initialEstimatedRtt;
@@ -325,18 +325,18 @@ RttMeanDeviation::GetTypeId (void)
 RttMeanDeviation::RttMeanDeviation() :
   m_variance (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RttMeanDeviation::RttMeanDeviation (const RttMeanDeviation& c)
   : RttEstimator (c), m_gain (c.m_gain), m_variance (c.m_variance)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void RttMeanDeviation::Measurement (Time m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   if (m_nSamples)
     { // Not first
       Time err (m - m_currentEstimatedRtt);
@@ -358,7 +358,7 @@ void RttMeanDeviation::Measurement (Time m)
 
 Time RttMeanDeviation::RetransmitTimeout ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("RetransmitTimeout:  var " << m_variance.GetSeconds () << " est " << m_currentEstimatedRtt.GetSeconds () << " multiplier " << m_multiplier);
   // RTO = srtt + 4* rttvar
   int64_t temp = m_currentEstimatedRtt.ToInteger (Time::MS) + 4 * m_variance.ToInteger (Time::MS);
@@ -374,20 +374,20 @@ Time RttMeanDeviation::RetransmitTimeout ()
 
 Ptr<RttEstimator> RttMeanDeviation::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return CopyObject<RttMeanDeviation> (this);
 }
 
 void RttMeanDeviation::Reset (SequenceNumber32 seq)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Reset to initial state
   m_variance = Seconds (0);
   RttEstimator::Reset (seq);
 }
 void RttMeanDeviation::Gain (double g)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG( (g > 0) && (g < 1), "RttMeanDeviation: Gain must be less than 1 and greater than 0" );
   m_gain = g;
 }

@@ -120,13 +120,13 @@ ByteTagList::ByteTagList ()
   : m_used (0),
     m_data (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 ByteTagList::ByteTagList (const ByteTagList &o)
   : m_used (o.m_used),
     m_data (o.m_data)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   if (m_data != 0)
     {
       m_data->count++;
@@ -135,7 +135,7 @@ ByteTagList::ByteTagList (const ByteTagList &o)
 ByteTagList &
 ByteTagList::operator = (const ByteTagList &o)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   if (this == &o)
     {
       return *this;
@@ -152,7 +152,7 @@ ByteTagList::operator = (const ByteTagList &o)
 }
 ByteTagList::~ByteTagList ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Deallocate (m_data);
   m_data = 0;
   m_used = 0;
@@ -161,7 +161,7 @@ ByteTagList::~ByteTagList ()
 TagBuffer
 ByteTagList::Add (TypeId tid, uint32_t bufferSize, int32_t start, int32_t end)
 {
-  NS_LOG_FUNCTION (this << tid << bufferSize << start << end);
+  NS_LOG_FUNCTION (tid << bufferSize << start << end);
   uint32_t spaceNeeded = m_used + bufferSize + 4 + 4 + 4 + 4;
   NS_ASSERT (m_used <= spaceNeeded);
   if (m_data == 0)
@@ -191,7 +191,7 @@ ByteTagList::Add (TypeId tid, uint32_t bufferSize, int32_t start, int32_t end)
 void 
 ByteTagList::Add (const ByteTagList &o)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   ByteTagList::Iterator i = o.BeginAll ();
   while (i.HasNext ())
     {
@@ -204,7 +204,7 @@ ByteTagList::Add (const ByteTagList &o)
 void 
 ByteTagList::RemoveAll (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Deallocate (m_data);
   m_data = 0;
   m_used = 0;
@@ -213,7 +213,7 @@ ByteTagList::RemoveAll (void)
 ByteTagList::Iterator 
 ByteTagList::BeginAll (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // I am not totally sure but I might need to use 
   // INT32_MIN instead of zero below.
   return Begin (0, OFFSET_MAX);
@@ -222,7 +222,7 @@ ByteTagList::BeginAll (void) const
 ByteTagList::Iterator 
 ByteTagList::Begin (int32_t offsetStart, int32_t offsetEnd) const
 {
-  NS_LOG_FUNCTION (this << offsetStart << offsetEnd);
+  NS_LOG_FUNCTION (offsetStart << offsetEnd);
   if (m_data == 0)
     {
       return Iterator (0, 0, offsetStart, offsetEnd);
@@ -236,7 +236,7 @@ ByteTagList::Begin (int32_t offsetStart, int32_t offsetEnd) const
 bool 
 ByteTagList::IsDirtyAtEnd (int32_t appendOffset)
 {
-  NS_LOG_FUNCTION (this << appendOffset);
+  NS_LOG_FUNCTION (appendOffset);
   ByteTagList::Iterator i = BeginAll ();
   while (i.HasNext ())
     {
@@ -252,7 +252,7 @@ ByteTagList::IsDirtyAtEnd (int32_t appendOffset)
 bool 
 ByteTagList::IsDirtyAtStart (int32_t prependOffset)
 {
-  NS_LOG_FUNCTION (this << prependOffset);
+  NS_LOG_FUNCTION (prependOffset);
   ByteTagList::Iterator i = BeginAll ();
   while (i.HasNext ())
     {
@@ -268,7 +268,7 @@ ByteTagList::IsDirtyAtStart (int32_t prependOffset)
 void 
 ByteTagList::AddAtEnd (int32_t adjustment, int32_t appendOffset)
 {
-  NS_LOG_FUNCTION (this << adjustment << appendOffset);
+  NS_LOG_FUNCTION (adjustment << appendOffset);
   if (adjustment == 0 && !IsDirtyAtEnd (appendOffset))
     {
       return;
@@ -302,7 +302,7 @@ ByteTagList::AddAtEnd (int32_t adjustment, int32_t appendOffset)
 void 
 ByteTagList::AddAtStart (int32_t adjustment, int32_t prependOffset)
 {
-  NS_LOG_FUNCTION (this << adjustment << prependOffset);
+  NS_LOG_FUNCTION (adjustment << prependOffset);
   if (adjustment == 0 && !IsDirtyAtStart (prependOffset))
     {
       return;
@@ -338,7 +338,7 @@ ByteTagList::AddAtStart (int32_t adjustment, int32_t prependOffset)
 struct ByteTagListData *
 ByteTagList::Allocate (uint32_t size)
 {
-  NS_LOG_FUNCTION (this << size);
+  NS_LOG_FUNCTION (size);
   while (!g_freeList.empty ())
     {
       struct ByteTagListData *data = g_freeList.back ();
@@ -364,7 +364,7 @@ ByteTagList::Allocate (uint32_t size)
 void 
 ByteTagList::Deallocate (struct ByteTagListData *data)
 {
-  NS_LOG_FUNCTION (this << data);
+  NS_LOG_FUNCTION (data);
   if (data == 0)
     {
       return;
@@ -391,7 +391,7 @@ ByteTagList::Deallocate (struct ByteTagListData *data)
 struct ByteTagListData *
 ByteTagList::Allocate (uint32_t size)
 {
-  NS_LOG_FUNCTION (this << size);
+  NS_LOG_FUNCTION (size);
   uint8_t *buffer = new uint8_t [size + sizeof (struct ByteTagListData) - 4];
   struct ByteTagListData *data = (struct ByteTagListData *)buffer;
   data->count = 1;
@@ -403,7 +403,7 @@ ByteTagList::Allocate (uint32_t size)
 void 
 ByteTagList::Deallocate (struct ByteTagListData *data)
 {
-  NS_LOG_FUNCTION (this << data);
+  NS_LOG_FUNCTION (data);
   if (data == 0)
     {
       return;

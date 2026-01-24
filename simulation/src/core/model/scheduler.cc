@@ -30,7 +30,7 @@ NS_OBJECT_ENSURE_REGISTERED (Scheduler);
 
 Scheduler::~Scheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId

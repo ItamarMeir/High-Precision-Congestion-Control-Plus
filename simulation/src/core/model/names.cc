@@ -70,12 +70,12 @@ NameNode::operator = (const NameNode &rhs)
 NameNode::NameNode (NameNode *parent, std::string name, Ptr<Object> object)
   : m_parent (parent), m_name (name), m_object (object)
 {
-  NS_LOG_FUNCTION (this << parent << name << object);
+  NS_LOG_FUNCTION (parent << name << object);
 }
 
 NameNode::~NameNode ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 class NamesPriv 
@@ -122,7 +122,7 @@ NamesPriv::Get (void)
 
 NamesPriv::NamesPriv ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_root.m_parent = 0;
   m_root.m_name = "Names";
@@ -131,7 +131,7 @@ NamesPriv::NamesPriv ()
 
 NamesPriv::~NamesPriv ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Clear ();
   m_root.m_name = "";
 }
@@ -139,7 +139,7 @@ NamesPriv::~NamesPriv ()
 void
 NamesPriv::Clear (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   //
   // Every name is associated with an object in the object map, so freeing the
   // NameNodes in this map will free all of the memory allocated for the NameNodes
@@ -161,7 +161,7 @@ NamesPriv::Clear (void)
 bool
 NamesPriv::Add (std::string name, Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << name << object);
+  NS_LOG_FUNCTION (name << object);
   //
   // This is the simple, easy to use version of Add, so we want it to be flexible.
   // We don't want to force a user to always type the fully qualified namespace 
@@ -223,7 +223,7 @@ NamesPriv::Add (std::string name, Ptr<Object> object)
 bool
 NamesPriv::Add (std::string path, std::string name, Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << path << name << object);
+  NS_LOG_FUNCTION (path << name << object);
   if (path == "/Names")
     {
       return Add (Ptr<Object> (0, false), name, object);
@@ -234,7 +234,7 @@ NamesPriv::Add (std::string path, std::string name, Ptr<Object> object)
 bool
 NamesPriv::Add (Ptr<Object> context, std::string name, Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << context << name << object);
+  NS_LOG_FUNCTION (context << name << object);
 
   if (IsNamed (object))
     {
@@ -269,7 +269,7 @@ NamesPriv::Add (Ptr<Object> context, std::string name, Ptr<Object> object)
 bool
 NamesPriv::Rename (std::string oldpath, std::string newname)
 {
-  NS_LOG_FUNCTION (this << oldpath << newname);
+  NS_LOG_FUNCTION (oldpath << newname);
   //
   // This is the simple, easy to use version of Rename, so we want it to be 
   // flexible.   We don't want to force a user to always type the fully 
@@ -333,7 +333,7 @@ NamesPriv::Rename (std::string oldpath, std::string newname)
 bool
 NamesPriv::Rename (std::string path, std::string oldname, std::string newname)
 {
-  NS_LOG_FUNCTION (this << path << oldname << newname);
+  NS_LOG_FUNCTION (path << oldname << newname);
   if (path == "/Names")
     {
       return Rename (Ptr<Object> (0, false), oldname, newname);
@@ -344,7 +344,7 @@ NamesPriv::Rename (std::string path, std::string oldname, std::string newname)
 bool
 NamesPriv::Rename (Ptr<Object> context, std::string oldname, std::string newname)
 {
-  NS_LOG_FUNCTION (this << context << oldname << newname);
+  NS_LOG_FUNCTION (context << oldname << newname);
 
   NameNode *node = 0;
   if (context)
@@ -391,7 +391,7 @@ NamesPriv::Rename (Ptr<Object> context, std::string oldname, std::string newname
 std::string
 NamesPriv::FindName (Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << object);
+  NS_LOG_FUNCTION (object);
 
   std::map<Ptr<Object>, NameNode *>::iterator i = m_objectMap.find (object);
   if (i == m_objectMap.end ())
@@ -409,7 +409,7 @@ NamesPriv::FindName (Ptr<Object> object)
 std::string
 NamesPriv::FindPath (Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << object);
+  NS_LOG_FUNCTION (object);
 
   std::map<Ptr<Object>, NameNode *>::iterator i = m_objectMap.find (object);
   if (i == m_objectMap.end ())
@@ -452,7 +452,7 @@ NamesPriv::Find (std::string path)
   // name in the root namespace.
   //
 
-  NS_LOG_FUNCTION (this << path);
+  NS_LOG_FUNCTION (path);
   std::string namespaceName = "/Names/";
   std::string remaining;
 
@@ -531,7 +531,7 @@ NamesPriv::Find (std::string path)
 Ptr<Object>
 NamesPriv::Find (std::string path, std::string name)
 {
-  NS_LOG_FUNCTION (this << path << name);
+  NS_LOG_FUNCTION (path << name);
 
   if (path == "/Names")
     {
@@ -543,7 +543,7 @@ NamesPriv::Find (std::string path, std::string name)
 Ptr<Object>
 NamesPriv::Find (Ptr<Object> context, std::string name)
 {
-  NS_LOG_FUNCTION (this << context << name);
+  NS_LOG_FUNCTION (context << name);
 
   NameNode *node = 0;
 
@@ -578,7 +578,7 @@ NamesPriv::Find (Ptr<Object> context, std::string name)
 NameNode *
 NamesPriv::IsNamed (Ptr<Object> object)
 {
-  NS_LOG_FUNCTION (this << object);
+  NS_LOG_FUNCTION (object);
 
   std::map<Ptr<Object>, NameNode *>::iterator i = m_objectMap.find (object);
   if (i == m_objectMap.end ())
@@ -596,7 +596,7 @@ NamesPriv::IsNamed (Ptr<Object> object)
 bool
 NamesPriv::IsDuplicateName (NameNode *node, std::string name)
 {
-  NS_LOG_FUNCTION (this << node << name);
+  NS_LOG_FUNCTION (node << name);
 
   std::map<std::string, NameNode *>::iterator i = node->m_nameMap.find (name);
   if (i == node->m_nameMap.end ())

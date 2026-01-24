@@ -76,7 +76,7 @@ Ipv4L3ClickProtocol::~Ipv4L3ClickProtocol ()
 void
 Ipv4L3ClickProtocol::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (L4List_t::iterator i = m_protocols.begin (); i != m_protocols.end (); ++i)
     {
       *i = 0;
@@ -113,7 +113,7 @@ Ipv4L3ClickProtocol::NotifyNewAggregate ()
 void
 Ipv4L3ClickProtocol::SetRoutingProtocol (Ptr<Ipv4RoutingProtocol> routingProtocol)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_routingProtocol = routingProtocol;
   m_routingProtocol->SetIpv4 (this);
 }
@@ -128,7 +128,7 @@ Ipv4L3ClickProtocol::GetRoutingProtocol (void) const
 Ptr<Ipv4Interface>
 Ipv4L3ClickProtocol::GetInterface (uint32_t index) const
 {
-  NS_LOG_FUNCTION (this << index);
+  NS_LOG_FUNCTION (index);
   if (index < m_interfaces.size ())
     {
       return m_interfaces[index];
@@ -147,7 +147,7 @@ int32_t
 Ipv4L3ClickProtocol::GetInterfaceForAddress (
   Ipv4Address address) const
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   int32_t interface = 0;
   for (Ipv4InterfaceList::const_iterator i = m_interfaces.begin ();
@@ -171,7 +171,7 @@ Ipv4L3ClickProtocol::GetInterfaceForPrefix (
   Ipv4Address address,
   Ipv4Mask mask) const
 {
-  NS_LOG_FUNCTION (this << address << mask);
+  NS_LOG_FUNCTION (address << mask);
 
   int32_t interface = 0;
   for (Ipv4InterfaceList::const_iterator i = m_interfaces.begin ();
@@ -194,7 +194,7 @@ int32_t
 Ipv4L3ClickProtocol::GetInterfaceForDevice (
   Ptr<const NetDevice> device) const
 {
-  NS_LOG_FUNCTION (this << device->GetIfIndex ());
+  NS_LOG_FUNCTION (device->GetIfIndex ());
 
   int32_t interface = 0;
   for (Ipv4InterfaceList::const_iterator i = m_interfaces.begin ();
@@ -213,7 +213,7 @@ Ipv4L3ClickProtocol::GetInterfaceForDevice (
 bool
 Ipv4L3ClickProtocol::IsDestinationAddress (Ipv4Address address, uint32_t iif) const
 {
-  NS_LOG_FUNCTION (this << address << " " << iif);
+  NS_LOG_FUNCTION (address << " " << iif);
 
   // First check the incoming interface for a unicast address match
   for (uint32_t i = 0; i < GetNAddresses (iif); i++)
@@ -280,7 +280,7 @@ Ipv4L3ClickProtocol::IsDestinationAddress (Ipv4Address address, uint32_t iif) co
 void
 Ipv4L3ClickProtocol::SetIpForward (bool forward)
 {
-  NS_LOG_FUNCTION (this << forward);
+  NS_LOG_FUNCTION (forward);
   m_ipForward = forward;
   for (Ipv4InterfaceList::const_iterator i = m_interfaces.begin (); i != m_interfaces.end (); i++)
     {
@@ -309,7 +309,7 @@ Ipv4L3ClickProtocol::GetWeakEsModel (void) const
 Ptr<NetDevice>
 Ipv4L3ClickProtocol::GetNetDevice (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   return GetInterface (i)->GetDevice ();
 }
 
@@ -358,7 +358,7 @@ Ipv4L3ClickProtocol::SetupLoopback (void)
 Ptr<Socket>
 Ipv4L3ClickProtocol::CreateRawSocket (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv4RawSocketImpl> socket = CreateObject<Ipv4RawSocketImpl> ();
   socket->SetNode (m_node);
   m_sockets.push_back (socket);
@@ -367,7 +367,7 @@ Ipv4L3ClickProtocol::CreateRawSocket (void)
 void
 Ipv4L3ClickProtocol::DeleteRawSocket (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   for (SocketList::iterator i = m_sockets.begin (); i != m_sockets.end (); ++i)
     {
       if ((*i) == socket)
@@ -391,7 +391,7 @@ Ipv4L3ClickProtocol::SetNode (Ptr<Node> node)
 bool
 Ipv4L3ClickProtocol::AddAddress (uint32_t i, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << i << address);
+  NS_LOG_FUNCTION (i << address);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   bool retVal = interface->AddAddress (address);
   if (m_routingProtocol != 0)
@@ -404,7 +404,7 @@ Ipv4L3ClickProtocol::AddAddress (uint32_t i, Ipv4InterfaceAddress address)
 Ipv4InterfaceAddress
 Ipv4L3ClickProtocol::GetAddress (uint32_t interfaceIndex, uint32_t addressIndex) const
 {
-  NS_LOG_FUNCTION (this << interfaceIndex << addressIndex);
+  NS_LOG_FUNCTION (interfaceIndex << addressIndex);
   Ptr<Ipv4Interface> interface = GetInterface (interfaceIndex);
   return interface->GetAddress (addressIndex);
 }
@@ -412,7 +412,7 @@ Ipv4L3ClickProtocol::GetAddress (uint32_t interfaceIndex, uint32_t addressIndex)
 uint32_t
 Ipv4L3ClickProtocol::GetNAddresses (uint32_t interface) const
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   Ptr<Ipv4Interface> iface = GetInterface (interface);
   return iface->GetNAddresses ();
 }
@@ -420,7 +420,7 @@ Ipv4L3ClickProtocol::GetNAddresses (uint32_t interface) const
 bool
 Ipv4L3ClickProtocol::RemoveAddress (uint32_t i, uint32_t addressIndex)
 {
-  NS_LOG_FUNCTION (this << i << addressIndex);
+  NS_LOG_FUNCTION (i << addressIndex);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   Ipv4InterfaceAddress address = interface->RemoveAddress (addressIndex);
   if (address != Ipv4InterfaceAddress ())
@@ -515,7 +515,7 @@ Ipv4L3ClickProtocol::GetMetric (uint32_t i) const
 uint16_t
 Ipv4L3ClickProtocol::GetMtu (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   return interface->GetDevice ()->GetMtu ();
 }
@@ -523,7 +523,7 @@ Ipv4L3ClickProtocol::GetMtu (uint32_t i) const
 bool
 Ipv4L3ClickProtocol::IsUp (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   return interface->IsUp ();
 }
@@ -531,7 +531,7 @@ Ipv4L3ClickProtocol::IsUp (uint32_t i) const
 void
 Ipv4L3ClickProtocol::SetUp (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   interface->SetUp ();
 
@@ -544,7 +544,7 @@ Ipv4L3ClickProtocol::SetUp (uint32_t i)
 void
 Ipv4L3ClickProtocol::SetDown (uint32_t ifaceIndex)
 {
-  NS_LOG_FUNCTION (this << ifaceIndex);
+  NS_LOG_FUNCTION (ifaceIndex);
   Ptr<Ipv4Interface> interface = GetInterface (ifaceIndex);
   interface->SetDown ();
 
@@ -557,7 +557,7 @@ Ipv4L3ClickProtocol::SetDown (uint32_t ifaceIndex)
 bool
 Ipv4L3ClickProtocol::IsForwarding (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   NS_LOG_LOGIC ("Forwarding state: " << interface->IsForwarding ());
   return interface->IsForwarding ();
@@ -566,7 +566,7 @@ Ipv4L3ClickProtocol::IsForwarding (uint32_t i) const
 void
 Ipv4L3ClickProtocol::SetForwarding (uint32_t i, bool val)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv4Interface> interface = GetInterface (i);
   interface->SetForwarding (val);
 }
@@ -586,7 +586,7 @@ Ipv4L3ClickProtocol::SetPromisc (uint32_t i)
 uint32_t
 Ipv4L3ClickProtocol::AddInterface (Ptr<NetDevice> device)
 {
-  NS_LOG_FUNCTION (this << &device);
+  NS_LOG_FUNCTION (&device);
   Ptr<Node> node = GetObject<Node> ();
   node->RegisterProtocolHandler (MakeCallback (&Ipv4L3ClickProtocol::Receive, this),
                                  Ipv4L3ClickProtocol::PROT_NUMBER, device);
@@ -603,7 +603,7 @@ Ipv4L3ClickProtocol::AddInterface (Ptr<NetDevice> device)
 uint32_t
 Ipv4L3ClickProtocol::AddIpv4Interface (Ptr<Ipv4Interface>interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   uint32_t index = m_interfaces.size ();
   m_interfaces.push_back (interface);
   return index;
@@ -655,7 +655,7 @@ Ipv4L3ClickProtocol::Send (Ptr<Packet> packet,
                            uint8_t protocol,
                            Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination << uint32_t (protocol) << route);
+  NS_LOG_FUNCTION (packet << source << destination << uint32_t (protocol) << route);
 
   Ipv4Header ipHeader;
   bool mayFragment = true;
@@ -683,7 +683,7 @@ Ipv4L3ClickProtocol::SendWithHeader (Ptr<Packet> packet,
                                      Ipv4Header ipHeader,
                                      Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << ipHeader << route);
+  NS_LOG_FUNCTION (packet << ipHeader << route);
 
   Ptr<Ipv4ClickRouting> click = DynamicCast<Ipv4ClickRouting> (m_routingProtocol);
   if (Node::ChecksumEnabled ())
@@ -731,7 +731,7 @@ void
 Ipv4L3ClickProtocol::Receive ( Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t protocol, const Address &from,
                                const Address &to, NetDevice::PacketType packetType)
 {
-  NS_LOG_FUNCTION (this << device << p << from << to);
+  NS_LOG_FUNCTION (device << p << from << to);
 
   // Forward packet to raw sockets, if any
   if (protocol == Ipv4L3ClickProtocol::PROT_NUMBER && m_sockets.size () > 0)
@@ -791,7 +791,7 @@ Ipv4L3ClickProtocol::Receive ( Ptr<NetDevice> device, Ptr<const Packet> p, uint1
 void
 Ipv4L3ClickProtocol::LocalDeliver (Ptr<const Packet> packet, Ipv4Header const&ip, uint32_t iif)
 {
-  NS_LOG_FUNCTION (this << packet << &ip);
+  NS_LOG_FUNCTION (packet << &ip);
   Ptr<Packet> p = packet->Copy (); // need to pass a non-const packet up
 
   m_localDeliverTrace (ip, packet, iif);

@@ -43,20 +43,20 @@ SpectrumAnalyzer::SpectrumAnalyzer ()
     m_resolution (MilliSeconds (50)),
     m_active (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 
 SpectrumAnalyzer::~SpectrumAnalyzer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 SpectrumAnalyzer::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_mobility = 0;
   m_netDevice = 0;
   m_channel = 0;
@@ -115,7 +115,7 @@ SpectrumAnalyzer::GetRxSpectrumModel () const
 void
 SpectrumAnalyzer::SetDevice (Ptr<NetDevice> d)
 {
-  NS_LOG_FUNCTION (this << d);
+  NS_LOG_FUNCTION (d);
   m_netDevice = d;
 }
 
@@ -123,7 +123,7 @@ SpectrumAnalyzer::SetDevice (Ptr<NetDevice> d)
 void
 SpectrumAnalyzer::SetMobility (Ptr<MobilityModel> m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   m_mobility = m;
 }
 
@@ -131,7 +131,7 @@ SpectrumAnalyzer::SetMobility (Ptr<MobilityModel> m)
 void
 SpectrumAnalyzer::SetChannel (Ptr<SpectrumChannel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_channel = c;
 }
 
@@ -145,7 +145,7 @@ SpectrumAnalyzer::GetRxAntenna ()
 void
 SpectrumAnalyzer::SetAntenna (Ptr<AntennaModel> a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   m_antenna = a;
 }
 
@@ -163,7 +163,7 @@ SpectrumAnalyzer::StartRx (Ptr<SpectrumSignalParameters> params)
 void
 SpectrumAnalyzer::AddSignal  (Ptr<const SpectrumValue> psd)
 {
-  NS_LOG_FUNCTION (this << *psd);
+  NS_LOG_FUNCTION (*psd);
   UpdateEnergyReceivedSoFar ();
   (*m_sumPowerSpectralDensity) += (*psd);
 }
@@ -171,7 +171,7 @@ SpectrumAnalyzer::AddSignal  (Ptr<const SpectrumValue> psd)
 void
 SpectrumAnalyzer::SubtractSignal  (Ptr<const SpectrumValue> psd)
 {
-  NS_LOG_FUNCTION (this << *psd);
+  NS_LOG_FUNCTION (*psd);
   UpdateEnergyReceivedSoFar ();
   (*m_sumPowerSpectralDensity) -= (*psd);
 }
@@ -179,7 +179,7 @@ SpectrumAnalyzer::SubtractSignal  (Ptr<const SpectrumValue> psd)
 void
 SpectrumAnalyzer::UpdateEnergyReceivedSoFar  ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_lastChangeTime < Now ())
     {
       (*m_energySpectralDensity) += (*m_sumPowerSpectralDensity) * ((Now () - m_lastChangeTime).GetSeconds ());
@@ -194,7 +194,7 @@ SpectrumAnalyzer::UpdateEnergyReceivedSoFar  ()
 void
 SpectrumAnalyzer::GenerateReport ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   UpdateEnergyReceivedSoFar ();
   Ptr<SpectrumValue> avgPowerSpectralDensity = Create<SpectrumValue> (m_sumPowerSpectralDensity->GetSpectrumModel ());
@@ -218,7 +218,7 @@ SpectrumAnalyzer::GenerateReport ()
 void
 SpectrumAnalyzer::SetRxSpectrumModel (Ptr<SpectrumModel> f)
 {
-  NS_LOG_FUNCTION (this << f);
+  NS_LOG_FUNCTION (f);
   m_spectrumModel = f;
   NS_ASSERT (!m_sumPowerSpectralDensity);
   m_sumPowerSpectralDensity = Create<SpectrumValue> (f);
@@ -232,7 +232,7 @@ SpectrumAnalyzer::SetRxSpectrumModel (Ptr<SpectrumModel> f)
 void
 SpectrumAnalyzer::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_active)
     {
       NS_LOG_LOGIC ("activating");

@@ -1326,7 +1326,7 @@ GlobalRouteManagerImpl::CheckForStubNode (Ipv4Address root)
 void
 GlobalRouteManagerImpl::SPFCalculate (Ipv4Address root)
 {
-  NS_LOG_FUNCTION (this << root);
+  NS_LOG_FUNCTION (root);
 
   SPFVertex *v;
 //

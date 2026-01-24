@@ -666,7 +666,7 @@ UanPhyDual::GetPacketRx (void) const
 int64_t
 UanPhyDual::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   return 0;
 }
 

@@ -112,7 +112,7 @@ RvBatteryModel::GetSupplyVoltage (void) const
 double
 RvBatteryModel::GetRemainingEnergy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   UpdateEnergySource ();
   return m_alpha * GetSupplyVoltage () * m_batteryLevel;
 }
@@ -126,7 +126,7 @@ RvBatteryModel::GetEnergyFraction (void)
 void
 RvBatteryModel::UpdateEnergySource (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // do not update if battery is already dead
   if (m_batteryLevel <= 0)
@@ -177,7 +177,7 @@ RvBatteryModel::UpdateEnergySource (void)
 void
 RvBatteryModel::SetSamplingInterval (Time interval)
 {
-  NS_LOG_FUNCTION (this << interval);
+  NS_LOG_FUNCTION (interval);
   m_samplingInterval = interval;
 }
 
@@ -190,7 +190,7 @@ RvBatteryModel::GetSamplingInterval (void) const
 void
 RvBatteryModel::SetOpenCircuitVoltage (double voltage)
 {
-  NS_LOG_FUNCTION (this << voltage);
+  NS_LOG_FUNCTION (voltage);
   NS_ASSERT (voltage >= 0);
   m_openCircuitVoltage = voltage;
 }
@@ -204,7 +204,7 @@ RvBatteryModel::GetOpenCircuitVoltage (void) const
 void
 RvBatteryModel::SetCutoffVoltage (double voltage)
 {
-  NS_LOG_FUNCTION (this << voltage);
+  NS_LOG_FUNCTION (voltage);
   NS_ASSERT (voltage <= m_openCircuitVoltage);
   m_cutoffVoltage = voltage;
 }
@@ -218,7 +218,7 @@ RvBatteryModel::GetCutoffVoltage (void) const
 void
 RvBatteryModel::SetAlpha (double alpha)
 {
-  NS_LOG_FUNCTION (this << alpha);
+  NS_LOG_FUNCTION (alpha);
   NS_ASSERT (alpha >= 0);
   m_alpha = alpha;
 }
@@ -232,7 +232,7 @@ RvBatteryModel::GetAlpha (void) const
 void
 RvBatteryModel::SetBeta (double beta)
 {
-  NS_LOG_FUNCTION (this << beta);
+  NS_LOG_FUNCTION (beta);
   NS_ASSERT (beta >= 0);
   m_beta = beta;
 }
@@ -246,7 +246,7 @@ RvBatteryModel::GetBeta (void) const
 double
 RvBatteryModel::GetBatteryLevel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   UpdateEnergySource ();
   return m_batteryLevel;
 }
@@ -260,7 +260,7 @@ RvBatteryModel::GetLifetime (void) const
 void
 RvBatteryModel::SetNumOfTerms (int num)
 {
-  NS_LOG_FUNCTION (this << num);
+  NS_LOG_FUNCTION (num);
   m_numOfTerms = num;
 }
 
@@ -290,7 +290,7 @@ RvBatteryModel::DoDispose (void)
 void
 RvBatteryModel::HandleEnergyDrainedEvent (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("RvBatteryModel:Energy depleted!");
   NotifyEnergyDrained (); // notify DeviceEnergyModel objects
 }
@@ -298,7 +298,7 @@ RvBatteryModel::HandleEnergyDrainedEvent (void)
 double
 RvBatteryModel::Discharge (double load, Time t)
 {
-  NS_LOG_FUNCTION (this << load << t);
+  NS_LOG_FUNCTION (load << t);
 
   // record only when load changes
   if (load != m_previousLoad)
@@ -348,7 +348,7 @@ RvBatteryModel::Discharge (double load, Time t)
 double
 RvBatteryModel::RvModelAFunction (Time t, Time sk, Time sk_1, double beta)
 {
-  NS_LOG_FUNCTION (this << t << sk << sk_1 << beta);
+  NS_LOG_FUNCTION (t << sk << sk_1 << beta);
 
   // everything is in minutes
   double firstDelta = (t.GetSeconds () - sk.GetSeconds ()) / 60;

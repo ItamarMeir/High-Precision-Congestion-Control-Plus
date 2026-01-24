@@ -46,7 +46,7 @@ BuildingsMobilityModel::GetTypeId (void)
 
 BuildingsMobilityModel::BuildingsMobilityModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_indoor = false;
   m_nFloor = 1;
   m_roomX = 1;
@@ -56,48 +56,48 @@ BuildingsMobilityModel::BuildingsMobilityModel ()
 void
 BuildingsMobilityModel::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   MobilityModel::DoDispose ();
 }
 
 Vector
 BuildingsMobilityModel::DoGetPosition (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_helper.Update ();
   return m_helper.GetCurrentPosition ();
 }
 void 
 BuildingsMobilityModel::DoSetPosition (const Vector &position)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_helper.SetPosition (position);
 }
 Vector
 BuildingsMobilityModel::DoGetVelocity (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_helper.GetVelocity ();
 }
 
 bool
 BuildingsMobilityModel::IsIndoor (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_indoor);
 }
 
 bool
 BuildingsMobilityModel::IsOutdoor (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (!m_indoor);
 }
 
 void
 BuildingsMobilityModel::SetIndoor (Ptr<Building> building, uint8_t nfloor, uint8_t nroomx, uint8_t nroomy)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_indoor = true;
   m_myBuilding = building;
   m_nFloor = nfloor;
@@ -118,28 +118,28 @@ BuildingsMobilityModel::SetIndoor (Ptr<Building> building, uint8_t nfloor, uint8
 void
 BuildingsMobilityModel::SetOutdoor (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_indoor = false;
 }
 
 uint8_t
 BuildingsMobilityModel::GetFloorNumber (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_nFloor);
 }
 
 uint8_t
 BuildingsMobilityModel::GetRoomNumberX (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_roomX);
 }
 
 uint8_t
 BuildingsMobilityModel::GetRoomNumberY (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_roomY);
 }
 
@@ -147,7 +147,7 @@ BuildingsMobilityModel::GetRoomNumberY (void)
 Ptr<Building>
 BuildingsMobilityModel::GetBuilding ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_myBuilding);
 }
 

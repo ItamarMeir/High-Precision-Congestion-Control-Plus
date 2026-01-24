@@ -366,7 +366,7 @@ DistributedSimulatorImpl::Schedule (Time const &time, EventImpl *event)
 void
 DistributedSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, EventImpl *event)
 {
-  NS_LOG_FUNCTION (this << context << time.GetTimeStep () << m_currentTs << event);
+  NS_LOG_FUNCTION (context << time.GetTimeStep () << m_currentTs << event);
 
   Scheduler::Event ev;
   ev.impl = event;

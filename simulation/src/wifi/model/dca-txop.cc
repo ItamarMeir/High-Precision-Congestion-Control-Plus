@@ -128,7 +128,7 @@ DcaTxop::DcaTxop ()
   : m_manager (0),
     m_currentPacket (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_transmissionListener = new DcaTxop::TransmissionListener (this);
   m_dcf = new DcaTxop::Dcf (this);
   m_queue = CreateObject<WifiMacQueue> ();
@@ -138,13 +138,13 @@ DcaTxop::DcaTxop ()
 
 DcaTxop::~DcaTxop ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 DcaTxop::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_queue = 0;
   m_low = 0;
   m_stationManager = 0;
@@ -161,7 +161,7 @@ DcaTxop::DoDispose (void)
 void
 DcaTxop::SetManager (DcfManager *manager)
 {
-  NS_LOG_FUNCTION (this << manager);
+  NS_LOG_FUNCTION (manager);
   m_manager = manager;
   m_manager->Add (m_dcf);
 }
@@ -169,13 +169,13 @@ DcaTxop::SetManager (DcfManager *manager)
 void
 DcaTxop::SetLow (Ptr<MacLow> low)
 {
-  NS_LOG_FUNCTION (this << low);
+  NS_LOG_FUNCTION (low);
   m_low = low;
 }
 void
 DcaTxop::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> remoteManager)
 {
-  NS_LOG_FUNCTION (this << remoteManager);
+  NS_LOG_FUNCTION (remoteManager);
   m_stationManager = remoteManager;
 }
 void
@@ -192,26 +192,26 @@ DcaTxop::SetTxFailedCallback (TxFailed callback)
 Ptr<WifiMacQueue >
 DcaTxop::GetQueue () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_queue;
 }
 
 void
 DcaTxop::SetMinCw (uint32_t minCw)
 {
-  NS_LOG_FUNCTION (this << minCw);
+  NS_LOG_FUNCTION (minCw);
   m_dcf->SetCwMin (minCw);
 }
 void
 DcaTxop::SetMaxCw (uint32_t maxCw)
 {
-  NS_LOG_FUNCTION (this << maxCw);
+  NS_LOG_FUNCTION (maxCw);
   m_dcf->SetCwMax (maxCw);
 }
 void
 DcaTxop::SetAifsn (uint32_t aifsn)
 {
-  NS_LOG_FUNCTION (this << aifsn);
+  NS_LOG_FUNCTION (aifsn);
   m_dcf->SetAifsn (aifsn);
 }
 uint32_t
@@ -233,7 +233,7 @@ DcaTxop::GetAifsn (void) const
 void
 DcaTxop::Queue (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this << packet << &hdr);
+  NS_LOG_FUNCTION (packet << &hdr);
   WifiMacTrailer fcs;
   uint32_t fullPacketSize = hdr.GetSerializedSize () + packet->GetSize () + fcs.GetSerializedSize ();
   m_stationManager->PrepareForQueue (hdr.GetAddr1 (), &hdr,
@@ -245,7 +245,7 @@ DcaTxop::Queue (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 int64_t
 DcaTxop::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_rng->AssignStreams (stream);
   return 1;
 }
@@ -253,7 +253,7 @@ DcaTxop::AssignStreams (int64_t stream)
 void
 DcaTxop::RestartAccessIfNeeded (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if ((m_currentPacket != 0
        || !m_queue->IsEmpty ())
       && !m_dcf->IsAccessRequested ())
@@ -265,7 +265,7 @@ DcaTxop::RestartAccessIfNeeded (void)
 void
 DcaTxop::StartAccessIfNeeded (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_currentPacket == 0
       && !m_queue->IsEmpty ()
       && !m_dcf->IsAccessRequested ())
@@ -376,7 +376,7 @@ DcaTxop::NeedsAccess (void) const
 void
 DcaTxop::NotifyAccessGranted (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_currentPacket == 0)
     {
       if (m_queue->IsEmpty ())
@@ -464,13 +464,13 @@ DcaTxop::NotifyAccessGranted (void)
 void
 DcaTxop::NotifyInternalCollision (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NotifyCollision ();
 }
 void
 DcaTxop::NotifyCollision (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("collision");
   m_dcf->StartBackoffNow (m_rng->GetNext (0, m_dcf->GetCw ()));
   RestartAccessIfNeeded ();
@@ -486,13 +486,13 @@ DcaTxop::NotifyChannelSwitching (void)
 void
 DcaTxop::GotCts (double snr, WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this << snr << txMode);
+  NS_LOG_FUNCTION (snr << txMode);
   NS_LOG_DEBUG ("got cts");
 }
 void
 DcaTxop::MissedCts (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("missed cts");
   if (!NeedRtsRetransmission ())
     {
@@ -516,7 +516,7 @@ DcaTxop::MissedCts (void)
 void
 DcaTxop::GotAck (double snr, WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this << snr << txMode);
+  NS_LOG_FUNCTION (snr << txMode);
   if (!NeedFragmentation ()
       || IsLastFragment ())
     {
@@ -542,7 +542,7 @@ DcaTxop::GotAck (double snr, WifiMode txMode)
 void
 DcaTxop::MissedAck (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("missed ack");
   if (!NeedDataRetransmission ())
     {
@@ -568,7 +568,7 @@ DcaTxop::MissedAck (void)
 void
 DcaTxop::StartNext (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("start next packet fragment");
   /* this callback is used only for fragments. */
   NextFragment ();
@@ -592,7 +592,7 @@ DcaTxop::StartNext (void)
 void
 DcaTxop::Cancel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("transmission cancelled");
   /**
    * This happens in only one case: in an AP, you have two DcaTxop:

@@ -83,14 +83,14 @@ Ipv6AddressGeneratorImpl::Ipv6AddressGeneratorImpl ()
     m_base ("::1"),
     m_test (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Reset ();
 }
 
 void
 Ipv6AddressGeneratorImpl::Reset (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint8_t prefix[16] = { 0};
 
@@ -129,7 +129,7 @@ Ipv6AddressGeneratorImpl::Reset (void)
 
 Ipv6AddressGeneratorImpl::~Ipv6AddressGeneratorImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
@@ -138,7 +138,7 @@ Ipv6AddressGeneratorImpl::Init (
   const Ipv6Prefix prefix,
   const Ipv6Address interfaceId)
 {
-  NS_LOG_FUNCTION (this << net << prefix << interfaceId);
+  NS_LOG_FUNCTION (net << prefix << interfaceId);
 
   m_base = interfaceId;
   //
@@ -187,7 +187,7 @@ Ipv6Address
 Ipv6AddressGeneratorImpl::GetNetwork (
   const Ipv6Prefix prefix) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint8_t nw[16];
   uint32_t index = PrefixToIndex (prefix);
   uint32_t a = m_netTable[index].shift / 8;
@@ -214,7 +214,7 @@ Ipv6Address
 Ipv6AddressGeneratorImpl::NextNetwork (
   const Ipv6Prefix prefix)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t index = PrefixToIndex (prefix);
   // Reset the base to what was initialized
@@ -265,7 +265,7 @@ Ipv6AddressGeneratorImpl::InitAddress (
   const Ipv6Address interfaceId,
   const Ipv6Prefix prefix)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t index = PrefixToIndex (prefix);
   uint8_t interfaceIdBits[16];
@@ -280,7 +280,7 @@ Ipv6AddressGeneratorImpl::InitAddress (
 Ipv6Address
 Ipv6AddressGeneratorImpl::GetAddress (const Ipv6Prefix prefix) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t index = PrefixToIndex (prefix);
 
@@ -312,7 +312,7 @@ Ipv6AddressGeneratorImpl::GetAddress (const Ipv6Prefix prefix) const
 Ipv6Address
 Ipv6AddressGeneratorImpl::NextAddress (const Ipv6Prefix prefix)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t index = PrefixToIndex (prefix);
 
@@ -363,7 +363,7 @@ Ipv6AddressGeneratorImpl::NextAddress (const Ipv6Prefix prefix)
 bool
 Ipv6AddressGeneratorImpl::AddAllocated (const Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   uint8_t addr[16];
   address.GetBytes (addr);
@@ -477,7 +477,7 @@ Ipv6AddressGeneratorImpl::AddAllocated (const Ipv6Address address)
 void
 Ipv6AddressGeneratorImpl::TestMode (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_test = true;
 }
 

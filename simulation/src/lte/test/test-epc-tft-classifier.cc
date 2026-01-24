@@ -83,7 +83,7 @@ EpcTftClassifierTestCase::EpcTftClassifierTestCase (Ptr<EpcTftClassifier> c,
     m_d (d),    
     m_tftId (tftId)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_ipHeader.SetSource (sa);
   m_ipHeader.SetDestination (da);
@@ -147,7 +147,7 @@ static EpcTftClassifierTestSuite g_lteTftClassifierTestSuite;
 EpcTftClassifierTestSuite::EpcTftClassifierTestSuite ()
   : TestSuite ("eps-tft-classifier", UNIT)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
 
   ///////////////////////////

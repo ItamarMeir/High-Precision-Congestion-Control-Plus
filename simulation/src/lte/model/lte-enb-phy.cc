@@ -118,7 +118,7 @@ NS_OBJECT_ENSURE_REGISTERED (LteEnbPhy);
 
 LteEnbPhy::LteEnbPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_FATAL_ERROR ("This constructor should not be called");
 }
 
@@ -173,7 +173,7 @@ LteEnbPhy::~LteEnbPhy ()
 void
 LteEnbPhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ueAttached.clear ();
   delete m_enbPhySapProvider;
   LtePhy::DoDispose ();
@@ -182,7 +182,7 @@ LteEnbPhy::DoDispose ()
 void
 LteEnbPhy::DoStart ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<SpectrumValue> noisePsd = LteSpectrumValueHelper::CreateNoisePowerSpectralDensity (m_ulEarfcn, m_ulBandwidth, m_noiseFigure);
   m_uplinkSpectrumPhy->SetNoisePowerSpectralDensity (noisePsd);
   LtePhy::DoStart ();
@@ -204,28 +204,28 @@ LteEnbPhy::GetLteEnbPhySapProvider ()
 void
 LteEnbPhy::SetTxPower (double pow)
 {
-  NS_LOG_FUNCTION (this << pow);
+  NS_LOG_FUNCTION (pow);
   m_txPower = pow;
 }
 
 double
 LteEnbPhy::GetTxPower () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_txPower;
 }
 
 void
 LteEnbPhy::SetNoiseFigure (double nf)
 {
-  NS_LOG_FUNCTION (this << nf);
+  NS_LOG_FUNCTION (nf);
   m_noiseFigure = nf;
 }
 
 double
 LteEnbPhy::GetNoiseFigure () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_noiseFigure;
 }
 
@@ -294,7 +294,7 @@ LteEnbPhy::DeleteUePhy (uint16_t rnti)
 void
 LteEnbPhy::DoSendMacPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetMacPdu (p);
 }
 
@@ -308,14 +308,14 @@ LteEnbPhy::DoGetMacChTtiDelay ()
 void
 LteEnbPhy::PhyPduReceived (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbPhySapUser->ReceivePhyPdu (p);
 }
 
 void
 LteEnbPhy::DoSetDownlinkSubChannels ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<SpectrumValue> txPsd = CreateTxPowerSpectralDensity ();
   m_downlinkSpectrumPhy->SetTxPowerSpectralDensity (txPsd);
 }
@@ -324,7 +324,7 @@ LteEnbPhy::DoSetDownlinkSubChannels ()
 Ptr<SpectrumValue>
 LteEnbPhy::CreateTxPowerSpectralDensity ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   Ptr<SpectrumValue> psd = LteSpectrumValueHelper::CreateTxPowerSpectralDensity (m_dlEarfcn, m_dlBandwidth, m_txPower, GetDownlinkSubChannels ());
 
@@ -335,14 +335,14 @@ LteEnbPhy::CreateTxPowerSpectralDensity ()
 void
 LteEnbPhy::CalcChannelQualityForUe (std::vector <double> sinr, Ptr<LteSpectrumPhy> ue)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void
 LteEnbPhy::DoSendIdealControlMessage (Ptr<IdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this << msg);
+  NS_LOG_FUNCTION (msg);
   // queues the message (wait for MAC-PHY delay)
   SetControlMessages (msg);
 }
@@ -352,7 +352,7 @@ LteEnbPhy::DoSendIdealControlMessage (Ptr<IdealControlMessage> msg)
 void
 LteEnbPhy::ReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this << msg);
+  NS_LOG_FUNCTION (msg);
   m_enbPhySapUser->ReceiveIdealControlMessage (msg);
 }
 
@@ -361,7 +361,7 @@ LteEnbPhy::ReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
 void
 LteEnbPhy::StartFrame (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   ++m_nrFrames;
   NS_LOG_INFO ("-----frame " << m_nrFrames << "-----");
@@ -373,7 +373,7 @@ LteEnbPhy::StartFrame (void)
 void
 LteEnbPhy::StartSubFrame (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   ++m_nrSubFrames;
   NS_LOG_INFO ("-----sub frame " << m_nrSubFrames << "-----");
@@ -495,7 +495,7 @@ LteEnbPhy::StartSubFrame (void)
 void
 LteEnbPhy::EndSubFrame (void)
 {
-  NS_LOG_FUNCTION (this << Simulator::Now ().GetSeconds ());
+  NS_LOG_FUNCTION (Simulator::Now ().GetSeconds ());
   if (m_nrSubFrames == 10)
     {
       Simulator::ScheduleNow (&LteEnbPhy::EndFrame, this);
@@ -510,7 +510,7 @@ LteEnbPhy::EndSubFrame (void)
 void
 LteEnbPhy::EndFrame (void)
 {
-  NS_LOG_FUNCTION (this << Simulator::Now ().GetSeconds ());
+  NS_LOG_FUNCTION (Simulator::Now ().GetSeconds ());
   Simulator::ScheduleNow (&LteEnbPhy::StartFrame, this);
 }
 
@@ -518,7 +518,7 @@ LteEnbPhy::EndFrame (void)
 void 
 LteEnbPhy::GenerateCqiReport (const SpectrumValue& sinr)
 {
-  NS_LOG_FUNCTION (this << sinr);
+  NS_LOG_FUNCTION (sinr);
   m_enbPhySapUser->UlCqiReport (CreateUlCqiReport (sinr));
 }
 
@@ -526,7 +526,7 @@ LteEnbPhy::GenerateCqiReport (const SpectrumValue& sinr)
 UlCqi_s
 LteEnbPhy::CreateUlCqiReport (const SpectrumValue& sinr)
 {
-  NS_LOG_FUNCTION (this << sinr);
+  NS_LOG_FUNCTION (sinr);
   Values::const_iterator it;
   UlCqi_s ulcqi;
   ulcqi.m_type = UlCqi_s::PUSCH;
@@ -547,21 +547,21 @@ LteEnbPhy::CreateUlCqiReport (const SpectrumValue& sinr)
 void
 LteEnbPhy::DoSetTransmissionMode (uint16_t  rnti, uint8_t txMode)
 {
-  NS_LOG_FUNCTION (this << rnti << (uint16_t)txMode);
+  NS_LOG_FUNCTION (rnti << (uint16_t)txMode);
   // UL supports only SISO MODE
 }
 
 void
 LteEnbPhy::QueueUlDci (UlDciIdealControlMessage m)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ulDciQueue.at (UL_PUSCH_TTIS_DELAY - 1).push_back (m);
 }
 
 std::list<UlDciIdealControlMessage>
 LteEnbPhy::DequeueUlDci (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_ulDciQueue.at (0).size ()>0)
     {
       std::list<UlDciIdealControlMessage> ret = m_ulDciQueue.at (0);

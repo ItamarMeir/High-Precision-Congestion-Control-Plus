@@ -169,7 +169,7 @@ EdcaTxopN::EdcaTxopN ()
     m_aggregator (0),
     m_blockAckType (COMPRESSED_BLOCK_ACK)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_transmissionListener = new EdcaTxopN::TransmissionListener (this);
   m_blockAckListener = new EdcaTxopN::BlockAckEventListener (this);
   m_dcf = new EdcaTxopN::Dcf (this);
@@ -186,13 +186,13 @@ EdcaTxopN::EdcaTxopN ()
 
 EdcaTxopN::~EdcaTxopN ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 EdcaTxopN::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_queue = 0;
   m_low = 0;
   m_stationManager = 0;
@@ -215,7 +215,7 @@ EdcaTxopN::DoDispose (void)
 void
 EdcaTxopN::SetManager (DcfManager *manager)
 {
-  NS_LOG_FUNCTION (this << manager);
+  NS_LOG_FUNCTION (manager);
   m_manager = manager;
   m_manager->Add (m_dcf);
 }
@@ -235,13 +235,13 @@ EdcaTxopN::SetTxFailedCallback (TxFailed callback)
 void
 EdcaTxopN::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> remoteManager)
 {
-  NS_LOG_FUNCTION (this << remoteManager);
+  NS_LOG_FUNCTION (remoteManager);
   m_stationManager = remoteManager;
 }
 void
 EdcaTxopN::SetTypeOfStation (enum TypeOfStation type)
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   m_typeOfStation = type;
 }
 
@@ -254,28 +254,28 @@ EdcaTxopN::GetTypeOfStation (void) const
 Ptr<WifiMacQueue >
 EdcaTxopN::GetQueue () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_queue;
 }
 
 void
 EdcaTxopN::SetMinCw (uint32_t minCw)
 {
-  NS_LOG_FUNCTION (this << minCw);
+  NS_LOG_FUNCTION (minCw);
   m_dcf->SetCwMin (minCw);
 }
 
 void
 EdcaTxopN::SetMaxCw (uint32_t maxCw)
 {
-  NS_LOG_FUNCTION (this << maxCw);
+  NS_LOG_FUNCTION (maxCw);
   m_dcf->SetCwMax (maxCw);
 }
 
 void
 EdcaTxopN::SetAifsn (uint32_t aifsn)
 {
-  NS_LOG_FUNCTION (this << aifsn);
+  NS_LOG_FUNCTION (aifsn);
   m_dcf->SetAifsn (aifsn);
 }
 
@@ -312,7 +312,7 @@ EdcaTxopN::Low (void)
 void
 EdcaTxopN::SetLow (Ptr<MacLow> low)
 {
-  NS_LOG_FUNCTION (this << low);
+  NS_LOG_FUNCTION (low);
   m_low = low;
 }
 
@@ -325,7 +325,7 @@ EdcaTxopN::NeedsAccess (void) const
 void
 EdcaTxopN::NotifyAccessGranted (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_currentPacket == 0)
     {
       if (m_queue->IsEmpty () && !m_baManager->HasPackets ())
@@ -492,14 +492,14 @@ EdcaTxopN::NotifyAccessGranted (void)
 
 void EdcaTxopN::NotifyInternalCollision (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NotifyCollision ();
 }
 
 void
 EdcaTxopN::NotifyCollision (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_dcf->StartBackoffNow (m_rng->GetNext (0, m_dcf->GetCw ()));
   RestartAccessIfNeeded ();
 }
@@ -507,14 +507,14 @@ EdcaTxopN::NotifyCollision (void)
 void
 EdcaTxopN::GotCts (double snr, WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this << snr << txMode);
+  NS_LOG_FUNCTION (snr << txMode);
   NS_LOG_DEBUG ("got cts");
 }
 
 void
 EdcaTxopN::MissedCts (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("missed cts");
   if (!NeedRtsRetransmission ())
     {
@@ -546,7 +546,7 @@ EdcaTxopN::NotifyChannelSwitching (void)
 void
 EdcaTxopN::Queue (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this << packet << &hdr);
+  NS_LOG_FUNCTION (packet << &hdr);
   WifiMacTrailer fcs;
   uint32_t fullPacketSize = hdr.GetSerializedSize () + packet->GetSize () + fcs.GetSerializedSize ();
   m_stationManager->PrepareForQueue (hdr.GetAddr1 (), &hdr,
@@ -558,7 +558,7 @@ EdcaTxopN::Queue (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 void
 EdcaTxopN::GotAck (double snr, WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this << snr << txMode);
+  NS_LOG_FUNCTION (snr << txMode);
   if (!NeedFragmentation ()
       || IsLastFragment ()
       || m_currentHdr.IsQosAmsdu ())
@@ -604,7 +604,7 @@ EdcaTxopN::GotAck (double snr, WifiMode txMode)
 void
 EdcaTxopN::MissedAck (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("missed ack");
   if (!NeedDataRetransmission ())
     {
@@ -631,7 +631,7 @@ EdcaTxopN::MissedAck (void)
 void
 EdcaTxopN::MissedBlockAck (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("missed block ack");
   //should i report this to station addressed by ADDR1?
   NS_LOG_DEBUG ("Retransmit block ack request");
@@ -651,7 +651,7 @@ EdcaTxopN::GetMsduAggregator (void) const
 void
 EdcaTxopN::RestartAccessIfNeeded (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if ((m_currentPacket != 0
        || !m_queue->IsEmpty () || m_baManager->HasPackets ())
       && !m_dcf->IsAccessRequested ())
@@ -663,7 +663,7 @@ EdcaTxopN::RestartAccessIfNeeded (void)
 void
 EdcaTxopN::StartAccessIfNeeded (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_currentPacket == 0
       && (!m_queue->IsEmpty () || m_baManager->HasPackets ())
       && !m_dcf->IsAccessRequested ())
@@ -702,7 +702,7 @@ EdcaTxopN::NextFragment (void)
 void
 EdcaTxopN::StartNext (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("start next packet fragment");
   /* this callback is used only for fragments. */
   NextFragment ();
@@ -726,7 +726,7 @@ EdcaTxopN::StartNext (void)
 void
 EdcaTxopN::Cancel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("transmission cancelled");
 }
 
@@ -831,7 +831,7 @@ EdcaTxopN::SetMsduAggregator (Ptr<MsduAggregator> aggr)
 void
 EdcaTxopN::PushFront (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this << packet << &hdr);
+  NS_LOG_FUNCTION (packet << &hdr);
   WifiMacTrailer fcs;
   uint32_t fullPacketSize = hdr.GetSerializedSize () + packet->GetSize () + fcs.GetSerializedSize ();
   m_stationManager->PrepareForQueue (hdr.GetAddr1 (), &hdr,
@@ -843,7 +843,7 @@ EdcaTxopN::PushFront (Ptr<const Packet> packet, const WifiMacHeader &hdr)
 void
 EdcaTxopN::GotAddBaResponse (const MgtAddBaResponseHeader *respHdr, Mac48Address recipient)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("received ADDBA response from " << recipient);
   uint8_t tid = respHdr->GetTid ();
   if (m_baManager->ExistsAgreementInState (recipient, tid, OriginatorBlockAckAgreement::PENDING))
@@ -865,7 +865,7 @@ EdcaTxopN::GotAddBaResponse (const MgtAddBaResponseHeader *respHdr, Mac48Address
 void
 EdcaTxopN::GotDelBaFrame (const MgtDelBaHeader *delBaHdr, Mac48Address recipient)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("received DELBA frame from=" << recipient);
   m_baManager->TearDownBlockAck (recipient, delBaHdr->GetTid ());
 }
@@ -884,7 +884,7 @@ EdcaTxopN::GotBlockAck (const CtrlBAckResponseHeader *blockAck, Mac48Address rec
 void
 EdcaTxopN::VerifyBlockAck (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint8_t tid = m_currentHdr.GetQosTid ();
   Mac48Address recipient = m_currentHdr.GetAddr1 ();
   uint16_t sequence = m_currentHdr.GetSequenceNumber ();
@@ -939,7 +939,7 @@ EdcaTxopN::SetupBlockAckIfNeeded ()
 void
 EdcaTxopN::SendBlockAckRequest (const struct Bar &bar)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   WifiMacHeader hdr;
   hdr.SetType (WIFI_MAC_CTL_BACKREQ);
   hdr.SetAddr1 (bar.recipient);
@@ -983,7 +983,7 @@ EdcaTxopN::SendBlockAckRequest (const struct Bar &bar)
 void
 EdcaTxopN::CompleteConfig (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_baManager->SetTxMiddle (m_txMiddle);
   m_low->RegisterBlockAckListenerForAc (m_ac, m_blockAckListener);
   m_baManager->SetBlockAckInactivityCallback (MakeCallback (&EdcaTxopN::SendDelbaFrame, this));
@@ -1012,7 +1012,7 @@ void
 EdcaTxopN::SendAddBaRequest (Mac48Address dest, uint8_t tid, uint16_t startSeq,
                              uint16_t timeout, bool immediateBAck)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("sent ADDBA request to " << dest);
   WifiMacHeader hdr;
   hdr.SetAction ();
@@ -1108,7 +1108,7 @@ EdcaTxopN::SendDelbaFrame (Mac48Address addr, uint8_t tid, bool byOriginator)
 int64_t
 EdcaTxopN::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_rng->AssignStreams (stream);
   return 1;
 }

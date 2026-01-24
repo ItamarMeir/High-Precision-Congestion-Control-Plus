@@ -75,32 +75,32 @@ BulkSendApplication::BulkSendApplication ()
     m_connected (false),
     m_totBytes (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 BulkSendApplication::~BulkSendApplication ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 BulkSendApplication::SetMaxBytes (uint32_t maxBytes)
 {
-  NS_LOG_FUNCTION (this << maxBytes);
+  NS_LOG_FUNCTION (maxBytes);
   m_maxBytes = maxBytes;
 }
 
 Ptr<Socket>
 BulkSendApplication::GetSocket (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_socket;
 }
 
 void
 BulkSendApplication::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_socket = 0;
   // chain up
@@ -110,7 +110,7 @@ BulkSendApplication::DoDispose (void)
 // Application Methods
 void BulkSendApplication::StartApplication (void) // Called at time specified by Start
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Create the socket if not already
   if (!m_socket)
@@ -143,7 +143,7 @@ void BulkSendApplication::StartApplication (void) // Called at time specified by
 
 void BulkSendApplication::StopApplication (void) // Called at time specified by Stop
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_socket != 0)
     {
@@ -161,7 +161,7 @@ void BulkSendApplication::StopApplication (void) // Called at time specified by 
 
 void BulkSendApplication::SendData (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   while (m_maxBytes == 0 || m_totBytes < m_maxBytes)
     { // Time to send more
@@ -197,7 +197,7 @@ void BulkSendApplication::SendData (void)
 
 void BulkSendApplication::ConnectionSucceeded (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   NS_LOG_LOGIC ("BulkSendApplication Connection succeeded");
   m_connected = true;
   SendData ();
@@ -205,13 +205,13 @@ void BulkSendApplication::ConnectionSucceeded (Ptr<Socket> socket)
 
 void BulkSendApplication::ConnectionFailed (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   NS_LOG_LOGIC ("BulkSendApplication, Connection Failed");
 }
 
 void BulkSendApplication::DataSend (Ptr<Socket>, uint32_t)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_connected)
     { // Only send new data if the connection has completed

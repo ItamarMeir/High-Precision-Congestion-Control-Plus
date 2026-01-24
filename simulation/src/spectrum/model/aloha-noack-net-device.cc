@@ -104,19 +104,19 @@ AlohaNoackNetDevice::GetTypeId (void)
 AlohaNoackNetDevice::AlohaNoackNetDevice ()
   : m_state (IDLE)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 AlohaNoackNetDevice::~AlohaNoackNetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_queue = 0;
 }
 
 void
 AlohaNoackNetDevice::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_queue = 0;
   m_node = 0;
   m_channel = 0;
@@ -137,7 +137,7 @@ AlohaNoackNetDevice::SetIfIndex (const uint32_t index)
 uint32_t
 AlohaNoackNetDevice::GetIfIndex (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_ifIndex;
 }
 
@@ -152,7 +152,7 @@ AlohaNoackNetDevice::SetMtu (uint16_t mtu)
 uint16_t
 AlohaNoackNetDevice::GetMtu (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mtu;
 }
 
@@ -168,35 +168,35 @@ AlohaNoackNetDevice::SetQueue (Ptr<Queue> q)
 void
 AlohaNoackNetDevice::SetAddress (Address address)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_address = Mac48Address::ConvertFrom (address);
 }
 
 Address
 AlohaNoackNetDevice::GetAddress (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_address;
 }
 
 bool
 AlohaNoackNetDevice::IsBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 
 Address
 AlohaNoackNetDevice::GetBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Mac48Address ("ff:ff:ff:ff:ff:ff");
 }
 
 bool
 AlohaNoackNetDevice::IsMulticast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 
@@ -220,14 +220,14 @@ Address AlohaNoackNetDevice::GetMulticast (Ipv6Address addr) const
 bool
 AlohaNoackNetDevice::IsPointToPoint (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
 bool
 AlohaNoackNetDevice::IsBridge (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -235,7 +235,7 @@ AlohaNoackNetDevice::IsBridge (void) const
 Ptr<Node>
 AlohaNoackNetDevice::GetNode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_node;
 }
 
@@ -250,7 +250,7 @@ AlohaNoackNetDevice::SetNode (Ptr<Node> node)
 void
 AlohaNoackNetDevice::SetPhy (Ptr<Object> phy)
 {
-  NS_LOG_FUNCTION (this << phy);
+  NS_LOG_FUNCTION (phy);
   m_phy = phy;
 }
 
@@ -258,7 +258,7 @@ AlohaNoackNetDevice::SetPhy (Ptr<Object> phy)
 Ptr<Object>
 AlohaNoackNetDevice::GetPhy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_phy;
 }
 
@@ -266,7 +266,7 @@ AlohaNoackNetDevice::GetPhy () const
 void
 AlohaNoackNetDevice::SetChannel (Ptr<Channel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_channel = c;
 }
 
@@ -274,7 +274,7 @@ AlohaNoackNetDevice::SetChannel (Ptr<Channel> c)
 Ptr<Channel>
 AlohaNoackNetDevice::GetChannel (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_channel;
 }
 
@@ -282,14 +282,14 @@ AlohaNoackNetDevice::GetChannel (void) const
 bool
 AlohaNoackNetDevice::NeedsArp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 
 bool
 AlohaNoackNetDevice::IsLinkUp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_linkUp;
 }
 
@@ -317,7 +317,7 @@ AlohaNoackNetDevice::SetPromiscReceiveCallback (NetDevice::PromiscReceiveCallbac
 bool
 AlohaNoackNetDevice::SupportsSendFrom () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 
@@ -386,14 +386,14 @@ AlohaNoackNetDevice::SendFrom (Ptr<Packet> packet, const Address& src, const Add
 void
 AlohaNoackNetDevice::SetGenericPhyTxStartCallback (GenericPhyTxStartCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyMacTxStartCallback = c;
 }
 
 void
 AlohaNoackNetDevice::StartTransmission ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   NS_ASSERT (m_currentPkt != 0);
   NS_ASSERT (m_state == IDLE);
@@ -413,7 +413,7 @@ AlohaNoackNetDevice::StartTransmission ()
 void
 AlohaNoackNetDevice::NotifyTransmissionEnd (Ptr<const Packet>)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG (m_state == TX, "TX end notified while state != TX");
   m_state = IDLE;
   NS_ASSERT (m_queue);
@@ -430,7 +430,7 @@ AlohaNoackNetDevice::NotifyTransmissionEnd (Ptr<const Packet>)
 void
 AlohaNoackNetDevice::NotifyReceptionStart ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -438,7 +438,7 @@ AlohaNoackNetDevice::NotifyReceptionStart ()
 void
 AlohaNoackNetDevice::NotifyReceptionEndError ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -448,7 +448,7 @@ AlohaNoackNetDevice::NotifyReceptionEndError ()
 void
 AlohaNoackNetDevice::NotifyReceptionEndOk (Ptr<Packet> packet)
 {
-  NS_LOG_FUNCTION (this << packet);
+  NS_LOG_FUNCTION (packet);
   AlohaNoackMacHeader header;
   packet->RemoveHeader (header);
   NS_LOG_LOGIC ("packet " << header.GetSource () << " --> " << header.GetDestination () << " (here: " << m_address << ")");

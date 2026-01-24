@@ -52,7 +52,7 @@ ItuR1411LosPropagationLossModel::GetTypeId (void)
 double
 ItuR1411LosPropagationLossModel::GetLoss (Ptr<MobilityModel> a, Ptr<MobilityModel> b) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double dist = a->GetDistanceFrom (b);
   double lossLow = 0.0;
   double lossUp = 0.0;

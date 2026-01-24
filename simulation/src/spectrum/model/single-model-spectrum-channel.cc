@@ -48,13 +48,13 @@ NS_OBJECT_ENSURE_REGISTERED (SingleModelSpectrumChannel);
 
 SingleModelSpectrumChannel::SingleModelSpectrumChannel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 SingleModelSpectrumChannel::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyList.clear ();
   m_spectrumModel = 0;
   m_propagationDelay = 0;
@@ -100,7 +100,7 @@ SingleModelSpectrumChannel::GetTypeId (void)
 void
 SingleModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
 {
-  NS_LOG_FUNCTION (this << phy);
+  NS_LOG_FUNCTION (phy);
   m_phyList.push_back (phy);
 }
 
@@ -108,7 +108,7 @@ SingleModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
 void
 SingleModelSpectrumChannel::StartTx (Ptr<SpectrumSignalParameters> txParams)
 {
-  NS_LOG_FUNCTION (this << txParams->psd << txParams->duration << txParams->txPhy);
+  NS_LOG_FUNCTION (txParams->psd << txParams->duration << txParams->txPhy);
   NS_ASSERT_MSG (txParams->psd, "NULL txPsd");
   NS_ASSERT_MSG (txParams->txPhy, "NULL txPhy");
 
@@ -208,7 +208,7 @@ SingleModelSpectrumChannel::StartTx (Ptr<SpectrumSignalParameters> txParams)
 void
 SingleModelSpectrumChannel::StartRx (Ptr<SpectrumSignalParameters> params, Ptr<SpectrumPhy> receiver)
 {
-  NS_LOG_FUNCTION (this << params);
+  NS_LOG_FUNCTION (params);
   receiver->StartRx (params);
 }
 
@@ -217,7 +217,7 @@ SingleModelSpectrumChannel::StartRx (Ptr<SpectrumSignalParameters> params, Ptr<S
 uint32_t
 SingleModelSpectrumChannel::GetNDevices (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_phyList.size ();
 }
 
@@ -225,7 +225,7 @@ SingleModelSpectrumChannel::GetNDevices (void) const
 Ptr<NetDevice>
 SingleModelSpectrumChannel::GetDevice (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   return m_phyList.at (i)->GetDevice ()->GetObject<NetDevice> ();
 }
 
@@ -233,7 +233,7 @@ SingleModelSpectrumChannel::GetDevice (uint32_t i) const
 void
 SingleModelSpectrumChannel::AddPropagationLossModel (Ptr<PropagationLossModel> loss)
 {
-  NS_LOG_FUNCTION (this << loss);
+  NS_LOG_FUNCTION (loss);
   NS_ASSERT (m_propagationLoss == 0);
   m_propagationLoss = loss;
 }
@@ -242,7 +242,7 @@ SingleModelSpectrumChannel::AddPropagationLossModel (Ptr<PropagationLossModel> l
 void
 SingleModelSpectrumChannel::AddSpectrumPropagationLossModel (Ptr<SpectrumPropagationLossModel> loss)
 {
-  NS_LOG_FUNCTION (this << loss);
+  NS_LOG_FUNCTION (loss);
   NS_ASSERT (m_spectrumPropagationLoss == 0);
   m_spectrumPropagationLoss = loss;
 }
@@ -250,7 +250,7 @@ SingleModelSpectrumChannel::AddSpectrumPropagationLossModel (Ptr<SpectrumPropaga
 void
 SingleModelSpectrumChannel::SetPropagationDelayModel (Ptr<PropagationDelayModel> delay)
 {
-  NS_LOG_FUNCTION (this << delay);
+  NS_LOG_FUNCTION (delay);
   NS_ASSERT (m_propagationDelay == 0);
   m_propagationDelay = delay;
 }
@@ -259,7 +259,7 @@ SingleModelSpectrumChannel::SetPropagationDelayModel (Ptr<PropagationDelayModel>
 Ptr<SpectrumPropagationLossModel>
 SingleModelSpectrumChannel::GetSpectrumPropagationLossModel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_spectrumPropagationLoss;
 }
 

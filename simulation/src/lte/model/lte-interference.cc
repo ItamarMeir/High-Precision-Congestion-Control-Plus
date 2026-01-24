@@ -34,18 +34,18 @@ namespace ns3 {
 LteInterference::LteInterference ()
   : m_receiving (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteInterference::~LteInterference ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 
 LteInterference::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sinrChunkProcessorList.clear ();
   m_rxSignal = 0;
   m_allSignals = 0;
@@ -67,7 +67,7 @@ LteInterference::GetTypeId (void)
 void
 LteInterference::StartRx (Ptr<const SpectrumValue> rxPsd)
 { 
-  NS_LOG_FUNCTION (this << *rxPsd);
+  NS_LOG_FUNCTION (*rxPsd);
   if (m_receiving == false)
     {
       NS_LOG_LOGIC ("first signal");
@@ -94,7 +94,7 @@ LteInterference::StartRx (Ptr<const SpectrumValue> rxPsd)
 void
 LteInterference::EndRx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ConditionallyEvaluateChunk ();
   m_receiving = false;
   for (std::list<Ptr<LteSinrChunkProcessor> >::const_iterator it = m_sinrChunkProcessorList.begin (); it != m_sinrChunkProcessorList.end (); ++it)
@@ -107,7 +107,7 @@ LteInterference::EndRx ()
 void
 LteInterference::AddSignal (Ptr<const SpectrumValue> spd, const Time duration)
 {
-  NS_LOG_FUNCTION (this << *spd << duration);
+  NS_LOG_FUNCTION (*spd << duration);
   // if this is the first signal that we see, we need to initialize the interference calculation
   if (m_allSignals == 0) 
     {
@@ -121,7 +121,7 @@ LteInterference::AddSignal (Ptr<const SpectrumValue> spd, const Time duration)
 void
 LteInterference::DoAddSignal  (Ptr<const SpectrumValue> spd)
 { 
-  NS_LOG_FUNCTION (this << *spd);
+  NS_LOG_FUNCTION (*spd);
   ConditionallyEvaluateChunk ();
   (*m_allSignals) += (*spd);
   m_lastChangeTime = Now ();
@@ -130,7 +130,7 @@ LteInterference::DoAddSignal  (Ptr<const SpectrumValue> spd)
 void
 LteInterference::DoSubtractSignal  (Ptr<const SpectrumValue> spd)
 { 
-  NS_LOG_FUNCTION (this << *spd);
+  NS_LOG_FUNCTION (*spd);
   ConditionallyEvaluateChunk ();
   (*m_allSignals) -= (*spd);
   m_lastChangeTime = Now ();
@@ -140,7 +140,7 @@ LteInterference::DoSubtractSignal  (Ptr<const SpectrumValue> spd)
 void
 LteInterference::ConditionallyEvaluateChunk ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_receiving)
     {
       NS_LOG_DEBUG (this << " Receiving");
@@ -166,7 +166,7 @@ LteInterference::ConditionallyEvaluateChunk ()
 void
 LteInterference::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd)
 {
-  NS_LOG_FUNCTION (this << *noisePsd);
+  NS_LOG_FUNCTION (*noisePsd);
   m_noise = noisePsd;
   // we can initialize m_allSignal only now, because earlier we
   // didn't know what spectrum model was going to be used.
@@ -178,7 +178,7 @@ LteInterference::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd
 void
 LteInterference::AddSinrChunkProcessor (Ptr<LteSinrChunkProcessor> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   m_sinrChunkProcessorList.push_back (p);
 }
 

@@ -43,17 +43,17 @@ MapScheduler::GetTypeId (void)
 
 MapScheduler::MapScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 MapScheduler::~MapScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 MapScheduler::Insert (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << ev.impl << ev.key.m_ts << ev.key.m_uid);
+  NS_LOG_FUNCTION (ev.impl << ev.key.m_ts << ev.key.m_uid);
   std::pair<EventMapI,bool> result;
   result = m_list.insert (std::make_pair (ev.key, ev.impl));
   NS_ASSERT (result.second);
@@ -62,14 +62,14 @@ MapScheduler::Insert (const Event &ev)
 bool
 MapScheduler::IsEmpty (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_list.empty ();
 }
 
 Scheduler::Event
 MapScheduler::PeekNext (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   EventMapCI i = m_list.begin ();
   NS_ASSERT (i != m_list.end ());
 
@@ -82,7 +82,7 @@ MapScheduler::PeekNext (void) const
 Scheduler::Event
 MapScheduler::RemoveNext (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   EventMapI i = m_list.begin ();
   NS_ASSERT (i != m_list.end ());
   Event ev;
@@ -96,7 +96,7 @@ MapScheduler::RemoveNext (void)
 void
 MapScheduler::Remove (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << ev.impl << ev.key.m_ts << ev.key.m_uid);
+  NS_LOG_FUNCTION (ev.impl << ev.key.m_ts << ev.key.m_uid);
   EventMapI i = m_list.find (ev.key);
   NS_ASSERT (i->second == ev.impl);
   m_list.erase (i);

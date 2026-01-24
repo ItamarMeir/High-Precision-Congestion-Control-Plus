@@ -137,12 +137,12 @@ TestCaseFailure::TestCaseFailure (std::string _cond, std::string _actual,
   : cond (_cond), actual (_actual), limit (_limit),
     message (_message), file (_file), line (_line)
 {
-  NS_LOG_FUNCTION (this << _cond << _actual << _limit << _message << _file << _line);
+  NS_LOG_FUNCTION (_cond << _actual << _limit << _message << _file << _line);
 }
 TestCase::Result::Result ()
   : childrenFailed (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -155,12 +155,12 @@ TestCase::TestCase (std::string name)
     m_name (name),
     m_duration (TestCase::QUICK)
 {
-  NS_LOG_FUNCTION (this << name);
+  NS_LOG_FUNCTION (name);
 }
 
 TestCase::~TestCase ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (m_runner == 0);
   m_parent = 0;
   delete m_result;
@@ -213,14 +213,14 @@ TestCase::AddTestCase (TestCase *testCase, enum TestCase::TestDuration duration)
 bool
 TestCase::IsFailed (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_result->childrenFailed || !m_result->failure.empty ();
 }
 
 void 
 TestCase::Run (TestRunnerImpl *runner)
 {
-  NS_LOG_FUNCTION (this << runner);
+  NS_LOG_FUNCTION (runner);
   m_result = new Result ();
   m_runner = runner;
   DoSetup ();
@@ -248,7 +248,7 @@ out:
 std::string 
 TestCase::GetName (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_name;
 }
 void
@@ -256,7 +256,7 @@ TestCase::ReportTestFailure (std::string cond, std::string actual,
                              std::string limit, std::string message, 
                              std::string file, int32_t line)
 {
-  NS_LOG_FUNCTION (this << cond << actual << limit << message << file << line);
+  NS_LOG_FUNCTION (cond << actual << limit << message << file << line);
   m_result->failure.push_back (TestCaseFailure (cond, actual, limit,
                                                 message, file, line));
   // set childrenFailed flag on parents.
@@ -271,20 +271,20 @@ TestCase::ReportTestFailure (std::string cond, std::string actual,
 bool 
 TestCase::MustAssertOnFailure (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_runner->MustAssertOnFailure ();
 }
 bool 
 TestCase::MustContinueOnFailure (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_runner->MustContinueOnFailure ();
 }
 
 std::string 
 TestCase::CreateDataDirFilename (std::string filename)
 {
-  NS_LOG_FUNCTION (this << filename);
+  NS_LOG_FUNCTION (filename);
   const TestCase *current = this;
   while (current != 0 && current->m_dataDir == "")
     {
@@ -302,7 +302,7 @@ TestCase::CreateDataDirFilename (std::string filename)
 std::string 
 TestCase::CreateTempDirFilename (std::string filename)
 {
-  NS_LOG_FUNCTION (this << filename);
+  NS_LOG_FUNCTION (filename);
   if (m_runner->MustUpdateData ())
     {
       return CreateDataDirFilename (filename);
@@ -327,38 +327,38 @@ TestCase::CreateTempDirFilename (std::string filename)
 bool 
 TestCase::GetErrorStatus (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return IsStatusFailure ();
 }
 bool 
 TestCase::IsStatusFailure (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return !IsStatusSuccess ();
 }
 bool 
 TestCase::IsStatusSuccess (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_result->failure.empty ();
 }
 
 void 
 TestCase::SetDataDir (std::string directory)
 {
-  NS_LOG_FUNCTION (this << directory);
+  NS_LOG_FUNCTION (directory);
   m_dataDir = directory;
 }
 
 void 
 TestCase::DoSetup (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 void 
 TestCase::DoTeardown (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -366,21 +366,21 @@ TestSuite::TestSuite (std::string name, TestSuite::Type type)
   : TestCase (name), 
     m_type (type)
 {
-  NS_LOG_FUNCTION (this << name << type);
+  NS_LOG_FUNCTION (name << type);
   TestRunnerImpl::Instance ()->AddTestSuite (this);
 }
 
 TestSuite::Type 
 TestSuite::GetTestType (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_type;
 }
 
 void 
 TestSuite::DoRun (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TestRunnerImpl::TestRunnerImpl ()
@@ -389,12 +389,12 @@ TestRunnerImpl::TestRunnerImpl ()
    m_continueOnFailure (true),
    m_updateData (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TestRunnerImpl::~TestRunnerImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -410,7 +410,7 @@ TestRunnerImpl::Instance (void)
 void
 TestRunnerImpl::AddTestSuite (TestSuite *testSuite)
 {
-  NS_LOG_FUNCTION (this << testSuite);
+  NS_LOG_FUNCTION (testSuite);
   m_suites.push_back (testSuite);
 }
 
@@ -418,32 +418,32 @@ TestRunnerImpl::AddTestSuite (TestSuite *testSuite)
 bool 
 TestRunnerImpl::MustAssertOnFailure (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_assertOnFailure;
 }
 bool 
 TestRunnerImpl::MustContinueOnFailure (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_continueOnFailure;
 }
 
 bool 
 TestRunnerImpl::MustUpdateData (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_updateData;
 }
 std::string
 TestRunnerImpl::GetTempDir (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_tempDir;
 }
 bool
 TestRunnerImpl::IsTopLevelSourceDir (std::string path) const
 {
-  NS_LOG_FUNCTION (this << path);
+  NS_LOG_FUNCTION (path);
   bool haveVersion = false;
   bool haveLicense = false;
   
@@ -471,7 +471,7 @@ TestRunnerImpl::IsTopLevelSourceDir (std::string path) const
 std::string 
 TestRunnerImpl::GetTopLevelSourceDir (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::string self = SystemPath::FindSelfDirectory ();
   std::list<std::string> elements = SystemPath::Split (self);
   while (!elements.empty ())
@@ -494,7 +494,7 @@ TestRunnerImpl::GetTopLevelSourceDir (void) const
 std::string
 TestRunnerImpl::ReplaceXmlSpecialCharacters (std::string xml) const
 {
-  NS_LOG_FUNCTION (this << xml);
+  NS_LOG_FUNCTION (xml);
   typedef std::map <char, std::string> specials_map;
   specials_map specials;
   specials['<'] = "&lt;";
@@ -532,7 +532,7 @@ struct Indent
 Indent::Indent (int _level)
   : level (_level)
 {
-  NS_LOG_FUNCTION (this << _level);
+  NS_LOG_FUNCTION (_level);
 }
 std::ostream &operator << (std::ostream &os, const Indent &val)
 {
@@ -546,7 +546,7 @@ std::ostream &operator << (std::ostream &os, const Indent &val)
 void
 TestRunnerImpl::PrintReport (TestCase *test, std::ostream *os, bool xml, int level)
 {
-  NS_LOG_FUNCTION (this << test << os << xml << level);
+  NS_LOG_FUNCTION (test << os << xml << level);
   if (test->m_result == 0)
     {
       // Do not print reports for tests that were not run.
@@ -627,7 +627,7 @@ TestRunnerImpl::PrintReport (TestCase *test, std::ostream *os, bool xml, int lev
 void
 TestRunnerImpl::PrintHelp (const char *program_name) const
 {
-  NS_LOG_FUNCTION (this << program_name);
+  NS_LOG_FUNCTION (program_name);
   std::cout << "Usage: " << program_name << " [OPTIONS]" << std::endl
             << std::endl
             << "Options: " << std::endl
@@ -666,7 +666,7 @@ TestRunnerImpl::PrintTestNameList (std::list<TestCase *>::const_iterator begin,
                                    std::list<TestCase *>::const_iterator end,
                                    bool printTestType) const
 {
-  NS_LOG_FUNCTION (this << &begin << &end << printTestType);
+  NS_LOG_FUNCTION (&begin << &end << printTestType);
   std::map<TestSuite::Type, std::string> label;
 
   label[TestSuite::ALL]         = "all          ";
@@ -691,7 +691,7 @@ TestRunnerImpl::PrintTestNameList (std::list<TestCase *>::const_iterator begin,
 void
 TestRunnerImpl::PrintTestTypeList (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::cout << "  bvt:         Build Verification Tests (to see if build completed successfully)" << std::endl;
   std::cout << "  core:        Run all TestSuite-based tests (exclude examples)" << std::endl;
   std::cout << "  example:     Examples (to see if example programs run successfully)" << std::endl;
@@ -706,7 +706,7 @@ TestRunnerImpl::FilterTests (std::string testName,
                              enum TestSuite::Type testType,
                              enum TestCase::TestDuration maximumTestDuration)
 {
-  NS_LOG_FUNCTION (this << testName << testType);
+  NS_LOG_FUNCTION (testName << testType);
   std::list<TestCase *> tests;
   for (uint32_t i = 0; i < m_suites.size (); ++i)
     {
@@ -760,7 +760,7 @@ TestRunnerImpl::FilterTests (std::string testName,
 int 
 TestRunnerImpl::Run (int argc, char *argv[])
 {
-	NS_LOG_FUNCTION (this << argc << argv);
+	NS_LOG_FUNCTION (argc << argv);
 
 	std::string testName = "";
 	enum TestCase::TestDuration maximumTestDuration = TestCase::QUICK;
@@ -879,7 +879,7 @@ TestRunnerImpl::Run (int argc, char *argv[])
 int 
 TestRunnerImpl::Run (int argc, char *argv[])
 {
-  NS_LOG_FUNCTION (this << argc << argv);
+  NS_LOG_FUNCTION (argc << argv);
   std::string testName = "";
   std::string testTypeString = "";
   std::string out = "";

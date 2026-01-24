@@ -56,7 +56,7 @@ Ipv4RawSocketImpl::GetTypeId (void)
 
 Ipv4RawSocketImpl::Ipv4RawSocketImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_err = Socket::ERROR_NOTERROR;
   m_node = 0;
   m_src = Ipv4Address::GetAny ();
@@ -75,7 +75,7 @@ Ipv4RawSocketImpl::SetNode (Ptr<Node> node)
 void
 Ipv4RawSocketImpl::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   Socket::DoDispose ();
 }
@@ -83,7 +83,7 @@ Ipv4RawSocketImpl::DoDispose (void)
 enum Socket::SocketErrno
 Ipv4RawSocketImpl::GetErrno (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_err;
 }
 
@@ -96,13 +96,13 @@ Ipv4RawSocketImpl::GetSocketType (void) const
 Ptr<Node>
 Ipv4RawSocketImpl::GetNode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_node;
 }
 int
 Ipv4RawSocketImpl::Bind (const Address &address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (!InetSocketAddress::IsMatchingType (address))
     {
       m_err = Socket::ERROR_INVAL;
@@ -115,7 +115,7 @@ Ipv4RawSocketImpl::Bind (const Address &address)
 int
 Ipv4RawSocketImpl::Bind (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_src = Ipv4Address::GetAny ();
   return 0;
 }
@@ -133,7 +133,7 @@ Ipv4RawSocketImpl::GetSockName (Address &address) const
 int
 Ipv4RawSocketImpl::Close (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv4> ipv4 = m_node->GetObject<Ipv4> ();
   if (ipv4 != 0)
     {
@@ -144,21 +144,21 @@ Ipv4RawSocketImpl::Close (void)
 int
 Ipv4RawSocketImpl::ShutdownSend (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_shutdownSend = true;
   return 0;
 }
 int
 Ipv4RawSocketImpl::ShutdownRecv (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_shutdownRecv = true;
   return 0;
 }
 int
 Ipv4RawSocketImpl::Connect (const Address &address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (!InetSocketAddress::IsMatchingType (address))
     {
       m_err = Socket::ERROR_INVAL;
@@ -171,20 +171,20 @@ Ipv4RawSocketImpl::Connect (const Address &address)
 int
 Ipv4RawSocketImpl::Listen (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_err = Socket::ERROR_OPNOTSUPP;
   return -1;
 }
 uint32_t
 Ipv4RawSocketImpl::GetTxAvailable (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return 0xffffffff;
 }
 int
 Ipv4RawSocketImpl::Send (Ptr<Packet> p, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << p << flags);
+  NS_LOG_FUNCTION (p << flags);
   InetSocketAddress to = InetSocketAddress (m_dst, m_protocol);
   /*
    * Add tags for each socket option.
@@ -209,7 +209,7 @@ int
 Ipv4RawSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags,
                            const Address &toAddress)
 {
-  NS_LOG_FUNCTION (this << p << flags << toAddress);
+  NS_LOG_FUNCTION (p << flags << toAddress);
   if (!InetSocketAddress::IsMatchingType (toAddress))
     {
       m_err = Socket::ERROR_INVAL;
@@ -276,7 +276,7 @@ Ipv4RawSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags,
 uint32_t
 Ipv4RawSocketImpl::GetRxAvailable (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t rx = 0;
   for (std::list<Data>::const_iterator i = m_recv.begin (); i != m_recv.end (); ++i)
     {
@@ -287,7 +287,7 @@ Ipv4RawSocketImpl::GetRxAvailable (void) const
 Ptr<Packet>
 Ipv4RawSocketImpl::Recv (uint32_t maxSize, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   Address tmp;
   return RecvFrom (maxSize, flags, tmp);
 }
@@ -295,7 +295,7 @@ Ptr<Packet>
 Ipv4RawSocketImpl::RecvFrom (uint32_t maxSize, uint32_t flags,
                              Address &fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags << fromAddress);
+  NS_LOG_FUNCTION (maxSize << flags << fromAddress);
   if (m_recv.empty ())
     {
       return 0;
@@ -320,14 +320,14 @@ Ipv4RawSocketImpl::RecvFrom (uint32_t maxSize, uint32_t flags,
 void
 Ipv4RawSocketImpl::SetProtocol (uint16_t protocol)
 {
-  NS_LOG_FUNCTION (this << protocol);
+  NS_LOG_FUNCTION (protocol);
   m_protocol = protocol;
 }
 
 bool
 Ipv4RawSocketImpl::ForwardUp (Ptr<const Packet> p, Ipv4Header ipHeader, Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << *p << ipHeader << incomingInterface);
+  NS_LOG_FUNCTION (*p << ipHeader << incomingInterface);
   if (m_shutdownRecv)
     {
       return false;

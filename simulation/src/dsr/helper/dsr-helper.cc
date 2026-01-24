@@ -49,32 +49,32 @@ namespace ns3 {
 
 DsrHelper::DsrHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_agentFactory.SetTypeId ("ns3::dsr::DsrRouting");
 }
 
 DsrHelper::DsrHelper (const DsrHelper &o)
   : m_agentFactory (o.m_agentFactory)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 DsrHelper::~DsrHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 DsrHelper*
 DsrHelper::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new DsrHelper (*this);
 }
 
 Ptr<ns3::dsr::DsrRouting>
 DsrHelper::Create (Ptr<Node> node) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<ns3::dsr::DsrRouting> agent = m_agentFactory.Create<ns3::dsr::DsrRouting> ();
   // deal with the downtargets, install UdpL4Protocol, TcpL4Protocol, Icmpv4L4Protocol
   Ptr<UdpL4Protocol> udp = node->GetObject<UdpL4Protocol> ();

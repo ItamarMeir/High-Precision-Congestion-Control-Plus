@@ -398,7 +398,7 @@ private:
   char const *m_name;
 };
 
-class ParameterLogger : public std::ostream
+class ParameterLogger
 {
   int m_itemNumber;
   std::ostream &m_os;

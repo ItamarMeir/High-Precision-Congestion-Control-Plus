@@ -67,14 +67,14 @@ AdhocAlohaNoackIdealPhyHelper::SetChannel (std::string channelName)
 void
 AdhocAlohaNoackIdealPhyHelper::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 {
-  NS_LOG_FUNCTION (this << txPsd);
+  NS_LOG_FUNCTION (txPsd);
   m_txPsd = txPsd;
 }
 
 void
 AdhocAlohaNoackIdealPhyHelper::SetNoisePowerSpectralDensity (Ptr<SpectrumValue> noisePsd)
 {
-  NS_LOG_FUNCTION (this << noisePsd);
+  NS_LOG_FUNCTION (noisePsd);
   m_noisePsd = noisePsd;
 }
 

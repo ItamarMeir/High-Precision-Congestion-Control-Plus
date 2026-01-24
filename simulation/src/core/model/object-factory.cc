@@ -27,37 +27,37 @@ NS_LOG_COMPONENT_DEFINE("ObjectFactory");
 
 ObjectFactory::ObjectFactory ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ObjectFactory::ObjectFactory (std::string typeId)
 {
-  NS_LOG_FUNCTION (this << typeId);
+  NS_LOG_FUNCTION (typeId);
   SetTypeId (typeId);
 }
 
 void
 ObjectFactory::SetTypeId (TypeId tid)
 {
-  NS_LOG_FUNCTION (this << tid.GetName ());
+  NS_LOG_FUNCTION (tid.GetName ());
   m_tid = tid;
 }
 void
 ObjectFactory::SetTypeId (std::string tid)
 {
-  NS_LOG_FUNCTION (this << tid);
+  NS_LOG_FUNCTION (tid);
   m_tid = TypeId::LookupByName (tid);
 }
 void
 ObjectFactory::SetTypeId (const char *tid)
 {
-  NS_LOG_FUNCTION (this << tid);
+  NS_LOG_FUNCTION (tid);
   m_tid = TypeId::LookupByName (tid);
 }
 void
 ObjectFactory::Set (std::string name, const AttributeValue &value)
 {
-  NS_LOG_FUNCTION (this << name << &value);
+  NS_LOG_FUNCTION (name << &value);
   if (name == "")
     {
       return;
@@ -81,14 +81,14 @@ ObjectFactory::Set (std::string name, const AttributeValue &value)
 TypeId 
 ObjectFactory::GetTypeId (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_tid;
 }
 
 Ptr<Object> 
 ObjectFactory::Create (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Callback<ObjectBase *> cb = m_tid.GetConstructor ();
   ObjectBase *base = cb ();
   Object *derived = dynamic_cast<Object *> (base);

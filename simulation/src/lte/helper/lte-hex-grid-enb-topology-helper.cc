@@ -36,12 +36,12 @@ NS_OBJECT_ENSURE_REGISTERED (LteHexGridEnbTopologyHelper);
 
 LteHexGridEnbTopologyHelper::LteHexGridEnbTopologyHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteHexGridEnbTopologyHelper::~LteHexGridEnbTopologyHelper (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId LteHexGridEnbTopologyHelper::GetTypeId (void)
@@ -86,7 +86,7 @@ TypeId LteHexGridEnbTopologyHelper::GetTypeId (void)
 void
 LteHexGridEnbTopologyHelper::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Object::DoDispose ();
 }
 
@@ -94,14 +94,14 @@ LteHexGridEnbTopologyHelper::DoDispose ()
 void 
 LteHexGridEnbTopologyHelper::SetLteHelper (Ptr<LteHelper> h)
 {
-  NS_LOG_FUNCTION (this << h);
+  NS_LOG_FUNCTION (h);
   m_lteHelper = h;
 }
 
 NetDeviceContainer 
 LteHexGridEnbTopologyHelper::SetPositionAndInstallEnbDevice (NodeContainer c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NetDeviceContainer enbDevs;
   const double xydfactor = sqrt (0.75);
   double yd = xydfactor*m_d;

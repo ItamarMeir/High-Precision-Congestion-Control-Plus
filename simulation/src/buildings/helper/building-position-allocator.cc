@@ -124,7 +124,7 @@ RandomRoomPositionAllocator::GetTypeId (void)
 Vector 
 RandomRoomPositionAllocator::GetNext () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG (BuildingList::GetNBuildings () > 0, "no building found");
  
   if (m_roomListWithoutReplacement.empty ())
@@ -228,7 +228,7 @@ SameRoomPositionAllocator::GetTypeId (void)
 Vector 
 SameRoomPositionAllocator::GetNext () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_nodeIt == m_nodes.End ())
     {
       m_nodeIt  = m_nodes.Begin ();

@@ -129,7 +129,7 @@ NscTcpL4Protocol::NscTcpL4Protocol ()
 
 NscTcpL4Protocol::~NscTcpL4Protocol ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   dlclose (m_dlopenHandle);
 }
 
@@ -224,7 +224,7 @@ NscTcpL4Protocol::GetVersion (void) const
 void
 NscTcpL4Protocol::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   for (std::vector<Ptr<NscTcpSocketImpl> >::iterator i = m_sockets.begin (); i != m_sockets.end (); i++)
     {
@@ -248,7 +248,7 @@ NscTcpL4Protocol::DoDispose (void)
 Ptr<Socket>
 NscTcpL4Protocol::CreateSocket (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   Ptr<NscTcpSocketImpl> socket = CreateObject<NscTcpSocketImpl> ();
   socket->SetNode (m_node);
@@ -260,28 +260,28 @@ NscTcpL4Protocol::CreateSocket (void)
 Ipv4EndPoint *
 NscTcpL4Protocol::Allocate (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_endPoints->Allocate ();
 }
 
 Ipv4EndPoint *
 NscTcpL4Protocol::Allocate (Ipv4Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   return m_endPoints->Allocate (address);
 }
 
 Ipv4EndPoint *
 NscTcpL4Protocol::Allocate (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   return m_endPoints->Allocate (port);
 }
 
 Ipv4EndPoint *
 NscTcpL4Protocol::Allocate (Ipv4Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   return m_endPoints->Allocate (address, port);
 }
 
@@ -289,7 +289,7 @@ Ipv4EndPoint *
 NscTcpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
                             Ipv4Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   return m_endPoints->Allocate (localAddress, localPort,
                                 peerAddress, peerPort);
 }
@@ -297,7 +297,7 @@ NscTcpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
 void 
 NscTcpL4Protocol::DeAllocate (Ipv4EndPoint *endPoint)
 {
-  NS_LOG_FUNCTION (this << endPoint);
+  NS_LOG_FUNCTION (endPoint);
   // NSC m_endPoints->DeAllocate (endPoint);
 }
 
@@ -306,7 +306,7 @@ NscTcpL4Protocol::Receive (Ptr<Packet> packet,
                            Ipv4Header const &header,
                            Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << packet << header << incomingInterface);
+  NS_LOG_FUNCTION (packet << header << incomingInterface);
   Ipv4Header ipHeader;
   uint32_t packetSize = packet->GetSize ();
 

@@ -42,7 +42,7 @@ NS_OBJECT_ENSURE_REGISTERED (RegularWifiMac);
 
 RegularWifiMac::RegularWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rxMiddle = new MacRxMiddle ();
   m_rxMiddle->SetForwardCallback (MakeCallback (&RegularWifiMac::Receive, this));
 
@@ -71,13 +71,13 @@ RegularWifiMac::RegularWifiMac ()
 
 RegularWifiMac::~RegularWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 RegularWifiMac::DoStart ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_dca->Start ();
 
@@ -90,7 +90,7 @@ RegularWifiMac::DoStart ()
 void
 RegularWifiMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_rxMiddle;
   m_rxMiddle = NULL;
 
@@ -118,7 +118,7 @@ RegularWifiMac::DoDispose ()
 void
 RegularWifiMac::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> stationManager)
 {
-  NS_LOG_FUNCTION (this << stationManager);
+  NS_LOG_FUNCTION (stationManager);
   m_stationManager = stationManager;
   m_low->SetWifiRemoteStationManager (stationManager);
 
@@ -139,7 +139,7 @@ RegularWifiMac::GetWifiRemoteStationManager () const
 void
 RegularWifiMac::SetupEdcaQueue (enum AcIndex ac)
 {
-  NS_LOG_FUNCTION (this << ac);
+  NS_LOG_FUNCTION (ac);
 
   // Our caller shouldn't be attempting to setup a queue that is
   // already configured.
@@ -159,7 +159,7 @@ RegularWifiMac::SetupEdcaQueue (enum AcIndex ac)
 void
 RegularWifiMac::SetTypeOfStation (TypeOfStation type)
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   for (EdcaQueues::iterator i = m_edca.begin (); i != m_edca.end (); ++i)
     {
       i->second->SetTypeOfStation (type);
@@ -199,7 +199,7 @@ RegularWifiMac::GetBKQueue () const
 void
 RegularWifiMac::SetWifiPhy (Ptr<WifiPhy> phy)
 {
-  NS_LOG_FUNCTION (this << phy);
+  NS_LOG_FUNCTION (phy);
   m_phy = phy;
   m_dcfManager->SetupPhyListener (phy);
   m_low->SetPhy (phy);
@@ -214,28 +214,28 @@ RegularWifiMac::GetWifiPhy () const
 void
 RegularWifiMac::SetForwardUpCallback (ForwardUpCallback upCallback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_forwardUp = upCallback;
 }
 
 void
 RegularWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_linkUp = linkUp;
 }
 
 void
 RegularWifiMac::SetLinkDownCallback (Callback<void> linkDown)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_linkDown = linkDown;
 }
 
 void
 RegularWifiMac::SetQosSupported (bool enable)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_qosSupported = enable;
 }
 
@@ -248,7 +248,7 @@ RegularWifiMac::GetQosSupported () const
 void
 RegularWifiMac::SetSlot (Time slotTime)
 {
-  NS_LOG_FUNCTION (this << slotTime);
+  NS_LOG_FUNCTION (slotTime);
   m_dcfManager->SetSlot (slotTime);
   m_low->SetSlotTime (slotTime);
 }
@@ -262,7 +262,7 @@ RegularWifiMac::GetSlot (void) const
 void
 RegularWifiMac::SetSifs (Time sifs)
 {
-  NS_LOG_FUNCTION (this << sifs);
+  NS_LOG_FUNCTION (sifs);
   m_dcfManager->SetSifs (sifs);
   m_low->SetSifs (sifs);
 }
@@ -276,7 +276,7 @@ RegularWifiMac::GetSifs (void) const
 void
 RegularWifiMac::SetEifsNoDifs (Time eifsNoDifs)
 {
-  NS_LOG_FUNCTION (this << eifsNoDifs);
+  NS_LOG_FUNCTION (eifsNoDifs);
   m_dcfManager->SetEifsNoDifs (eifsNoDifs);
 }
 
@@ -289,7 +289,7 @@ RegularWifiMac::GetEifsNoDifs (void) const
 void
 RegularWifiMac::SetPifs (Time pifs)
 {
-  NS_LOG_FUNCTION (this << pifs);
+  NS_LOG_FUNCTION (pifs);
   m_low->SetPifs (pifs);
 }
 
@@ -302,7 +302,7 @@ RegularWifiMac::GetPifs (void) const
 void
 RegularWifiMac::SetAckTimeout (Time ackTimeout)
 {
-  NS_LOG_FUNCTION (this << ackTimeout);
+  NS_LOG_FUNCTION (ackTimeout);
   m_low->SetAckTimeout (ackTimeout);
 }
 
@@ -315,7 +315,7 @@ RegularWifiMac::GetAckTimeout (void) const
 void
 RegularWifiMac::SetCtsTimeout (Time ctsTimeout)
 {
-  NS_LOG_FUNCTION (this << ctsTimeout);
+  NS_LOG_FUNCTION (ctsTimeout);
   m_low->SetCtsTimeout (ctsTimeout);
 }
 
@@ -328,7 +328,7 @@ RegularWifiMac::GetCtsTimeout (void) const
 void
 RegularWifiMac::SetBasicBlockAckTimeout (Time blockAckTimeout)
 {
-  NS_LOG_FUNCTION (this << blockAckTimeout);
+  NS_LOG_FUNCTION (blockAckTimeout);
   m_low->SetBasicBlockAckTimeout (blockAckTimeout);
 }
 
@@ -341,7 +341,7 @@ RegularWifiMac::GetBasicBlockAckTimeout (void) const
 void
 RegularWifiMac::SetCompressedBlockAckTimeout (Time blockAckTimeout)
 {
-  NS_LOG_FUNCTION (this << blockAckTimeout);
+  NS_LOG_FUNCTION (blockAckTimeout);
   m_low->SetCompressedBlockAckTimeout (blockAckTimeout);
 }
 
@@ -354,7 +354,7 @@ RegularWifiMac::GetCompressedBlockAckTimeout (void) const
 void
 RegularWifiMac::SetAddress (Mac48Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   m_low->SetAddress (address);
 }
 
@@ -367,7 +367,7 @@ RegularWifiMac::GetAddress (void) const
 void
 RegularWifiMac::SetSsid (Ssid ssid)
 {
-  NS_LOG_FUNCTION (this << ssid);
+  NS_LOG_FUNCTION (ssid);
   m_ssid = ssid;
 }
 
@@ -380,7 +380,7 @@ RegularWifiMac::GetSsid (void) const
 void
 RegularWifiMac::SetBssid (Mac48Address bssid)
 {
-  NS_LOG_FUNCTION (this << bssid);
+  NS_LOG_FUNCTION (bssid);
   m_low->SetBssid (bssid);
 }
 
@@ -417,14 +417,14 @@ RegularWifiMac::SupportsSendFrom (void) const
 void
 RegularWifiMac::ForwardUp (Ptr<Packet> packet, Mac48Address from, Mac48Address to)
 {
-  NS_LOG_FUNCTION (this << packet << from);
+  NS_LOG_FUNCTION (packet << from);
   m_forwardUp (packet, from, to);
 }
 
 void
 RegularWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this << packet << hdr);
+  NS_LOG_FUNCTION (packet << hdr);
 
   Mac48Address to = hdr->GetAddr1 ();
   Mac48Address from = hdr->GetAddr2 ();
@@ -540,7 +540,7 @@ void
 RegularWifiMac::SendAddBaResponse (const MgtAddBaRequestHeader *reqHdr,
                                    Mac48Address originator)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   WifiMacHeader hdr;
   hdr.SetAction ();
   hdr.SetAddr1 (originator);
@@ -695,14 +695,14 @@ RegularWifiMac::FinishConfigureStandard (enum WifiPhyStandard standard)
 void
 RegularWifiMac::TxOk (const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this << hdr);
+  NS_LOG_FUNCTION (hdr);
   m_txOkCallback (hdr);
 }
 
 void
 RegularWifiMac::TxFailed (const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this << hdr);
+  NS_LOG_FUNCTION (hdr);
   m_txErrCallback (hdr);
 }
 

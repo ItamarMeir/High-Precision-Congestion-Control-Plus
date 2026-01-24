@@ -76,7 +76,7 @@ EpcTft::PacketFilter::PacketFilter ()
     typeOfService (0),  
     typeOfServiceMask (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 bool 
@@ -87,7 +87,7 @@ EpcTft::PacketFilter::Matches (Direction d,
 			       uint16_t lp,
 			       uint8_t tos)
 {
-  NS_LOG_FUNCTION (this << d << ra << la << rp << lp << (uint16_t) tos);
+  NS_LOG_FUNCTION (d << ra << la << rp << lp << (uint16_t) tos);
   if (d & direction)
     {
       NS_LOG_LOGIC ("d matches");
@@ -150,13 +150,13 @@ EpcTft::Default ()
 EpcTft::EpcTft ()
   : m_numFilters (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint8_t 
 EpcTft::Add (PacketFilter f)
 {
-  NS_LOG_FUNCTION (this << f);
+  NS_LOG_FUNCTION (f);
   NS_ABORT_IF (m_numFilters >= 16);
   
   std::list<PacketFilter>::iterator it;
@@ -178,7 +178,7 @@ EpcTft::Matches (Direction direction,
 		 uint16_t localPort,
 		 uint8_t typeOfService)
 {
-  NS_LOG_FUNCTION (this << direction << remoteAddress << localAddress << std::dec << remotePort << localPort << (uint16_t) typeOfService);
+  NS_LOG_FUNCTION (direction << remoteAddress << localAddress << std::dec << remotePort << localPort << (uint16_t) typeOfService);
   for (std::list<PacketFilter>::iterator it = m_filters.begin ();
        it != m_filters.end ();
        ++it)

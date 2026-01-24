@@ -1101,7 +1101,7 @@ SimpleOfdmWimaxPhy::NotifyRxDrop (Ptr<PacketBurst> burst)
 int64_t
 SimpleOfdmWimaxPhy::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_URNG->SetStream (stream);
   return 1;
 }

@@ -46,7 +46,7 @@ private:
 
 SystemMutexPrivate::SystemMutexPrivate ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   pthread_mutexattr_t attr;
   pthread_mutexattr_init (&attr);
@@ -69,14 +69,14 @@ SystemMutexPrivate::SystemMutexPrivate ()
 
 SystemMutexPrivate::~SystemMutexPrivate() 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   pthread_mutex_destroy (&m_mutex);
 }
 	
 void
 SystemMutexPrivate::Lock (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   int rc = pthread_mutex_lock (&m_mutex);
   if (rc != 0) 
@@ -90,7 +90,7 @@ SystemMutexPrivate::Lock (void)
 void
 SystemMutexPrivate::Unlock (void) 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   int rc = pthread_mutex_unlock (&m_mutex);
   if (rc != 0)
@@ -104,39 +104,39 @@ SystemMutexPrivate::Unlock (void)
 SystemMutex::SystemMutex() 
   : m_priv (new SystemMutexPrivate ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 SystemMutex::~SystemMutex() 
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_priv;
 }
 
 void
 SystemMutex::Lock ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_priv->Lock ();
 }
 
 void
 SystemMutex::Unlock ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_priv->Unlock ();
 }
 
 CriticalSection::CriticalSection (SystemMutex &mutex)
   : m_mutex (mutex)
 {
-  NS_LOG_FUNCTION (this << &mutex);
+  NS_LOG_FUNCTION (&mutex);
   m_mutex.Lock ();
 }
 
 CriticalSection::~CriticalSection ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_mutex.Unlock ();
 }
 #else
@@ -150,12 +150,12 @@ CriticalSection::CriticalSection (SystemMutex &mutex)
 	  : m_mutex (mutex)
 
 {
-  NS_LOG_FUNCTION (this << &mutex);
+  NS_LOG_FUNCTION (&mutex);
 }
 
 CriticalSection::~CriticalSection ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 #endif
 } // namespace ns3

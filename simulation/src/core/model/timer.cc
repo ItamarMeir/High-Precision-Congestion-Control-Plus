@@ -32,7 +32,7 @@ Timer::Timer ()
     m_event (),
     m_impl (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Timer::Timer (enum DestroyPolicy destroyPolicy)
@@ -41,12 +41,12 @@ Timer::Timer (enum DestroyPolicy destroyPolicy)
     m_event (),
     m_impl (0)
 {
-  NS_LOG_FUNCTION (this << destroyPolicy);
+  NS_LOG_FUNCTION (destroyPolicy);
 }
 
 Timer::~Timer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_flags & CHECK_ON_DESTROY)
     {
       if (m_event.IsRunning ())
@@ -68,19 +68,19 @@ Timer::~Timer ()
 void
 Timer::SetDelay (const Time &time)
 {
-  NS_LOG_FUNCTION (this << time);
+  NS_LOG_FUNCTION (time);
   m_delay = time;
 }
 Time
 Timer::GetDelay (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_delay;
 }
 Time
 Timer::GetDelayLeft (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   switch (GetState ())
     {
     case Timer::RUNNING:
@@ -102,37 +102,37 @@ Timer::GetDelayLeft (void) const
 void
 Timer::Cancel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Simulator::Cancel (m_event);
 }
 void
 Timer::Remove (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Simulator::Remove (m_event);
 }
 bool
 Timer::IsExpired (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return !IsSuspended () && m_event.IsExpired ();
 }
 bool
 Timer::IsRunning (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return !IsSuspended () && m_event.IsRunning ();
 }
 bool
 Timer::IsSuspended (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_flags & TIMER_SUSPENDED) == TIMER_SUSPENDED;
 }
 enum Timer::State
 Timer::GetState (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (IsRunning ())
     {
       return Timer::RUNNING;
@@ -151,14 +151,14 @@ Timer::GetState (void) const
 void
 Timer::Schedule (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Schedule (m_delay);
 }
 
 void
 Timer::Schedule (Time delay)
 {
-  NS_LOG_FUNCTION (this << delay);
+  NS_LOG_FUNCTION (delay);
   NS_ASSERT (m_impl != 0);
   if (m_event.IsRunning ())
     {
@@ -170,7 +170,7 @@ Timer::Schedule (Time delay)
 void
 Timer::Suspend (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (IsRunning ());
   m_delayLeft = Simulator::GetDelayLeft (m_event);
   Simulator::Remove (m_event);
@@ -180,7 +180,7 @@ Timer::Suspend (void)
 void
 Timer::Resume (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (m_flags & TIMER_SUSPENDED);
   m_event = m_impl->Schedule (m_delayLeft);
   m_flags &= ~TIMER_SUSPENDED;

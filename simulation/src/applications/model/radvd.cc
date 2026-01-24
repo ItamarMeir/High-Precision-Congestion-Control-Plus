@@ -128,20 +128,20 @@ void Radvd::AddConfiguration (Ptr<RadvdInterface> routerInterface)
 int64_t 
 Radvd:: AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_jitter->SetStream (stream);
   return 1;
 }
 
 void Radvd::ScheduleTransmit (Time dt, Ptr<RadvdInterface> config, EventId& eventId, Ipv6Address dst, bool reschedule)
 {
-  NS_LOG_FUNCTION (this << dt);
+  NS_LOG_FUNCTION (dt);
   eventId = Simulator::Schedule (dt, &Radvd::Send, this, config, dst, reschedule);
 }
 
 void Radvd::Send (Ptr<RadvdInterface> config, Ipv6Address dst, bool reschedule)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   NS_ASSERT (m_eventIds[config->GetInterface ()].IsExpired ());
   Icmpv6RA raHdr;
   Icmpv6OptionLinkLayerAddress llaHdr;
@@ -244,7 +244,7 @@ void Radvd::Send (Ptr<RadvdInterface> config, Ipv6Address dst, bool reschedule)
 
 void Radvd::HandleRead (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   Ptr<Packet> packet = 0;
   Address from;
 

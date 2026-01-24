@@ -81,7 +81,7 @@ CosineAntennaModelTestCase::CosineAntennaModelTestCase (Angles a, double b, doub
 void
 CosineAntennaModelTestCase::DoRun ()
 {
-  NS_LOG_FUNCTION (this << BuildNameString (m_a, m_b, m_o, m_g));
+  NS_LOG_FUNCTION (BuildNameString (m_a, m_b, m_o, m_g));
 
   Ptr<CosineAntennaModel> a = CreateObject<CosineAntennaModel> ();
   a->SetAttribute ("Beamwidth", DoubleValue (m_b));

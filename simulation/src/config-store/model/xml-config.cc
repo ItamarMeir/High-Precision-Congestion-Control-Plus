@@ -16,7 +16,7 @@ namespace ns3 {
 XmlConfigSave::XmlConfigSave ()
   : m_writer (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 void
 XmlConfigSave::SetFilename (std::string filename)
@@ -58,7 +58,7 @@ XmlConfigSave::SetFilename (std::string filename)
 }
 XmlConfigSave::~XmlConfigSave ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_writer == 0)
     {
       return;
@@ -202,11 +202,11 @@ XmlConfigSave::Global (void)
 
 XmlConfigLoad::XmlConfigLoad ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 XmlConfigLoad::~XmlConfigLoad ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void

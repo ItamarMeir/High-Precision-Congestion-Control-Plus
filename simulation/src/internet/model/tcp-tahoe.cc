@@ -57,7 +57,7 @@ TcpTahoe::TcpTahoe (void)
     m_retxThresh (3),
     m_ssThreshLastChange (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TcpTahoe::TcpTahoe (const TcpTahoe& sock)
@@ -68,7 +68,7 @@ TcpTahoe::TcpTahoe (const TcpTahoe& sock)
     m_retxThresh (sock.m_retxThresh),
     m_ssThreshLastChange (sock.m_ssThreshLastChange)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("Invoked the copy constructor");
 }
 
@@ -80,7 +80,7 @@ TcpTahoe::~TcpTahoe (void)
 int
 TcpTahoe::Listen (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   InitializeCwnd ();
   return TcpSocketBase::Listen ();
 }
@@ -89,7 +89,7 @@ TcpTahoe::Listen (void)
 int
 TcpTahoe::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   InitializeCwnd ();
   return TcpSocketBase::Connect (address);
 }
@@ -98,7 +98,7 @@ TcpTahoe::Connect (const Address & address)
 uint32_t
 TcpTahoe::Window (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return std::min (m_rWnd.Get (), m_cWnd.Get ());
 }
 
@@ -112,7 +112,7 @@ TcpTahoe::Fork (void)
 void
 TcpTahoe::NewAck (SequenceNumber32 const& seq)
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   NS_LOG_LOGIC ("TcpTahoe receieved ACK for seq " << seq <<
                 " cwnd " << m_cWnd <<
                 " ssthresh " << m_ssThresh);
@@ -136,7 +136,7 @@ TcpTahoe::NewAck (SequenceNumber32 const& seq)
 void
 TcpTahoe::DupAck (const TcpHeader& t, uint32_t count)
 {
-  NS_LOG_FUNCTION (this << "t " << count);
+  NS_LOG_FUNCTION ("t " << count);
   if (count == m_retxThresh)
     { // triple duplicate ack triggers fast retransmit (RFC2001, sec.3)
       NS_LOG_INFO ("Triple Dup Ack: old ssthresh " << m_ssThresh << " cwnd " << m_cWnd);
@@ -156,7 +156,7 @@ TcpTahoe::DupAck (const TcpHeader& t, uint32_t count)
 /** Retransmit timeout */
 void TcpTahoe::Retransmit (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " ReTxTimeout Expired at time " << Simulator::Now ().GetSeconds ());
   // If erroneous timeout in closed/timed-wait state, just return
   if (m_state == CLOSED || m_state == TIME_WAIT) return;

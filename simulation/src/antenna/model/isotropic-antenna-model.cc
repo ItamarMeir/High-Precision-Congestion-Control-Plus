@@ -44,13 +44,13 @@ IsotropicAntennaModel::GetTypeId ()
 
 IsotropicAntennaModel::IsotropicAntennaModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 IsotropicAntennaModel::GetGainDb (Angles a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   return 0.0;
 }
 

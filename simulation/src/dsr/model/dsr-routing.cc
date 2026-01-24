@@ -309,7 +309,7 @@ DsrRouting::~DsrRouting ()
 void
 DsrRouting::NotifyNewAggregate ()
 {
-  NS_LOG_FUNCTION (this << "NotifyNewAggregate");
+  NS_LOG_FUNCTION ("NotifyNewAggregate");
   if (m_node == 0)
     {
       Ptr<Node> node = this->GetObject<Node> ();
@@ -336,7 +336,7 @@ DsrRouting::NotifyNewAggregate ()
 
 void DsrRouting::Start ()
 {
-  NS_LOG_FUNCTION (this << "Start DSR Routing protocol");
+  NS_LOG_FUNCTION ("Start DSR Routing protocol");
   Ptr<dsr::RouteCache> routeCache = CreateObject<dsr::RouteCache> ();
   // Configure the path cache parameters
   routeCache->SetCacheType (m_cacheType);
@@ -530,7 +530,7 @@ bool DsrRouting::UpdateRouteEntry (Ipv4Address dst)
 Ipv4Address
 DsrRouting::GetIPfromMAC (Mac48Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   int32_t nNodes = NodeList::GetNNodes ();
   for (int32_t i = 0; i < nNodes; ++i)
     {
@@ -548,7 +548,7 @@ DsrRouting::GetIPfromMAC (Mac48Address address)
 
 void DsrRouting::PrintVector (std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /*
    * Check elements in a route vector
    */
@@ -568,7 +568,7 @@ void DsrRouting::PrintVector (std::vector<Ipv4Address>& vec)
 
 Ipv4Address DsrRouting::SearchNextHop (Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   Ipv4Address nextHop;
   NS_LOG_DEBUG ("the vector size " << vec.size ());
   if (vec.size () == 2)
@@ -602,7 +602,7 @@ Ipv4Address DsrRouting::SearchNextHop (Ipv4Address ipv4Address, std::vector<Ipv4
 Ptr<Ipv4Route>
 DsrRouting::SetRoute (Ipv4Address nextHop, Ipv4Address srcAddress)
 {
-  NS_LOG_FUNCTION (this << nextHop << srcAddress);
+  NS_LOG_FUNCTION (nextHop << srcAddress);
   m_ipv4Route = Create<Ipv4Route> ();
   m_ipv4Route->SetDestination (nextHop);
   m_ipv4Route->SetGateway (nextHop);
@@ -664,7 +664,7 @@ DsrRouting::GetPriority (DsrMessageType messageType)
 
 void DsrRouting::SendRerrWhenBreaksLinkToNextHop (Ipv4Address nextHop, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << nextHop << (uint32_t)protocol);
+  NS_LOG_FUNCTION (nextHop << (uint32_t)protocol);
   MaintainBuffEntry entry;
   // Find the packet in send buffer
   if (m_maintainBuffer.Find (nextHop))
@@ -1060,7 +1060,7 @@ DsrRouting::PacketNewRoute (Ptr<Packet> packet,
                             Ipv4Address destination,
                             uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination << (uint32_t)protocol);
+  NS_LOG_FUNCTION (packet << source << destination << (uint32_t)protocol);
   // Look up routes for the specific destination
   RouteCacheEntry toDst;
   bool findRoute = m_routeCache->LookupRoute (destination, toDst);
@@ -1161,7 +1161,7 @@ DsrRouting::PacketNewRoute (Ptr<Packet> packet,
 void
 DsrRouting::SendUnreachError (Ipv4Address errorHop, Ipv4Address destination, Ipv4Address originalDst, uint8_t salvage, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << errorHop << destination << originalDst << (uint32_t)salvage << (uint32_t)protocol);
+  NS_LOG_FUNCTION (errorHop << destination << originalDst << (uint32_t)salvage << (uint32_t)protocol);
   DsrRoutingHeader dsrRoutingHeader;
   dsrRoutingHeader.SetNextHeader (protocol);
   dsrRoutingHeader.SetMessageType (1);
@@ -1263,7 +1263,7 @@ DsrRouting::ForwardErrPacket (DsrOptionRerrUnreachHeader &rerr,
                               uint8_t protocol,
                               Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << rerr << sourceRoute << nextHop << (uint32_t)protocol << route);
+  NS_LOG_FUNCTION (rerr << sourceRoute << nextHop << (uint32_t)protocol << route);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
   DsrRoutingHeader dsrRoutingHeader;
   dsrRoutingHeader.SetNextHeader (protocol);
@@ -1305,7 +1305,7 @@ DsrRouting::Send (Ptr<Packet> packet,
                   uint8_t protocol,
                   Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination << (uint32_t)protocol << route);
+  NS_LOG_FUNCTION (packet << source << destination << (uint32_t)protocol << route);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
 
   if (protocol == 1)
@@ -1424,7 +1424,7 @@ DsrRouting::Send (Ptr<Packet> packet,
 uint16_t
 DsrRouting::AddAckReqHeader (Ptr<Packet>& packet, Ipv4Address nextHop)
 {
-  NS_LOG_FUNCTION (this << packet << nextHop);
+  NS_LOG_FUNCTION (packet << nextHop);
   // This packet is used to peek option type
   Ptr<Packet> dsrP = packet->Copy ();
   Ptr<Packet> tmpP = packet->Copy ();
@@ -1467,7 +1467,7 @@ DsrRouting::AddAckReqHeader (Ptr<Packet>& packet, Ipv4Address nextHop)
 void
 DsrRouting::SendPacket (Ptr<Packet> packet, Ipv4Address source, Ipv4Address nextHop, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << packet << source << nextHop << (uint32_t)protocol);
+  NS_LOG_FUNCTION (packet << source << nextHop << (uint32_t)protocol);
   // Send out the data packet
   m_ipv4Route = SetRoute (nextHop, m_mainAddress);
   Ptr<NetDevice> dev = m_ip->GetNetDevice (m_ip->GetInterfaceForAddress (m_mainAddress));
@@ -1493,14 +1493,14 @@ DsrRouting::SendPacket (Ptr<Packet> packet, Ipv4Address source, Ipv4Address next
 void
 DsrRouting::Scheduler (uint32_t priority)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PriorityScheduler (priority, true);
 }
 
 void
 DsrRouting::PriorityScheduler (uint32_t priority, bool continueWithFirst)
 {
-  NS_LOG_FUNCTION (this << priority << continueWithFirst);
+  NS_LOG_FUNCTION (priority << continueWithFirst);
   NS_LOG_DEBUG ("Scheduler looking for packets in network queue");
   uint32_t numPriorities;
   if (continueWithFirst)
@@ -1573,7 +1573,7 @@ DsrRouting::PriorityScheduler (uint32_t priority, bool continueWithFirst)
 void
 DsrRouting::IncreaseRetransTimer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // We may want to get the queue first and then we need to save a vector of the entries here and then find
   uint32_t priority = GetPriority (DSR_DATA_PACKET);
   std::map<uint32_t, Ptr<dsr::DsrNetworkQueue> >::iterator i = m_priorityQueue.find (priority);
@@ -1598,7 +1598,7 @@ DsrRouting::IncreaseRetransTimer ()
 bool
 DsrRouting::SendRealDown (DsrNetworkQueueEntry & newEntry)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv4Address source = newEntry.GetSourceAddress ();
   Ipv4Address nextHop = newEntry.GetNextHopAddress ();
   Ptr<Packet> packet = newEntry.GetPacket ()->Copy ();
@@ -1612,7 +1612,7 @@ DsrRouting::SendRealDown (DsrNetworkQueueEntry & newEntry)
 void
 DsrRouting::SendPacketFromBuffer (DsrOptionSRHeader const &sourceRoute, Ipv4Address nextHop, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << nextHop << (uint32_t)protocol);
+  NS_LOG_FUNCTION (nextHop << (uint32_t)protocol);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
 
   // Reconstruct the route and Retransmit the data packet
@@ -1804,7 +1804,7 @@ bool
 DsrRouting::FindSamePackets (Ptr<Packet> packet, Ipv4Address source, Ipv4Address destination,
                              uint8_t segsLeft)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination << (uint32_t)segsLeft);
+  NS_LOG_FUNCTION (packet << source << destination << (uint32_t)segsLeft);
 
   Ptr<Packet> p = packet->Copy ();
   // Here the segments left value need to plus one to check the earlier hop maintain buffer entry
@@ -1828,7 +1828,7 @@ DsrRouting::FindSamePackets (Ptr<Packet> packet, Ipv4Address source, Ipv4Address
 void
 DsrRouting::CallCancelPacketTimer (uint16_t ackId, Ipv4Header const& ipv4Header, Ipv4Address realSrc, Ipv4Address realDst)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)ackId << ipv4Header << realSrc << realDst);
+  NS_LOG_FUNCTION ((uint32_t)ackId << ipv4Header << realSrc << realDst);
   Ipv4Address sender = ipv4Header.GetDestination ();
   Ipv4Address receiver = ipv4Header.GetSource ();
   /*
@@ -1845,7 +1845,7 @@ DsrRouting::CallCancelPacketTimer (uint16_t ackId, Ipv4Header const& ipv4Header,
 void
 DsrRouting::CancelNetworkPacketTimer (MaintainBuffEntry & mb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NetworkKey networkKey;
   networkKey.m_ackId = mb.GetAckId ();
   networkKey.m_ourAdd = mb.GetOurAdd ();
@@ -1895,7 +1895,7 @@ DsrRouting::CancelNetworkPacketTimer (MaintainBuffEntry & mb)
 void
 DsrRouting::CancelPassivePacketTimer (MaintainBuffEntry & mb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PassiveKey passiveKey;
   passiveKey.m_ackId = 0;
   passiveKey.m_source = mb.GetSrc ();
@@ -1931,7 +1931,7 @@ DsrRouting::CancelPassivePacketTimer (MaintainBuffEntry & mb)
 void
 DsrRouting::CancelPacketTimerNextHop (Ipv4Address nextHop, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << nextHop << (uint32_t)protocol);
+  NS_LOG_FUNCTION (nextHop << (uint32_t)protocol);
   MaintainBuffEntry entry;
   if (m_maintainBuffer.Dequeue (nextHop, entry))
     {
@@ -1960,7 +1960,7 @@ DsrRouting::CancelPacketTimerNextHop (Ipv4Address nextHop, uint8_t protocol)
 void
 DsrRouting::SalvagePacket (Ptr<const Packet> packet, Ipv4Address source, Ipv4Address dst, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << packet << source << dst << (uint32_t)protocol);
+  NS_LOG_FUNCTION (packet << source << dst << (uint32_t)protocol);
   // Create two copies of packet
   Ptr<Packet> p = packet->Copy ();
   Ptr<Packet> newPacket = packet->Copy ();
@@ -2060,7 +2060,7 @@ DsrRouting::SchedulePassivePacketRetry (MaintainBuffEntry & mb,
                                         bool onlyPassive,
                                         uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << onlyPassive << (uint32_t)protocol);
+  NS_LOG_FUNCTION (onlyPassive << (uint32_t)protocol);
 
   PassiveKey passiveKey;
   passiveKey.m_ackId = 0;
@@ -2179,7 +2179,7 @@ DsrRouting::PassiveScheduleTimerExpire  (MaintainBuffEntry & mb,
                                          bool onlyPassive,
                                          uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << onlyPassive << (uint32_t)protocol);
+  NS_LOG_FUNCTION (onlyPassive << (uint32_t)protocol);
   Ipv4Address nextHop = mb.GetNextHop ();
   Ipv4Address source = mb.GetSrc ();
   Ptr<const Packet> packet = mb.GetPacket ();
@@ -2228,7 +2228,7 @@ DsrRouting::PassiveScheduleTimerExpire  (MaintainBuffEntry & mb,
 int64_t
 DsrRouting::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }
@@ -2317,7 +2317,7 @@ DsrRouting::ForwardPacket (Ptr<const Packet> packet,
                            uint8_t protocol,
                            Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << sourceRoute << source << nextHop << targetAddress << (uint32_t)protocol << route);
+  NS_LOG_FUNCTION (packet << sourceRoute << source << nextHop << targetAddress << (uint32_t)protocol << route);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
 
   DsrRoutingHeader dsrRoutingHeader;
@@ -2377,7 +2377,7 @@ DsrRouting::SendInitialRequest (Ipv4Address source,
                                 Ipv4Address destination,
                                 uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << source << destination << (uint32_t)protocol);
+  NS_LOG_FUNCTION (source << destination << (uint32_t)protocol);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
   Ptr<Packet> packet = Create<Packet> ();
   // Create an empty Ipv4 route ptr
@@ -2422,7 +2422,7 @@ DsrRouting::SendInitialRequest (Ipv4Address source,
 void
 DsrRouting::SendErrorRequest (DsrOptionRerrUnreachHeader &rerr, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)protocol);
+  NS_LOG_FUNCTION ((uint32_t)protocol);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
   uint8_t salvage = rerr.GetSalvage ();
   Ipv4Address dst = rerr.GetOriginalDst ();
@@ -2522,7 +2522,7 @@ DsrRouting::SendErrorRequest (DsrOptionRerrUnreachHeader &rerr, uint8_t protocol
 void
 DsrRouting::CancelRreqTimer (Ipv4Address dst, bool isRemove)
 {
-  NS_LOG_FUNCTION (this << dst << isRemove);
+  NS_LOG_FUNCTION (dst << isRemove);
   // Cancel the non propagation request timer if found
   if (m_nonPropReqTimer.find (dst) == m_nonPropReqTimer.end ())
     {
@@ -2571,7 +2571,7 @@ DsrRouting::CancelRreqTimer (Ipv4Address dst, bool isRemove)
 void
 DsrRouting::ScheduleRreqRetry (Ptr<Packet> packet, std::vector<Ipv4Address> address, bool nonProp, uint32_t requestId, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << packet << nonProp << requestId << (uint32_t)protocol);
+  NS_LOG_FUNCTION (packet << nonProp << requestId << (uint32_t)protocol);
   Ipv4Address source = address[0];
   Ipv4Address dst = address[1];
   if (nonProp)
@@ -2643,7 +2643,7 @@ DsrRouting::ScheduleRreqRetry (Ptr<Packet> packet, std::vector<Ipv4Address> addr
 void
 DsrRouting::RouteRequestTimerExpire (Ptr<Packet> packet, std::vector<Ipv4Address> address, uint32_t requestId, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << packet << requestId << (uint32_t)protocol);
+  NS_LOG_FUNCTION (packet << requestId << (uint32_t)protocol);
   // Get a clean packet without dsr header
   Ptr<Packet> dsrP = packet->Copy ();
   DsrRoutingHeader dsrRoutingHeader;
@@ -2713,7 +2713,7 @@ void
 DsrRouting::SendRequest (Ptr<Packet> packet,
                          Ipv4Address source)
 {
-  NS_LOG_FUNCTION (this << packet << source);
+  NS_LOG_FUNCTION (packet << source);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
   /*
    * The destination address here is directed broadcast address
@@ -2738,7 +2738,7 @@ DsrRouting::SendRequest (Ptr<Packet> packet,
 void
 DsrRouting::ScheduleInterRequest (Ptr<Packet> packet)
 {
-  NS_LOG_FUNCTION (this << packet);
+  NS_LOG_FUNCTION (packet);
   /*
    * This is a forwarding case when sending route requests, a random delay time [0, m_broadcastJitter]
    * used before forwarding as link-layer broadcast
@@ -2750,7 +2750,7 @@ DsrRouting::ScheduleInterRequest (Ptr<Packet> packet)
 void
 DsrRouting::SendGratuitousReply (Ipv4Address source, Ipv4Address srcAddress, std::vector<Ipv4Address> &nodeList, uint8_t protocol)
 {
-  NS_LOG_FUNCTION (this << source << srcAddress << (uint32_t)protocol);
+  NS_LOG_FUNCTION (source << srcAddress << (uint32_t)protocol);
   if (!(m_graReply.FindAndUpdate (source, srcAddress, m_gratReplyHoldoff)))     // Find the gratuitous reply entry
     {
       NS_LOG_LOGIC ("Update gratuitous reply " << source);
@@ -2815,7 +2815,7 @@ DsrRouting::SendReply (Ptr<Packet> packet,
                        Ipv4Address nextHop,
                        Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << source << nextHop);
+  NS_LOG_FUNCTION (packet << source << nextHop);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
   Ptr<NetDevice> dev = m_ipv4->GetNetDevice (m_ipv4->GetInterfaceForAddress (m_mainAddress));
   route->SetOutputDevice (dev);
@@ -2844,7 +2844,7 @@ DsrRouting::ScheduleInitialReply (Ptr<Packet> packet,
                                   Ipv4Address nextHop,
                                   Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << source << nextHop);
+  NS_LOG_FUNCTION (packet << source << nextHop);
   Simulator::ScheduleNow (&DsrRouting::SendReply, this,
                           packet, source, nextHop, route);
 }
@@ -2856,7 +2856,7 @@ DsrRouting::ScheduleCachedReply (Ptr<Packet> packet,
                                  Ptr<Ipv4Route> route,
                                  double hops)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination);
+  NS_LOG_FUNCTION (packet << source << destination);
   Simulator::Schedule (Time (2 * m_nodeTraversalTime * (hops - 1 + m_uniformRandomVariable->GetValue (0,1))), &DsrRouting::SendReply, this, packet, source, destination, route);
 }
 
@@ -2868,7 +2868,7 @@ DsrRouting::SendAck   (uint16_t ackId,
                        uint8_t protocol,
                        Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << ackId << destination << realSrc << realDst << (uint32_t)protocol << route);
+  NS_LOG_FUNCTION (ackId << destination << realSrc << realDst << (uint32_t)protocol << route);
   NS_ASSERT_MSG (!m_downTarget.IsNull (), "Error, DsrRouting cannot send downward");
 
   // This is a route reply option header
@@ -2918,7 +2918,7 @@ DsrRouting::Receive (Ptr<Packet> p,
                      Ipv4Header const &ip,
                      Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << p << ip << incomingInterface);
+  NS_LOG_FUNCTION (p << ip << incomingInterface);
 
   NS_LOG_INFO ("Our own IP address " << m_mainAddress << " The incoming interface address " << incomingInterface);
   m_node = GetNode ();                        // Get the node
@@ -3105,7 +3105,7 @@ DsrRouting::Receive (Ptr<Packet> p,
                      Ipv6Header const &ip,
                      Ptr<Ipv6Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << p << ip.GetSourceAddress () << ip.GetDestinationAddress () << incomingInterface);
+  NS_LOG_FUNCTION (p << ip.GetSourceAddress () << ip.GetDestinationAddress () << incomingInterface);
   return IpL4Protocol::RX_ENDPOINT_UNREACH;
 }
 

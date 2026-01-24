@@ -37,7 +37,7 @@ NS_OBJECT_ENSURE_REGISTERED (LtePhy);
 
 LtePhy::LtePhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_FATAL_ERROR ("This constructor should not be called");
 }
 
@@ -50,7 +50,7 @@ LtePhy::LtePhy (Ptr<LteSpectrumPhy> dlPhy, Ptr<LteSpectrumPhy> ulPhy)
     m_rbgSize (0),
     m_macChTtiDelay (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -66,13 +66,13 @@ LtePhy::GetTypeId (void)
 
 LtePhy::~LtePhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LtePhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_packetBurstQueue.clear ();
   m_controlMessagesQueue.clear ();
   m_downlinkSpectrumPhy->Dispose ();
@@ -86,7 +86,7 @@ LtePhy::DoDispose ()
 void
 LtePhy::SetDevice (Ptr<LteNetDevice> d)
 {
-  NS_LOG_FUNCTION (this << d);
+  NS_LOG_FUNCTION (d);
   m_netDevice = d;
 }
 
@@ -94,7 +94,7 @@ LtePhy::SetDevice (Ptr<LteNetDevice> d)
 Ptr<LteNetDevice>
 LtePhy::GetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_netDevice;
 }
 
@@ -114,21 +114,21 @@ LtePhy::GetUplinkSpectrumPhy ()
 void
 LtePhy::SetDownlinkChannel (Ptr<SpectrumChannel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_downlinkSpectrumPhy->SetChannel (c);
 }
 
 void
 LtePhy::SetUplinkChannel (Ptr<SpectrumChannel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_uplinkSpectrumPhy->SetChannel (c);
 }
 
 void
 LtePhy::SetDownlinkSubChannels (std::vector<int> mask )
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_listOfDownlinkSubchannel = mask;
   DoSetDownlinkSubChannels ();
 }
@@ -137,14 +137,14 @@ LtePhy::SetDownlinkSubChannels (std::vector<int> mask )
 void
 LtePhy::DoSetDownlinkSubChannels ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void
 LtePhy::SetUplinkSubChannels (std::vector<int> mask )
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_listOfUplinkSubchannel = mask;
   DoSetUplinkSubChannels ();
 }
@@ -153,14 +153,14 @@ LtePhy::SetUplinkSubChannels (std::vector<int> mask )
 void
 LtePhy::DoSetUplinkSubChannels ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 std::vector<int>
 LtePhy::GetDownlinkSubChannels (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_listOfDownlinkSubchannel;
 }
 
@@ -168,14 +168,14 @@ LtePhy::GetDownlinkSubChannels (void)
 std::vector<int>
 LtePhy::GetUplinkSubChannels (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_listOfUplinkSubchannel;
 }
 
 void
 LtePhy::SetTti (double tti)
 {
-  NS_LOG_FUNCTION (this << tti);
+  NS_LOG_FUNCTION (tti);
   m_tti = tti;
 }
 
@@ -183,7 +183,7 @@ LtePhy::SetTti (double tti)
 double
 LtePhy::GetTti (void) const
 {
-  NS_LOG_FUNCTION (this << m_tti);
+  NS_LOG_FUNCTION (m_tti);
   return m_tti;
 }
 

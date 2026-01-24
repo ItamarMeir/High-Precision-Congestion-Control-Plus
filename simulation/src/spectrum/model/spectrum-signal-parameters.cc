@@ -32,17 +32,17 @@ namespace ns3 {
 
 SpectrumSignalParameters::SpectrumSignalParameters ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 SpectrumSignalParameters::~SpectrumSignalParameters ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 SpectrumSignalParameters::SpectrumSignalParameters (const SpectrumSignalParameters& p)
 {
-  NS_LOG_FUNCTION (this << &p);
+  NS_LOG_FUNCTION (&p);
   psd = p.psd->Copy ();
   duration = p.duration;
   txPhy = p.txPhy;
@@ -52,7 +52,7 @@ SpectrumSignalParameters::SpectrumSignalParameters (const SpectrumSignalParamete
 Ptr<SpectrumSignalParameters>
 SpectrumSignalParameters::Copy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Create<SpectrumSignalParameters> (*this);
 }
 

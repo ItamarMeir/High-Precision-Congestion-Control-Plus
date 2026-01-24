@@ -61,7 +61,7 @@ Queue::~Queue()
 bool 
 Queue::Enqueue (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   //
   // If DoEnqueue fails, Queue::Drop is called by the subclass
@@ -85,7 +85,7 @@ Queue::Enqueue (Ptr<Packet> p)
 Ptr<Packet>
 Queue::Dequeue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
         			//printf("dequeue!!\n");
 			//fflush(stdout);
@@ -109,7 +109,7 @@ Queue::Dequeue (void)
 void
 Queue::DequeueAll (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while (!IsEmpty ())
     {
       Dequeue ();
@@ -119,7 +119,7 @@ Queue::DequeueAll (void)
 Ptr<const Packet>
 Queue::Peek (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return DoPeek ();
 }
 
@@ -193,7 +193,7 @@ Queue::ResetStatistics (void)
 void
 Queue::Drop (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   m_nTotalDroppedPackets++;
   m_nTotalDroppedBytes += p->GetSize ();

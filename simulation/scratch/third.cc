@@ -21,6 +21,8 @@
 #include <fstream>
 #include <unordered_map>
 #include <time.h> 
+#include <cmath>
+#include <memory>
 #include "ns3/core-module.h"
 #include "ns3/qbb-helper.h"
 #include "ns3/point-to-point-helper.h"
@@ -36,6 +38,7 @@
 #include <ns3/rdma-driver.h>
 #include <ns3/switch-node.h>
 #include <ns3/sim-setting.h>
+#include "ns3/netanim-module.h"
 
 using namespace ns3;
 using namespace std;
@@ -49,6 +52,7 @@ double pause_time = 5, simulator_stop_time = 3.01;
 std::string data_rate, link_delay, topology_file, flow_file, trace_file, trace_output_file;
 std::string fct_output_file = "fct.txt";
 std::string pfc_output_file = "pfc.txt";
+std::string cwnd_output_file = "cwnd.txt";
 
 double alpha_resume_interval = 55, rp_timer, ewma_gain = 1 / 16;
 double rate_decrease_interval = 4;
@@ -75,6 +79,9 @@ uint64_t link_down_time = 0;
 uint32_t link_down_A = 0, link_down_B = 0;
 
 uint32_t enable_trace = 1;
+uint32_t enable_cwnd_trace = 0;
+uint32_t enable_anim = 0;
+std::string anim_output_file = "mix/topology-animation.xml";
 
 uint32_t buffer_size = 16;
 
@@ -132,6 +139,54 @@ void ReadFlowInput(){
 		NS_ASSERT(n.Get(flow_input.src)->GetNodeType() == 0 && n.Get(flow_input.dst)->GetNodeType() == 0);
 	}
 }
+
+void SetupAnimation(AnimationInterface &anim, NodeContainer &nodes, const std::vector<uint32_t> &node_type){
+	std::vector<uint32_t> host_ids;
+	std::vector<uint32_t> switch_ids;
+	for (uint32_t i = 0; i < node_type.size(); i++){
+		if (node_type[i] == 0)
+			host_ids.push_back(i);
+		else
+			switch_ids.push_back(i);
+	}
+
+	const double pi = 3.14159265358979323846;
+	auto place_ring = [&](const std::vector<uint32_t> &ids, double radius){
+		if (ids.empty())
+			return;
+		for (uint32_t idx = 0; idx < ids.size(); idx++){
+			double angle = 2.0 * pi * static_cast<double>(idx) / static_cast<double>(ids.size());
+			double x = radius * std::cos(angle);
+			double y = radius * std::sin(angle);
+			anim.SetConstantPosition(nodes.Get(ids[idx]), x, y);
+		}
+	};
+
+	place_ring(switch_ids, 60.0);
+	place_ring(host_ids, 120.0);
+}
+
+void FixAnimHeader(const std::string &filePath){
+	std::ifstream in(filePath.c_str());
+	std::string resolvedPath = filePath;
+	if (!in.is_open()){
+		resolvedPath = "../" + filePath;
+		in.open(resolvedPath.c_str());
+		if (!in.is_open())
+			return;
+	}
+	std::string firstLine;
+	std::getline(in, firstLine);
+	std::string rest((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+	in.close();
+
+	std::ofstream out(resolvedPath.c_str(), std::ios::trunc);
+	if (!out.is_open())
+		return;
+	out << "<anim ver=\"netanim-3.108\" filetype=\"animation\">\n";
+	out << rest;
+	out.close();
+}
 void ScheduleFlowInputs(){
 	while (flow_input.idx < flow_num && Seconds(flow_input.start_time) == Simulator::Now()){
 		uint32_t port = portNumder[flow_input.src][flow_input.dst]++; // get a new port number 
@@ -173,6 +228,12 @@ void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 	Ptr<Node> dstNode = n.Get(did);
 	Ptr<RdmaDriver> rdma = dstNode->GetObject<RdmaDriver> ();
 	rdma->m_rdma->DeleteRxQp(q->sip.Get(), q->m_pg, q->sport);
+}
+
+void trace_qp_rate(FILE* fout, Ptr<RdmaQueuePair> q, uint64_t rate, uint64_t win){
+	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
+	fprintf(fout, "%lu %u %u %u %u %lu %lu\n", Simulator::Now().GetTimeStep(), sid, did, q->sport, q->dport, rate, win);
+	fflush(fout);
 }
 
 void get_pfc(FILE* fout, Ptr<QbbNetDevice> dev, uint32_t type){
@@ -331,12 +392,17 @@ uint64_t get_nic_rate(NodeContainer &n){
 	for (uint32_t i = 0; i < n.GetN(); i++)
 		if (n.Get(i)->GetNodeType() == 0)
 			return DynamicCast<QbbNetDevice>(n.Get(i)->GetDevice(1))->GetDataRate().GetBitRate();
+	return 0;
 }
 
 int main(int argc, char *argv[])
 {
 	clock_t begint, endt;
 	begint = clock();
+#ifndef PGO_TRAINING
+	CommandLine cmd;
+	cmd.Parse(argc, argv);
+#endif
 #ifndef PGO_TRAINING
 	if (argc > 1)
 #else
@@ -580,12 +646,24 @@ int main(int argc, char *argv[])
 			}else if (key.compare("PFC_OUTPUT_FILE") == 0){
 				conf >> pfc_output_file;
 				std::cout << "PFC_OUTPUT_FILE\t\t\t\t" << pfc_output_file << '\n';
+			}else if (key.compare("CWND_OUTPUT_FILE") == 0){
+				conf >> cwnd_output_file;
+				std::cout << "CWND_OUTPUT_FILE\t\t\t" << cwnd_output_file << '\n';
 			}else if (key.compare("LINK_DOWN") == 0){
 				conf >> link_down_time >> link_down_A >> link_down_B;
 				std::cout << "LINK_DOWN\t\t\t\t" << link_down_time << ' '<< link_down_A << ' ' << link_down_B << '\n';
 			}else if (key.compare("ENABLE_TRACE") == 0){
 				conf >> enable_trace;
 				std::cout << "ENABLE_TRACE\t\t\t\t" << enable_trace << '\n';
+			}else if (key.compare("ENABLE_CWND_TRACE") == 0){
+				conf >> enable_cwnd_trace;
+				std::cout << "ENABLE_CWND_TRACE\t\t\t" << enable_cwnd_trace << '\n';
+			}else if (key.compare("ENABLE_ANIM") == 0){
+				conf >> enable_anim;
+				std::cout << "ENABLE_ANIM\t\t\t\t" << enable_anim << '\n';
+			}else if (key.compare("ANIM_OUTPUT_FILE") == 0){
+				conf >> anim_output_file;
+				std::cout << "ANIM_OUTPUT_FILE\t\t\t" << anim_output_file << '\n';
 			}else if (key.compare("KMAX_MAP") == 0){
 				int n_k ;
 				conf >> n_k;
@@ -720,6 +798,12 @@ int main(int argc, char *argv[])
 
 	NS_LOG_INFO("Create nodes.");
 
+	std::unique_ptr<AnimationInterface> anim;
+	if (enable_anim){
+		anim.reset(new AnimationInterface(anim_output_file));
+		SetupAnimation(*anim, n, node_type);
+	}
+
 	InternetStackHelper internet;
 	internet.Install(n);
 
@@ -747,6 +831,7 @@ int main(int argc, char *argv[])
 	rem->SetAttribute("ErrorUnit", StringValue("ERROR_UNIT_PACKET"));
 
 	FILE *pfc_file = fopen(pfc_output_file.c_str(), "w");
+	FILE *cwnd_output = nullptr;
 
 	QbbHelper qbb;
 	Ipv4AddressHelper ipv4;
@@ -851,6 +936,8 @@ int main(int argc, char *argv[])
 
 	#if ENABLE_QP
 	FILE *fct_output = fopen(fct_output_file.c_str(), "w");
+	if (enable_cwnd_trace)
+		cwnd_output = fopen(cwnd_output_file.c_str(), "w");
 	//
 	// install RDMA driver
 	//
@@ -890,6 +977,8 @@ int main(int argc, char *argv[])
 			node->AggregateObject (rdma);
 			rdma->Init();
 			rdma->TraceConnectWithoutContext("QpComplete", MakeBoundCallback (qp_finish, fct_output));
+			if (enable_cwnd_trace && cwnd_output)
+				rdmaHw->TraceConnectWithoutContext("QpRate", MakeBoundCallback(trace_qp_rate, cwnd_output));
 		}
 	}
 	#endif
@@ -1016,8 +1105,14 @@ int main(int argc, char *argv[])
 	Simulator::Stop(Seconds(simulator_stop_time));
 	Simulator::Run();
 	Simulator::Destroy();
+	if (enable_anim && anim){
+		anim.reset();
+		FixAnimHeader(anim_output_file);
+	}
 	NS_LOG_INFO("Done.");
 	fclose(trace_output);
+	if (cwnd_output)
+		fclose(cwnd_output);
 
 	endt = clock();
 	std::cout << (double)(endt - begint) / CLOCKS_PER_SEC << "\n";

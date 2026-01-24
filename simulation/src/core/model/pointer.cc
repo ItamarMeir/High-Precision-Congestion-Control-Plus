@@ -29,7 +29,7 @@ namespace ns3 {
 PointerValue::PointerValue ()
   : m_value ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 PointerValue::PointerValue (Ptr<Object> object)
@@ -48,20 +48,20 @@ PointerValue::SetObject (Ptr<Object> object)
 Ptr<Object>
 PointerValue::GetObject (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_value;
 }
 
 Ptr<AttributeValue>
 PointerValue::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Create<PointerValue> (*this);
 }
 std::string
 PointerValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
   std::ostringstream oss;
   oss << m_value;
   return oss.str ();
@@ -73,7 +73,7 @@ PointerValue::DeserializeFromString (std::string value, Ptr<const AttributeCheck
   // We assume that the string you want to deserialize contains
   // a description for an ObjectFactory to create an object and then assign it to the
   // member variable.
-  NS_LOG_FUNCTION (this << value << checker);
+  NS_LOG_FUNCTION (value << checker);
   ObjectFactory factory;
   std::istringstream iss;
   iss.str(value);

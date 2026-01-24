@@ -29,28 +29,28 @@ namespace ns3 {
 
 LteSinrChunkProcessor::~LteSinrChunkProcessor ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 LteCqiSinrChunkProcessor::LteCqiSinrChunkProcessor (Ptr<LtePhy> p)
   : m_phy (p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_ASSERT (m_phy);
 }
 
 
 LteCqiSinrChunkProcessor::~LteCqiSinrChunkProcessor ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void 
 LteCqiSinrChunkProcessor::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sumSinr = 0;
   m_totDuration = MicroSeconds (0);
 }
@@ -59,7 +59,7 @@ LteCqiSinrChunkProcessor::Start ()
 void 
 LteCqiSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time duration)
 {
-  NS_LOG_FUNCTION (this << sinr << duration);
+  NS_LOG_FUNCTION (sinr << duration);
   if (m_sumSinr == 0)
     {
       m_sumSinr = Create<SpectrumValue> (sinr.GetSpectrumModel ());
@@ -71,7 +71,7 @@ LteCqiSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time dur
 void 
 LteCqiSinrChunkProcessor::End ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_totDuration.GetSeconds () > 0)
     {
       m_phy->GenerateCqiReport ((*m_sumSinr) / m_totDuration.GetSeconds ());
@@ -88,21 +88,21 @@ LteCqiSinrChunkProcessor::End ()
 LtePemSinrChunkProcessor::LtePemSinrChunkProcessor (Ptr<LteSpectrumPhy> p)
 : m_phy (p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_ASSERT (m_phy);
 }
 
 
 LtePemSinrChunkProcessor::~LtePemSinrChunkProcessor ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void 
 LtePemSinrChunkProcessor::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sumSinr = 0;
   m_totDuration = MicroSeconds (0);
 }
@@ -111,7 +111,7 @@ LtePemSinrChunkProcessor::Start ()
 void 
 LtePemSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time duration)
 {
-  NS_LOG_FUNCTION (this << sinr << duration);
+  NS_LOG_FUNCTION (sinr << duration);
   if (m_sumSinr == 0)
   {
     m_sumSinr = Create<SpectrumValue> (sinr.GetSpectrumModel ());
@@ -123,7 +123,7 @@ LtePemSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time dur
 void 
 LtePemSinrChunkProcessor::End ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_totDuration.GetSeconds () > 0)
   {
     m_phy->UpdateSinrPerceived ((*m_sumSinr) / m_totDuration.GetSeconds ());

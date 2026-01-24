@@ -174,6 +174,9 @@ TypeId RdmaHw::GetTypeId (void)
 				UintegerValue(65536),
 				MakeUintegerAccessor(&RdmaHw::pint_smpl_thresh),
 				MakeUintegerChecker<uint32_t>())
+		.AddTraceSource("QpRate",
+				"Queue pair rate/window updates",
+				MakeTraceSourceAccessor(&RdmaHw::m_traceQpRate))
 		;
 	return tid;
 }
@@ -253,6 +256,9 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 		qp->hpccPint.m_curRate = m_bps;
 	}
 
+	// trace initial rate/window
+	m_traceQpRate(qp, qp->m_rate.GetBitRate(), GetQpWinForTrace(qp));
+
 	// Notify Nic
 	m_nic[nic_idx].dev->NewQp(qp);
 }
@@ -261,6 +267,12 @@ void RdmaHw::DeleteQueuePair(Ptr<RdmaQueuePair> qp){
 	// remove qp from the m_qpMap
 	uint64_t key = GetQpKey(qp->dip.Get(), qp->sport, qp->m_pg);
 	m_qpMap.erase(key);
+}
+
+uint64_t RdmaHw::GetQpWinForTrace(Ptr<RdmaQueuePair> qp){
+	if (m_cc_mode == 3)
+		return qp->HpGetCurWin();
+	return qp->GetWin();
 }
 
 Ptr<RdmaRxQueuePair> RdmaHw::GetRxQp(uint32_t sip, uint32_t dip, uint16_t sport, uint16_t dport, uint16_t pg, bool create){
@@ -609,6 +621,7 @@ void RdmaHw::ChangeRate(Ptr<RdmaQueuePair> qp, DataRate new_rate){
 
 	// change to new rate
 	qp->m_rate = new_rate;
+	m_traceQpRate(qp, qp->m_rate.GetBitRate(), GetQpWinForTrace(qp));
 }
 
 #define PRINT_LOG 0

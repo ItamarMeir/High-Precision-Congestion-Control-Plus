@@ -89,7 +89,7 @@ LteRlc::LteRlc ()
     m_rnti (0),
     m_lcid (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rlcSapProvider = new LteRlcSpecificLteRlcSapProvider<LteRlc> (this);
   m_macSapUser = new LteRlcSpecificLteMacSapUser (this);
 }
@@ -111,20 +111,20 @@ TypeId LteRlc::GetTypeId (void)
 void
 LteRlc::SetRnti (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   m_rnti = rnti;
 }
 
 void
 LteRlc::SetLcId (uint8_t lcId)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) lcId);
+  NS_LOG_FUNCTION ((uint32_t) lcId);
   m_lcid = lcId;
 }
 
 LteRlc::~LteRlc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete (m_rlcSapProvider);
   delete (m_macSapUser);
 }
@@ -132,28 +132,28 @@ LteRlc::~LteRlc ()
 void
 LteRlc::SetLteRlcSapUser (LteRlcSapUser * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_rlcSapUser = s;
 }
 
 LteRlcSapProvider*
 LteRlc::GetLteRlcSapProvider ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rlcSapProvider;
 }
 
 void
 LteRlc::SetLteMacSapProvider (LteMacSapProvider * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_macSapProvider = s;
 }
 
 LteMacSapUser*
 LteRlc::GetLteMacSapUser ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_macSapUser;
 }
 
@@ -166,7 +166,7 @@ NS_OBJECT_ENSURE_REGISTERED (LteRlcSm);
 LteRlcSm::LteRlcSm ()
 {
 
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Simulator::ScheduleNow (&LteRlcSm::Start, this);
 }
 
@@ -188,13 +188,13 @@ LteRlcSm::GetTypeId (void)
 void
 LteRlcSm::DoTransmitPdcpPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 }
 
 void
 LteRlcSm::DoReceivePdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   // RLC Performance evaluation
   RlcTag rlcTag;
   Time delay;
@@ -212,7 +212,7 @@ LteRlcSm::DoReceivePdu (Ptr<Packet> p)
 void
 LteRlcSm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 {
-  NS_LOG_FUNCTION (this << bytes);
+  NS_LOG_FUNCTION (bytes);
   LteMacSapProvider::TransmitPduParameters params;
   params.pdu = Create<Packet> (bytes);
   params.rnti = m_rnti;
@@ -234,20 +234,20 @@ LteRlcSm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 void
 LteRlcSm::DoNotifyHarqDeliveryFailure ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteRlcSm::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ReportBufferStatus ();
 }
 
 void
 LteRlcSm::ReportBufferStatus ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   LteMacSapProvider::ReportBufferStatusParameters p;
   p.rnti = m_rnti;
   p.lcid = m_lcid;

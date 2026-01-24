@@ -71,7 +71,7 @@ LtePdcp::LtePdcp ()
     m_txSequenceNumber (0),
     m_rxSequenceNumber (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_pdcpSapProvider = new LtePdcpSpecificLtePdcpSapProvider<LtePdcp> (this);
   m_rlcSapUser = new LtePdcpSpecificLteRlcSapUser (this);
 
@@ -96,20 +96,20 @@ LtePdcp::GetTypeId (void)
 void
 LtePdcp::SetRnti (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   m_rnti = rnti;
 }
 
 void
 LtePdcp::SetLcId (uint8_t lcId)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) lcId);
+  NS_LOG_FUNCTION ((uint32_t) lcId);
   m_lcid = lcId;
 }
 
 LtePdcp::~LtePdcp ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete (m_pdcpSapProvider);
   delete (m_rlcSapUser);
 }
@@ -117,28 +117,28 @@ LtePdcp::~LtePdcp ()
 void
 LtePdcp::SetLtePdcpSapUser (LtePdcpSapUser * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_pdcpSapUser = s;
 }
 
 LtePdcpSapProvider*
 LtePdcp::GetLtePdcpSapProvider ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_pdcpSapProvider;
 }
 
 void
 LtePdcp::SetLteRlcSapProvider (LteRlcSapProvider * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_rlcSapProvider = s;
 }
 
 LteRlcSapUser*
 LtePdcp::GetLteRlcSapUser ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rlcSapUser;
 }
 
@@ -147,7 +147,7 @@ LtePdcp::GetLteRlcSapUser ()
 void
 LtePdcp::DoTransmitRrcPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   LtePdcpHeader pdcpHeader;
   pdcpHeader.SetSequenceNumber (m_txSequenceNumber);
@@ -179,7 +179,7 @@ LtePdcp::DoTransmitRrcPdu (Ptr<Packet> p)
 void
 LtePdcp::DoReceivePdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   // Receiver timestamp
   PdcpTag pdcpTag;
@@ -210,7 +210,7 @@ LtePdcp::DoReceivePdu (Ptr<Packet> p)
 void
 LtePdcp::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 

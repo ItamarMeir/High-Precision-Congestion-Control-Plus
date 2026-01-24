@@ -101,7 +101,7 @@ LteUeRrc::LteUeRrc ()
     m_macSapProvider (0),
     m_cellId (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_cmacSapUser = new UeMemberLteUeCmacSapUser (this);
   m_pdcpSapUser = new LtePdcpSpecificLtePdcpSapUser<LteUeRrc> (this);
 }
@@ -109,13 +109,13 @@ LteUeRrc::LteUeRrc ()
 
 LteUeRrc::~LteUeRrc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteUeRrc::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_cmacSapUser;
   delete m_pdcpSapUser;
   m_rbMap.clear ();
@@ -148,21 +148,21 @@ LteUeRrc::GetTypeId (void)
 void
 LteUeRrc::SetLteUeCmacSapProvider (LteUeCmacSapProvider * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_cmacSapProvider = s;
 }
 
 LteUeCmacSapUser*
 LteUeRrc::GetLteUeCmacSapUser ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_cmacSapUser;
 }
 
 void
 LteUeRrc::SetLteMacSapProvider (LteMacSapProvider * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_macSapProvider = s;
 }
 
@@ -171,7 +171,7 @@ LteUeRrc::SetLteMacSapProvider (LteMacSapProvider * s)
 void
 LteUeRrc::ConfigureUe (uint16_t rnti, uint16_t cellId)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   m_rnti = rnti;
   m_cellId = cellId;
   m_cmacSapProvider->ConfigureUe (rnti);
@@ -180,7 +180,7 @@ LteUeRrc::ConfigureUe (uint16_t rnti, uint16_t cellId)
 void
 LteUeRrc::SetupRadioBearer (uint16_t rnti, EpsBearer bearer, TypeId rlcTypeId, uint8_t lcid, Ptr<EpcTft> tft)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)  rnti << (uint32_t) lcid);
+  NS_LOG_FUNCTION ((uint32_t)  rnti << (uint32_t) lcid);
 
   ObjectFactory rlcObjectFactory;
   rlcObjectFactory.SetTypeId (rlcTypeId);
@@ -217,7 +217,7 @@ LteUeRrc::SetupRadioBearer (uint16_t rnti, EpsBearer bearer, TypeId rlcTypeId, u
 void
 LteUeRrc::ReleaseRadioBearer (uint16_t rnti, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)  rnti << (uint32_t) lcid);
+  NS_LOG_FUNCTION ((uint32_t)  rnti << (uint32_t) lcid);
   std::map<uint8_t, Ptr<LteRadioBearerInfo> >::iterator it =   m_rbMap.find (lcid);
   NS_ASSERT_MSG (it != m_rbMap.end (), "could not find bearer with given lcid");
   m_rbMap.erase (it);
@@ -228,7 +228,7 @@ LteUeRrc::ReleaseRadioBearer (uint16_t rnti, uint8_t lcid)
 bool
 LteUeRrc::Send (Ptr<Packet> packet)
 {
-  NS_LOG_FUNCTION (this << packet);
+  NS_LOG_FUNCTION (packet);
   uint8_t lcid = m_tftClassifier.Classify (packet, EpcTft::UPLINK);
   LtePdcpSapProvider::TransmitRrcPduParameters params;
   params.rrcPdu = packet;
@@ -259,7 +259,7 @@ LteUeRrc::SetForwardUpCallback (Callback <void, Ptr<Packet> > cb)
 void
 LteUeRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_forwardUpCallback (params.rrcPdu);
 }
 
@@ -269,21 +269,21 @@ LteUeRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 void
 LteUeRrc::DoLcConfigCompleted ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_FATAL_ERROR ("not implemented");
 }
 
 uint16_t
 LteUeRrc::GetRnti ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rnti;
 }
 
 uint16_t
 LteUeRrc::GetCellId ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_cellId;
 }
 
@@ -301,7 +301,7 @@ LteUeRrc::GetLcIdVector ()
 void
 LteUeRrc::DoRrcConfigurationUpdateInd (LteUeConfig_t params)
 {
-  NS_LOG_FUNCTION (this << " RNTI " << params.m_rnti << " txMode " << (uint16_t)params.m_transmissionMode);
+  NS_LOG_FUNCTION (" RNTI " << params.m_rnti << " txMode " << (uint16_t)params.m_transmissionMode);
   
   // propagate the information to MAC layer
   m_cmacSapProvider->RrcUpdateConfigurationReq (params);

@@ -82,7 +82,7 @@ MaintainBuffer::Enqueue (MaintainBuffEntry & entry)
 void
 MaintainBuffer::DropPacketWithNextHop (Ipv4Address nextHop)
 {
-  NS_LOG_FUNCTION (this << nextHop);
+  NS_LOG_FUNCTION (nextHop);
   Purge ();
   NS_LOG_DEBUG ("Drop Packet With next hop " << nextHop);
   m_maintainBuffer.erase (std::remove_if (m_maintainBuffer.begin (), m_maintainBuffer.end (),

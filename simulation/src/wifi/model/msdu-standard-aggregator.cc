@@ -55,7 +55,7 @@ bool
 MsduStandardAggregator::Aggregate (Ptr<const Packet> packet, Ptr<Packet> aggregatedPacket,
                                    Mac48Address src, Mac48Address dest)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Packet> currentPacket;
   AmsduSubframeHeader currentHdr;
 

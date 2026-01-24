@@ -220,7 +220,7 @@ namespace ns3 {
 
 	QbbNetDevice::QbbNetDevice()
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 		m_ecn_source = new std::vector<ECNAccount>;
 		for (uint32_t i = 0; i < qCnt; i++){
 			m_paused[i] = false;
@@ -231,13 +231,13 @@ namespace ns3 {
 
 	QbbNetDevice::~QbbNetDevice()
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 	}
 
 	void
 		QbbNetDevice::DoDispose()
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 
 		PointToPointNetDevice::DoDispose();
 	}
@@ -245,7 +245,7 @@ namespace ns3 {
 	void
 		QbbNetDevice::TransmitComplete(void)
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 		NS_ASSERT_MSG(m_txMachineState == BUSY, "Must be BUSY if transmitting");
 		m_txMachineState = READY;
 		NS_ASSERT_MSG(m_currentPkt != 0, "QbbNetDevice::TransmitComplete(): m_currentPkt zero");
@@ -257,7 +257,7 @@ namespace ns3 {
 	void
 		QbbNetDevice::DequeueAndTransmit(void)
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 		if (!m_linkUp) return; // if link is down, return
 		if (m_txMachineState == BUSY) return;	// Quit if channel busy
 		Ptr<Packet> p;
@@ -338,7 +338,7 @@ namespace ns3 {
 	void
 		QbbNetDevice::Resume(unsigned qIndex)
 	{
-		NS_LOG_FUNCTION(this << qIndex);
+		NS_LOG_FUNCTION(qIndex);
 		NS_ASSERT_MSG(m_paused[qIndex], "Must be PAUSEd");
 		m_paused[qIndex] = false;
 		NS_LOG_INFO("Node " << m_node->GetId() << " dev " << m_ifIndex << " queue " << qIndex <<
@@ -349,7 +349,7 @@ namespace ns3 {
 	void
 		QbbNetDevice::Receive(Ptr<Packet> packet)
 	{
-		NS_LOG_FUNCTION(this << packet);
+		NS_LOG_FUNCTION(packet);
 		if (!m_linkUp){
 			m_traceDrop(packet, 0);
 			return;
@@ -427,7 +427,7 @@ namespace ns3 {
 	bool
 		QbbNetDevice::Attach(Ptr<QbbChannel> ch)
 	{
-		NS_LOG_FUNCTION(this << &ch);
+		NS_LOG_FUNCTION(&ch);
 		m_channel = ch;
 		m_channel->Attach(this);
 		NotifyLinkUp();
@@ -437,7 +437,7 @@ namespace ns3 {
 	bool
 		QbbNetDevice::TransmitStart(Ptr<Packet> p)
 	{
-		NS_LOG_FUNCTION(this << p);
+		NS_LOG_FUNCTION(p);
 		NS_LOG_LOGIC("UID is " << p->GetUid() << ")");
 		//
 		// This function is called to start the process of transmitting a packet.
@@ -483,7 +483,7 @@ namespace ns3 {
    }
 
 	void QbbNetDevice::SetQueue(Ptr<BEgressQueue> q){
-		NS_LOG_FUNCTION(this << q);
+		NS_LOG_FUNCTION(q);
 		m_queue = q;
 	}
 

@@ -119,13 +119,13 @@ void Ping6::StartApplication ()
 
 void Ping6::SetLocal (Ipv6Address ipv6) 
 {
-  NS_LOG_FUNCTION (this << ipv6);
+  NS_LOG_FUNCTION (ipv6);
   m_localAddress = ipv6;
 }
 
 void Ping6::SetRemote (Ipv6Address ipv6)
 {
-  NS_LOG_FUNCTION (this << ipv6);
+  NS_LOG_FUNCTION (ipv6);
   m_peerAddress = ipv6;
 }
 
@@ -148,7 +148,7 @@ void Ping6::SetIfIndex (uint32_t ifIndex)
 
 void Ping6::ScheduleTransmit (Time dt)
 {
-  NS_LOG_FUNCTION (this << dt);
+  NS_LOG_FUNCTION (dt);
   m_sendEvent = Simulator::Schedule (dt, &Ping6::Send, this);
 }
 
@@ -227,7 +227,7 @@ void Ping6::Send ()
 
 void Ping6::HandleRead (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
 
   Ptr<Packet> packet=0;
   Address from;

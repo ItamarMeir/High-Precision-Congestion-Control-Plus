@@ -42,7 +42,7 @@ NS_OBJECT_ENSURE_REGISTERED (EpcHelper);
 EpcHelper::EpcHelper () 
   : m_gtpuUdpPort (2152) // fixed by the standard
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // since we use point-to-point links for all S1-U links, 
   // we use a /30 subnet which can hold exactly two addresses 
@@ -90,7 +90,7 @@ EpcHelper::EpcHelper ()
 
 EpcHelper::~EpcHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId
@@ -131,7 +131,7 @@ EpcHelper::DoDispose ()
 void
 EpcHelper::AddEnb (Ptr<Node> enb, Ptr<NetDevice> lteEnbNetDevice)
 {
-  NS_LOG_FUNCTION (this << enb << lteEnbNetDevice);
+  NS_LOG_FUNCTION (enb << lteEnbNetDevice);
 
   NS_ASSERT (enb == lteEnbNetDevice->GetNode ());
 

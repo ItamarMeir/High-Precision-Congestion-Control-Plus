@@ -2,64 +2,66 @@ import argparse
 import sys
 import os
 
-config_template="""ENABLE_QCN 1
-USE_DYNAMIC_PFC_THRESHOLD 1
+config_template="""ENABLE_QCN 1 {{0: disable, 1: enable}}
+USE_DYNAMIC_PFC_THRESHOLD 1 {{0: disable, 1: enable}}
 
-PACKET_PAYLOAD_SIZE 1000
+PACKET_PAYLOAD_SIZE 1000 {{packet size (bytes)}}
 
-TOPOLOGY_FILE mix/{topo}.txt
-FLOW_FILE mix/{trace}.txt
-TRACE_FILE mix/trace.txt
-TRACE_OUTPUT_FILE mix/mix_{topo}_{trace}_{cc}{failure}.tr
-FCT_OUTPUT_FILE mix/fct_{topo}_{trace}_{cc}{failure}.txt
-PFC_OUTPUT_FILE mix/pfc_{topo}_{trace}_{cc}{failure}.txt
+TOPOLOGY_FILE mix/topologies/{topo}.txt {{input file: topology}}
+FLOW_FILE mix/flows/{trace}.txt {{input file: flow to generate}}
+TRACE_FILE mix/inputs/trace.txt {{input file: nodes to monitor packet-level events}}
+TRACE_OUTPUT_FILE mix/outputs/trace/mix_{topo}_{trace}_{cc}{failure}.tr {{output file: packet-level events}}
+FCT_OUTPUT_FILE mix/outputs/fct/fct_{topo}_{trace}_{cc}{failure}.txt {{output file: flow completion time}}
+PFC_OUTPUT_FILE mix/outputs/pfc/pfc_{topo}_{trace}_{cc}{failure}.txt {{output file: PFC}}
+CWND_OUTPUT_FILE mix/outputs/cwnd/cwnd_{topo}_{trace}_{cc}{failure}.txt {{output file: qp rate/window trace}}
 
-SIMULATOR_STOP_TIME 4.00
+SIMULATOR_STOP_TIME 4.00 {{simulation stop time}}
 
-CC_MODE {mode}
-ALPHA_RESUME_INTERVAL {t_alpha}
-RATE_DECREASE_INTERVAL {t_dec}
-CLAMP_TARGET_RATE 0
-RP_TIMER {t_inc}
-EWMA_GAIN {g}
-FAST_RECOVERY_TIMES 1
-RATE_AI {ai}Mb/s
-RATE_HAI {hai}Mb/s
-MIN_RATE 1000Mb/s
-DCTCP_RATE_AI {dctcp_ai}Mb/s
+CC_MODE {mode} {{1: DCQCN, 3: HPCC, 7: TIMELY, 8: DCTCP, 10: HPCC-PINT}}
+ALPHA_RESUME_INTERVAL {t_alpha} {{for DCQCN: interval of update alpha}}
+RATE_DECREASE_INTERVAL {t_dec} {{for DCQCN: interval of rate decrease}}
+CLAMP_TARGET_RATE 0 {{for DCQCN: reduce target rate on consecutive decrease}}
+RP_TIMER {t_inc} {{for DCQCN: interval of rate increase}}
+EWMA_GAIN {g} {{for DCQCN/DCTCP: EWMA gain}}
+FAST_RECOVERY_TIMES 1 {{for DCQCN: number of fast recovery increases}}
+RATE_AI {ai}Mb/s {{additive increase (not for DCTCP)}}
+RATE_HAI {hai}Mb/s {{hyper additive increase}}
+MIN_RATE 1000Mb/s {{minimum rate}}
+DCTCP_RATE_AI {dctcp_ai}Mb/s {{additive increase for DCTCP}}
 
-ERROR_RATE_PER_LINK 0.0000
-L2_CHUNK_SIZE 4000
-L2_ACK_INTERVAL 1
-L2_BACK_TO_ZERO 0
+ERROR_RATE_PER_LINK 0.0000 {{error rate of each link}}
+L2_CHUNK_SIZE 4000 {{for DCQCN: chunk size}}
+L2_ACK_INTERVAL 1 {{packets between ACK generation, 1 means per packet}}
+L2_BACK_TO_ZERO 0 {{0: go-back-0, 1: go-back-N}}
 
-HAS_WIN {has_win}
-GLOBAL_T 1
-VAR_WIN {vwin}
-FAST_REACT {us}
-U_TARGET {u_tgt}
-MI_THRESH {mi}
-INT_MULTI {int_multi}
-MULTI_RATE 0
-SAMPLE_FEEDBACK 0
-PINT_LOG_BASE {pint_log_base}
-PINT_PROB {pint_prob}
+HAS_WIN {has_win} {{0: no window, 1: has a window}}
+GLOBAL_T 1 {{0: per-pair RTT, 1: global max RTT}}
+VAR_WIN {vwin} {{0: fixed window, 1: variable window}}
+FAST_REACT {us} {{0: react per RTT, 1: react per ACK}}
+U_TARGET {u_tgt} {{for HPCC: target utilization}}
+MI_THRESH {mi} {{for HPCC: maxStage}}
+INT_MULTI {int_multi} {{for HPCC: INT scaling}}
+MULTI_RATE 0 {{for HPCC: 0: single rate, 1: per hop}}
+SAMPLE_FEEDBACK 0 {{for HPCC: 0: per packet, 1: per RTT or qlen>0}}
+PINT_LOG_BASE {pint_log_base} {{for HPCC-PINT: log base}}
+PINT_PROB {pint_prob} {{for HPCC-PINT: sampling probability}}
 
-RATE_BOUND 1
+RATE_BOUND 1 {{0: no rate limiter, 1: use rate limiter}}
 
-ACK_HIGH_PRIO {ack_prio}
+ACK_HIGH_PRIO {ack_prio} {{0: same priority as data, 1: prioritize ACK}}
 
-LINK_DOWN {link_down}
+LINK_DOWN {link_down} {{a b c: take down link between b and c at time a}}
 
-ENABLE_TRACE {enable_tr}
+ENABLE_TRACE {enable_tr} {{dump packet-level events or not}}
+ENABLE_CWND_TRACE 0 {{dump qp rate/window trace or not}}
 
-KMAX_MAP {kmax_map}
-KMIN_MAP {kmin_map}
-PMAX_MAP {pmax_map}
-BUFFER_SIZE {buffer_size}
-QLEN_MON_FILE mix/qlen_{topo}_{trace}_{cc}{failure}.txt
-QLEN_MON_START 2000000000
-QLEN_MON_END 3000000000
+KMAX_MAP {kmax_map} {{bandwidth->kmax map}}
+KMIN_MAP {kmin_map} {{bandwidth->kmin map}}
+PMAX_MAP {pmax_map} {{bandwidth->pmax map}}
+BUFFER_SIZE {buffer_size} {{buffer size per switch (MB)}}
+QLEN_MON_FILE mix/outputs/qlen/qlen_{topo}_{trace}_{cc}{failure}.txt {{output file: queue length}}
+QLEN_MON_START 2000000000 {{start time of dumping qlen}}
+QLEN_MON_END 3000000000 {{end time of dumping qlen}}
 """
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='run simulation')
@@ -91,7 +93,7 @@ if __name__ == "__main__":
 	if args.down != '0 0 0':
 		failure = '_down'
 
-	config_name = "mix/config_%s_%s_%s%s.txt"%(topo, trace, args.cc, failure)
+	config_name = "mix/configs/config_%s_%s_%s%s.txt"%(topo, trace, args.cc, failure)
 
 	kmax_map = "2 %d %d %d %d"%(bw*1000000000, 400*bw/25, bw*4*1000000000, 400*bw*4/25)
 	kmin_map = "2 %d %d %d %d"%(bw*1000000000, 100*bw/25, bw*4*1000000000, 100*bw*4/25)

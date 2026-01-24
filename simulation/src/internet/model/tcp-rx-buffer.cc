@@ -95,7 +95,7 @@ TcpRxBuffer::Available () const
 void
 TcpRxBuffer::IncNextRxSequence ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Increment nextRxSeq is valid only if we don't have any data buffered,
   // this is supposed to be called only during the three-way handshake
   NS_ASSERT (m_size == 0);
@@ -120,7 +120,7 @@ TcpRxBuffer::MaxRxSequence (void) const
 void
 TcpRxBuffer::SetFinSequence (const SequenceNumber32& s)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_gotFin = true;
   m_finSeq = s;
@@ -136,7 +136,7 @@ TcpRxBuffer::Finished (void)
 bool
 TcpRxBuffer::Add (Ptr<Packet> p, TcpHeader const& tcph)
 {
-  NS_LOG_FUNCTION (this << p << tcph);
+  NS_LOG_FUNCTION (p << tcph);
 
   uint32_t pktSize = p->GetSize ();
   SequenceNumber32 headSeq = tcph.GetSequenceNumber ();
@@ -219,7 +219,7 @@ TcpRxBuffer::Add (Ptr<Packet> p, TcpHeader const& tcph)
 Ptr<Packet>
 TcpRxBuffer::Extract (uint32_t maxSize)
 {
-  NS_LOG_FUNCTION (this << maxSize);
+  NS_LOG_FUNCTION (maxSize);
 
   uint32_t extractSize = std::min (maxSize, m_availBytes);
   NS_LOG_LOGIC ("Requested to extract " << extractSize << " bytes from TcpRxBuffer of size=" << m_size);

@@ -44,12 +44,12 @@ SpectrumPhy::GetTypeId (void)
 
 SpectrumPhy::SpectrumPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 SpectrumPhy::~SpectrumPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 

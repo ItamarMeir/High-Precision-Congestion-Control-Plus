@@ -48,7 +48,7 @@ EpcEnbApplication::EpcEnbApplication (Ptr<Socket> lteSocket, Ptr<Socket> s1uSock
     m_sgwAddress (sgwAddress),
     m_gtpuUdpPort (2152) // fixed by the standard
 {
-  NS_LOG_FUNCTION (this << lteSocket << s1uSocket << sgwAddress);
+  NS_LOG_FUNCTION (lteSocket << s1uSocket << sgwAddress);
   m_s1uSocket->SetRecvCallback (MakeCallback (&EpcEnbApplication::RecvFromS1uSocket, this));
   m_lteSocket->SetRecvCallback (MakeCallback (&EpcEnbApplication::RecvFromLteSocket, this));
 }
@@ -56,13 +56,13 @@ EpcEnbApplication::EpcEnbApplication (Ptr<Socket> lteSocket, Ptr<Socket> s1uSock
 
 EpcEnbApplication::~EpcEnbApplication (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
  
 void 
 EpcEnbApplication::ErabSetupRequest (uint32_t teid, uint16_t rnti, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << teid << rnti << (uint16_t) lcid);
+  NS_LOG_FUNCTION (teid << rnti << (uint16_t) lcid);
   LteFlowId_t rbid (rnti, lcid);
   // side effect: create entries if not exist
   m_rbidTeidMap[rbid] = teid;
@@ -72,7 +72,7 @@ EpcEnbApplication::ErabSetupRequest (uint32_t teid, uint16_t rnti, uint8_t lcid)
 void 
 EpcEnbApplication::RecvFromLteSocket (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this);  
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity  
   NS_ASSERT (socket == m_lteSocket);
   Ptr<Packet> packet = socket->Recv ();
 
@@ -96,7 +96,7 @@ EpcEnbApplication::RecvFromLteSocket (Ptr<Socket> socket)
 void 
 EpcEnbApplication::RecvFromS1uSocket (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);  
+  NS_LOG_FUNCTION (socket);  
   NS_ASSERT (socket == m_s1uSocket);
   Ptr<Packet> packet = socket->Recv ();
   GtpuHeader gtpu;
@@ -115,7 +115,7 @@ EpcEnbApplication::RecvFromS1uSocket (Ptr<Socket> socket)
 void 
 EpcEnbApplication::SendToLteSocket (Ptr<Packet> packet, uint16_t rnti, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << packet << rnti << (uint16_t) lcid);  
+  NS_LOG_FUNCTION (packet << rnti << (uint16_t) lcid);  
   LteRadioBearerTag tag (rnti, lcid);
   packet->AddPacketTag (tag);
   int sentBytes = m_lteSocket->Send (packet);
@@ -126,7 +126,7 @@ EpcEnbApplication::SendToLteSocket (Ptr<Packet> packet, uint16_t rnti, uint8_t l
 void 
 EpcEnbApplication::SendToS1uSocket (Ptr<Packet> packet, uint32_t teid)
 {
-  NS_LOG_FUNCTION (this << packet << teid);  
+  NS_LOG_FUNCTION (packet << teid);  
   GtpuHeader gtpu;
   gtpu.SetTeid (teid);
   // From 3GPP TS 29.281 v10.0.0 Section 5.1

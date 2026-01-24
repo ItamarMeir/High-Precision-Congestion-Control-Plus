@@ -45,7 +45,7 @@ BreakpointFallback (void)
 void
 BreakpointFallback (void)
 {
-  //NS_LOG_FUNCTION (this);
+  //// NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   int *a = 0;
   /**

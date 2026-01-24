@@ -64,7 +64,7 @@ ParabolicAntennaModel::GetTypeId ()
 void 
 ParabolicAntennaModel::SetBeamwidth (double beamwidthDegrees)
 { 
-  NS_LOG_FUNCTION (this << beamwidthDegrees);
+  NS_LOG_FUNCTION (beamwidthDegrees);
   m_beamwidthRadians = DegreesToRadians (beamwidthDegrees);
 }
 
@@ -77,7 +77,7 @@ ParabolicAntennaModel::GetBeamwidth () const
 void 
 ParabolicAntennaModel::SetOrientation (double orientationDegrees)
 {
-  NS_LOG_FUNCTION (this << orientationDegrees);
+  NS_LOG_FUNCTION (orientationDegrees);
   m_orientationRadians = DegreesToRadians (orientationDegrees);
 }
 
@@ -90,7 +90,7 @@ ParabolicAntennaModel::GetOrientation () const
 double 
 ParabolicAntennaModel::GetGainDb (Angles a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   // azimuth angle w.r.t. the reference system of the antenna
   double phi = a.phi - m_orientationRadians;
 

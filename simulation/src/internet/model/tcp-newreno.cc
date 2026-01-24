@@ -62,7 +62,7 @@ TcpNewReno::TcpNewReno (void)
     m_limitedTx (false), // mute valgrind, actual value set by the attribute system
     m_ssThreshLastChange (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_alpha = 0;
   m_g = 1.0 / 64;
   m_last_update_alpha = 0;
@@ -81,7 +81,7 @@ TcpNewReno::TcpNewReno (const TcpNewReno& sock)
     m_limitedTx (sock.m_limitedTx),
     m_ssThreshLastChange (sock.m_ssThreshLastChange)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("Invoked the copy constructor");
   m_alpha = 0;
   m_g = 1.0 / 64;
@@ -101,7 +101,7 @@ TcpNewReno::Listen (void)
 {
 
 	//std::cout << "NewReno!\n";
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   InitializeCwnd ();
   return TcpSocketBase::Listen ();
 }
@@ -110,7 +110,7 @@ TcpNewReno::Listen (void)
 int
 TcpNewReno::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   InitializeCwnd ();
   return TcpSocketBase::Connect (address);
 }
@@ -119,7 +119,7 @@ TcpNewReno::Connect (const Address & address)
 uint32_t
 TcpNewReno::Window (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   //std::cout << m_rWnd.Get() << " " << m_cWnd.Get() << "\n";
   return m_cWnd.Get();
   //return std::min (m_rWnd.Get (), m_cWnd.Get ());
@@ -135,7 +135,7 @@ TcpNewReno::Fork (void)
 void
 TcpNewReno::NewAck (const SequenceNumber32& seq)
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   NS_LOG_LOGIC ("TcpNewReno receieved ACK for seq " << seq <<
                 " cwnd " << m_cWnd <<
                 " ssthresh " << m_ssThresh);
@@ -200,7 +200,7 @@ TcpNewReno::NewAck (const SequenceNumber32& seq)
 void
 TcpNewReno::DupAck (const TcpHeader& t, uint32_t count)
 {
-  NS_LOG_FUNCTION (this << count);
+  NS_LOG_FUNCTION (count);
   if (count == m_retxThresh && !m_inFastRec)
     { // triple duplicate ack triggers fast retransmit (RFC2582 sec.3 bullet #1)
       m_ssThresh = std::max (2 * m_segmentSize, BytesInFlight () / 2);
@@ -230,7 +230,7 @@ TcpNewReno::DupAck (const TcpHeader& t, uint32_t count)
 void
 TcpNewReno::Retransmit (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " ReTxTimeout Expired at time " << Simulator::Now ().GetSeconds ());
   m_inFastRec = false;
 

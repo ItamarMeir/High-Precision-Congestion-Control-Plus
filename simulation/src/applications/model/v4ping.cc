@@ -77,7 +77,7 @@ V4Ping::~V4Ping ()
 void
 V4Ping::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_socket = 0;
   Application::DoDispose ();
 }
@@ -100,7 +100,7 @@ V4Ping::GetApplicationId (void) const
 void
 V4Ping::Receive (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   while (m_socket->GetRxAvailable () > 0)
     {
       Address from;
@@ -224,7 +224,7 @@ V4Ping::Send ()
 void 
 V4Ping::StartApplication (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_started = Simulator::Now ();
   if (m_verbose)
@@ -249,7 +249,7 @@ V4Ping::StartApplication (void)
 void 
 V4Ping::StopApplication (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_next.Cancel ();
   m_socket->Close ();
 

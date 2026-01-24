@@ -56,7 +56,7 @@ Ipv6Interface::Ipv6Interface ()
     m_reachableTime (0),
     m_retransTimer (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Ipv6Interface::~Ipv6Interface ()
@@ -108,14 +108,14 @@ void Ipv6Interface::DoSetup ()
 
 void Ipv6Interface::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
   DoSetup ();
 }
 
 void Ipv6Interface::SetDevice (Ptr<NetDevice> device)
 {
-  NS_LOG_FUNCTION (this << device);
+  NS_LOG_FUNCTION (device);
   m_device = device;
   DoSetup ();
 }
@@ -128,7 +128,7 @@ Ptr<NetDevice> Ipv6Interface::GetDevice () const
 
 void Ipv6Interface::SetMetric (uint16_t metric)
 {
-  NS_LOG_FUNCTION (this << metric);
+  NS_LOG_FUNCTION (metric);
   m_metric = metric;
 }
 
@@ -176,7 +176,7 @@ bool Ipv6Interface::IsForwarding () const
 
 void Ipv6Interface::SetForwarding (bool forwarding)
 {
-  NS_LOG_FUNCTION (this << forwarding);
+  NS_LOG_FUNCTION (forwarding);
   m_forwarding = forwarding;
 }
 
@@ -235,7 +235,7 @@ Ipv6InterfaceAddress Ipv6Interface::GetLinkLocalAddress () const
 
 Ipv6InterfaceAddress Ipv6Interface::GetAddress (uint32_t index) const
 {
-  NS_LOG_FUNCTION (this << index);
+  NS_LOG_FUNCTION (index);
   uint32_t i = 0;
 
   if (m_addresses.size () > index)
@@ -263,7 +263,7 @@ uint32_t Ipv6Interface::GetNAddresses () const
 
 Ipv6InterfaceAddress Ipv6Interface::RemoveAddress (uint32_t index)
 {
-  NS_LOG_FUNCTION (this << index);
+  NS_LOG_FUNCTION (index);
   uint32_t i = 0;
 
   if (m_addresses.size () < index)
@@ -290,7 +290,7 @@ Ipv6InterfaceAddress Ipv6Interface::RemoveAddress (uint32_t index)
 
 Ipv6InterfaceAddress Ipv6Interface::GetAddressMatchingDestination (Ipv6Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
 
   for (Ipv6InterfaceAddressList::const_iterator it = m_addresses.begin (); it != m_addresses.end (); ++it)
     {
@@ -309,7 +309,7 @@ Ipv6InterfaceAddress Ipv6Interface::GetAddressMatchingDestination (Ipv6Address d
 
 void Ipv6Interface::Send (Ptr<Packet> p, Ipv6Address dest)
 {
-  NS_LOG_FUNCTION (this << p << dest);
+  NS_LOG_FUNCTION (p << dest);
   Ptr<Ipv6L3Protocol> ipv6 = m_node->GetObject<Ipv6L3Protocol> ();
 
   if (!IsUp ())
@@ -380,7 +380,7 @@ void Ipv6Interface::Send (Ptr<Packet> p, Ipv6Address dest)
 
 void Ipv6Interface::SetCurHopLimit (uint8_t curHopLimit)
 {
-  NS_LOG_FUNCTION (this << curHopLimit);
+  NS_LOG_FUNCTION (curHopLimit);
   m_curHopLimit = curHopLimit;
 }
 
@@ -392,7 +392,7 @@ uint8_t Ipv6Interface::GetCurHopLimit () const
 
 void Ipv6Interface::SetBaseReachableTime (uint16_t baseReachableTime)
 {
-  NS_LOG_FUNCTION (this << baseReachableTime);
+  NS_LOG_FUNCTION (baseReachableTime);
   m_baseReachableTime = baseReachableTime;
 }
 
@@ -404,7 +404,7 @@ uint16_t Ipv6Interface::GetBaseReachableTime () const
 
 void Ipv6Interface::SetReachableTime (uint16_t reachableTime)
 {
-  NS_LOG_FUNCTION (this << reachableTime);
+  NS_LOG_FUNCTION (reachableTime);
   m_reachableTime = reachableTime;
 }
 
@@ -416,7 +416,7 @@ uint16_t Ipv6Interface::GetReachableTime () const
 
 void Ipv6Interface::SetRetransTimer (uint16_t retransTimer)
 {
-  NS_LOG_FUNCTION (this << retransTimer); 
+  NS_LOG_FUNCTION (retransTimer); 
   m_retransTimer = retransTimer;
 }
 
@@ -428,7 +428,7 @@ uint16_t Ipv6Interface::GetRetransTimer () const
 
 void Ipv6Interface::SetState (Ipv6Address address, Ipv6InterfaceAddress::State_e state)
 {
-  NS_LOG_FUNCTION (this << address << state);
+  NS_LOG_FUNCTION (address << state);
 
   for (Ipv6InterfaceAddressListI it = m_addresses.begin (); it != m_addresses.end (); ++it)
     {
@@ -443,7 +443,7 @@ void Ipv6Interface::SetState (Ipv6Address address, Ipv6InterfaceAddress::State_e
 
 void Ipv6Interface::SetNsDadUid (Ipv6Address address, uint32_t uid)
 {
-  NS_LOG_FUNCTION (this << address << uid);
+  NS_LOG_FUNCTION (address << uid);
 
   for (Ipv6InterfaceAddressListI it = m_addresses.begin (); it != m_addresses.end (); ++it)
     {

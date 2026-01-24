@@ -54,7 +54,7 @@ AdhocWifiMac::GetTypeId (void)
 
 AdhocWifiMac::AdhocWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Let the lower layers know that we are acting in an IBSS
   SetTypeOfStation (ADHOC_STA);
@@ -62,7 +62,7 @@ AdhocWifiMac::AdhocWifiMac ()
 
 AdhocWifiMac::~AdhocWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
@@ -81,7 +81,7 @@ AdhocWifiMac::SetAddress (Mac48Address address)
 void
 AdhocWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
-  NS_LOG_FUNCTION (this << packet << to);
+  NS_LOG_FUNCTION (packet << to);
   if (m_stationManager->IsBrandNew (to))
     {
       // In ad hoc mode, we assume that every destination supports all
@@ -152,7 +152,7 @@ AdhocWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 void
 AdhocWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RegularWifiMac::SetLinkUpCallback (linkUp);
 
   // The approach taken here is that, from the point of view of a STA
@@ -164,7 +164,7 @@ AdhocWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 void
 AdhocWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this << packet << hdr);
+  NS_LOG_FUNCTION (packet << hdr);
   NS_ASSERT (!hdr->IsCtl ());
   Mac48Address from = hdr->GetAddr2 ();
   Mac48Address to = hdr->GetAddr1 ();

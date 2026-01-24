@@ -77,7 +77,7 @@ CustomHeader::GetTypeId (void)
 TypeId 
 CustomHeader::GetInstanceTypeId (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetTypeId ();
 }
 

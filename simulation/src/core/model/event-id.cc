@@ -32,7 +32,7 @@ EventId::EventId ()
     m_context (0),
     m_uid (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 EventId::EventId (const Ptr<EventImpl> &impl, uint64_t ts, uint32_t context, uint32_t uid)
@@ -41,48 +41,48 @@ EventId::EventId (const Ptr<EventImpl> &impl, uint64_t ts, uint32_t context, uin
     m_context (context),
     m_uid (uid)
 {
-  NS_LOG_FUNCTION (this << impl << ts << context << uid);
+  NS_LOG_FUNCTION (impl << ts << context << uid);
 }
 void
 EventId::Cancel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Simulator::Cancel (*this);
 }
 bool
 EventId::IsExpired (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Simulator::IsExpired (*this);
 }
 bool
 EventId::IsRunning (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return !IsExpired ();
 }
 EventImpl *
 EventId::PeekEventImpl (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return PeekPointer (m_eventImpl);
 }
 uint64_t 
 EventId::GetTs (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_ts;
 }
 uint32_t 
 EventId::GetContext (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_context;
 }
 uint32_t 
 EventId::GetUid (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_uid;
 }
 

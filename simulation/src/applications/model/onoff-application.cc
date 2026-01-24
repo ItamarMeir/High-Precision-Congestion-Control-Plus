@@ -111,21 +111,21 @@ OnOffApplication::~OnOffApplication()
 void 
 OnOffApplication::SetMaxBytes (uint32_t maxBytes)
 {
-  NS_LOG_FUNCTION (this << maxBytes);
+  NS_LOG_FUNCTION (maxBytes);
   m_maxBytes = maxBytes;
 }
 
 Ptr<Socket>
 OnOffApplication::GetSocket (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_socket;
 }
 
 int64_t 
 OnOffApplication::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_onTime->SetStream (stream);
   m_offTime->SetStream (stream + 1);
   return 2;

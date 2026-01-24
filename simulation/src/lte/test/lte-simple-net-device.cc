@@ -46,25 +46,25 @@ TypeId LteSimpleNetDevice::GetTypeId (void)
 
 LteSimpleNetDevice::LteSimpleNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 LteSimpleNetDevice::LteSimpleNetDevice (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetNode (node);
 }
 
 LteSimpleNetDevice::~LteSimpleNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteSimpleNetDevice::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SimpleNetDevice::DoDispose ();
 }
 
@@ -72,13 +72,13 @@ LteSimpleNetDevice::DoDispose (void)
 void
 LteSimpleNetDevice::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 bool
 LteSimpleNetDevice::Send (Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
-  NS_LOG_FUNCTION (this << dest << protocolNumber);
+  NS_LOG_FUNCTION (dest << protocolNumber);
   return SimpleNetDevice::Send (packet, dest, protocolNumber);
 }
 

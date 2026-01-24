@@ -57,7 +57,7 @@ Ipv4StaticRoutingHelper::Create (Ptr<Node> node) const
 Ptr<Ipv4StaticRouting>
 Ipv4StaticRoutingHelper::GetStaticRouting (Ptr<Ipv4> ipv4) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv4RoutingProtocol> ipv4rp = ipv4->GetRoutingProtocol ();
   NS_ASSERT_MSG (ipv4rp, "No routing protocol associated with Ipv4");
   if (DynamicCast<Ipv4StaticRouting> (ipv4rp))

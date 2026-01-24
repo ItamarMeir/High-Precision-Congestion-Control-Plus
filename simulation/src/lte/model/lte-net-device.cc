@@ -65,20 +65,20 @@ TypeId LteNetDevice::GetTypeId (void)
 
 LteNetDevice::LteNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 LteNetDevice::~LteNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void
 LteNetDevice::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_node = 0;
   NetDevice::DoDispose ();
@@ -88,7 +88,7 @@ LteNetDevice::DoDispose (void)
 Ptr<Channel>
 LteNetDevice::GetChannel (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // we can't return a meaningful channel here, because LTE devices using FDD have actually two channels.
   return 0;
 }
@@ -97,7 +97,7 @@ LteNetDevice::GetChannel (void) const
 void
 LteNetDevice::SetAddress (Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   m_address = Mac48Address::ConvertFrom (address);
 }
 
@@ -105,7 +105,7 @@ LteNetDevice::SetAddress (Address address)
 Address
 LteNetDevice::GetAddress (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_address;
 }
 
@@ -113,7 +113,7 @@ LteNetDevice::GetAddress (void) const
 void
 LteNetDevice::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
 }
 
@@ -121,7 +121,7 @@ LteNetDevice::SetNode (Ptr<Node> node)
 Ptr<Node>
 LteNetDevice::GetNode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_node;
 }
 
@@ -129,7 +129,7 @@ LteNetDevice::GetNode (void) const
 void
 LteNetDevice::SetReceiveCallback (ReceiveCallback cb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rxCallback = cb;
 }
 
@@ -145,7 +145,7 @@ LteNetDevice::SendFrom (Ptr<Packet> packet, const Address& source, const Address
 bool
 LteNetDevice::SupportsSendFrom (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -154,7 +154,7 @@ LteNetDevice::SupportsSendFrom (void) const
 bool
 LteNetDevice::SetMtu (const uint16_t mtu)
 {
-  NS_LOG_FUNCTION (this << mtu);
+  NS_LOG_FUNCTION (mtu);
   m_mtu = mtu;
   return true;
 }
@@ -162,7 +162,7 @@ LteNetDevice::SetMtu (const uint16_t mtu)
 uint16_t
 LteNetDevice::GetMtu (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mtu;
 }
 
@@ -170,14 +170,14 @@ LteNetDevice::GetMtu (void) const
 void
 LteNetDevice::SetIfIndex (const uint32_t index)
 {
-  NS_LOG_FUNCTION (this << index);
+  NS_LOG_FUNCTION (index);
   m_ifIndex = index;
 }
 
 uint32_t
 LteNetDevice::GetIfIndex (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_ifIndex;
 }
 
@@ -185,7 +185,7 @@ LteNetDevice::GetIfIndex (void) const
 bool
 LteNetDevice::IsLinkUp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_linkUp;
 }
 
@@ -193,21 +193,21 @@ LteNetDevice::IsLinkUp (void) const
 bool
 LteNetDevice::IsBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 
 Address
 LteNetDevice::GetBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Mac48Address::GetBroadcast ();
 }
 
 bool
 LteNetDevice::IsMulticast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -215,7 +215,7 @@ LteNetDevice::IsMulticast (void) const
 bool
 LteNetDevice::IsPointToPoint (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -223,7 +223,7 @@ LteNetDevice::IsPointToPoint (void) const
 bool
 LteNetDevice::NeedsArp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -231,14 +231,14 @@ LteNetDevice::NeedsArp (void) const
 bool
 LteNetDevice::IsBridge (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
 Address
 LteNetDevice::GetMulticast (Ipv4Address multicastGroup) const
 {
-  NS_LOG_FUNCTION (this << multicastGroup);
+  NS_LOG_FUNCTION (multicastGroup);
 
   Mac48Address ad = Mac48Address::GetMulticast (multicastGroup);
 
@@ -255,7 +255,7 @@ LteNetDevice::GetMulticast (Ipv4Address multicastGroup) const
 Address
 LteNetDevice::GetMulticast (Ipv6Address addr) const
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
   Mac48Address ad = Mac48Address::GetMulticast (addr);
 
   NS_LOG_LOGIC ("MAC IPv6 multicast address is " << ad);
@@ -265,7 +265,7 @@ LteNetDevice::GetMulticast (Ipv6Address addr) const
 void
 LteNetDevice::AddLinkChangeCallback (Callback<void> callback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_linkChangeCallbacks.ConnectWithoutContext (callback);
 }
 
@@ -273,7 +273,7 @@ LteNetDevice::AddLinkChangeCallback (Callback<void> callback)
 void
 LteNetDevice::SetPromiscReceiveCallback (PromiscReceiveCallback cb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_WARN ("Promisc mode not supported");
 }
 
@@ -282,7 +282,7 @@ LteNetDevice::SetPromiscReceiveCallback (PromiscReceiveCallback cb)
 void
 LteNetDevice::Receive (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   m_rxCallback (this, p, Ipv4L3Protocol::PROT_NUMBER, Address ());
 }
 

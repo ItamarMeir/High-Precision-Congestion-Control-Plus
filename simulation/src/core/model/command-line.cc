@@ -38,7 +38,7 @@ namespace ns3 {
 
 CommandLine::CommandLine ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 CommandLine::CommandLine (const CommandLine &cmd)
 {
@@ -53,7 +53,7 @@ CommandLine::operator = (const CommandLine &cmd)
 }
 CommandLine::~CommandLine ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Clear ();
 }
 void
@@ -72,7 +72,7 @@ CommandLine::Copy (const CommandLine &cmd)
 void
 CommandLine::Clear (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   for (Items::const_iterator i = m_items.begin (); i != m_items.end (); ++i)
     {
@@ -97,13 +97,13 @@ CommandLine::GetName () const
 
 CommandLine::Item::~Item ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 CommandLine::Parse (int iargc, char *argv[])
 {
-  NS_LOG_FUNCTION (this << iargc << argv);
+  NS_LOG_FUNCTION (iargc << argv);
 
   m_name = SystemPath::Split (argv[0]).back ();
   
@@ -149,7 +149,7 @@ CommandLine::Parse (int iargc, char *argv[])
 void
 CommandLine::PrintHelp (std::ostream &os) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   os << m_name << " [Program Arguments] [General Arguments]"
             << std::endl;
@@ -201,7 +201,7 @@ CommandLine::PrintHelp (std::ostream &os) const
 void
 CommandLine::PrintGlobals (std::ostream &os) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   os << "Global values:" << std::endl;
   
@@ -221,7 +221,7 @@ CommandLine::PrintGlobals (std::ostream &os) const
 void
 CommandLine::PrintAttributes (std::ostream &os, const std::string &type) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   TypeId tid;
   if (!TypeId::LookupByNameFailSafe (type, &tid))
@@ -245,7 +245,7 @@ CommandLine::PrintAttributes (std::ostream &os, const std::string &type) const
 void
 CommandLine::PrintGroup (std::ostream &os, const std::string &group) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   os << "TypeIds in group " << group << ":" << std::endl;
   
@@ -262,7 +262,7 @@ CommandLine::PrintGroup (std::ostream &os, const std::string &group) const
 void
 CommandLine::PrintTypeIds (std::ostream &os) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   os << "Registered TypeIds:" << std::endl;
   for (uint32_t i = 0; i < TypeId::GetRegisteredN (); ++i)
     {
@@ -274,7 +274,7 @@ CommandLine::PrintTypeIds (std::ostream &os) const
 void
 CommandLine::PrintGroups (std::ostream &os) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   std::list<std::string> groups;
   for (uint32_t i = 0; i < TypeId::GetRegisteredN (); ++i)
@@ -315,7 +315,7 @@ CommandLine::PrintGroups (std::ostream &os) const
 void
 CommandLine::HandleArgument (const std::string &name, const std::string &value) const
 {
-  NS_LOG_FUNCTION (this << name << value);
+  NS_LOG_FUNCTION (name << value);
 
   NS_LOG_DEBUG ("Handle arg name=" << name << " value=" << value);
   if (name == "PrintHelp" || name == "help")
@@ -386,7 +386,7 @@ CommandLine::HandleArgument (const std::string &name, const std::string &value) 
 bool
 CommandLine::CallbackItem::Parse (const std::string value)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("CommandLine::CallbackItem::Parse \"" << value << "\"");
   return m_callback (value);
 }
@@ -396,7 +396,7 @@ CommandLine::AddValue (const std::string &name,
                        const std::string &help,
                        Callback<bool, std::string> callback)
 {
-  NS_LOG_FUNCTION (this << &name << &help << &callback);
+  NS_LOG_FUNCTION (&name << &help << &callback);
   CallbackItem *item = new CallbackItem ();
   item->m_name = name;
   item->m_help = help;

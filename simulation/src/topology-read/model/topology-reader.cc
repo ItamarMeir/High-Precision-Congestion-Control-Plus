@@ -40,12 +40,12 @@ TypeId TopologyReader::GetTypeId (void)
 
 TopologyReader::TopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TopologyReader::~TopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void

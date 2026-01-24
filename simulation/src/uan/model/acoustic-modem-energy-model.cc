@@ -72,7 +72,7 @@ AcousticModemEnergyModel::GetTypeId (void)
 
 AcousticModemEnergyModel::AcousticModemEnergyModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_currentState = UanPhy::IDLE;  // initially IDLE
   m_lastUpdateTime = Seconds (0.0);
   m_energyDepletionCallback.Nullify ();
@@ -87,7 +87,7 @@ AcousticModemEnergyModel::~AcousticModemEnergyModel ()
 void
 AcousticModemEnergyModel::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   NS_ASSERT (node != 0);
   m_node = node;
 }
@@ -101,7 +101,7 @@ AcousticModemEnergyModel::GetNode (void) const
 void
 AcousticModemEnergyModel::SetEnergySource (Ptr<EnergySource> source)
 {
-  NS_LOG_FUNCTION (this << source);
+  NS_LOG_FUNCTION (source);
   NS_ASSERT (source != 0);
   m_source = source;
 }
@@ -109,70 +109,70 @@ AcousticModemEnergyModel::SetEnergySource (Ptr<EnergySource> source)
 double
 AcousticModemEnergyModel::GetTotalEnergyConsumption (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_totalEnergyConsumption;
 }
 
 double
 AcousticModemEnergyModel::GetTxPowerW (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_txPowerW;
 }
 
 void
 AcousticModemEnergyModel::SetTxPowerW (double txPowerW)
 {
-  NS_LOG_FUNCTION (this << txPowerW);
+  NS_LOG_FUNCTION (txPowerW);
   m_txPowerW = txPowerW;
 }
 
 double
 AcousticModemEnergyModel::GetRxPowerW (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rxPowerW;
 }
 
 void
 AcousticModemEnergyModel::SetRxPowerW (double rxPowerW)
 {
-  NS_LOG_FUNCTION (this << rxPowerW);
+  NS_LOG_FUNCTION (rxPowerW);
   m_rxPowerW = rxPowerW;
 }
 
 double
 AcousticModemEnergyModel::GetIdlePowerW (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_idlePowerW;
 }
 
 void
 AcousticModemEnergyModel::SetIdlePowerW (double idlePowerW)
 {
-  NS_LOG_FUNCTION (this << idlePowerW);
+  NS_LOG_FUNCTION (idlePowerW);
   m_idlePowerW = idlePowerW;
 }
 
 double
 AcousticModemEnergyModel::GetSleepPowerW (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_sleepPowerW;
 }
 
 void
 AcousticModemEnergyModel::SetSleepPowerW (double sleepPowerW)
 {
-  NS_LOG_FUNCTION (this << sleepPowerW);
+  NS_LOG_FUNCTION (sleepPowerW);
   m_sleepPowerW = sleepPowerW;
 }
 
 int
 AcousticModemEnergyModel::GetCurrentState (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_currentState;
 }
 
@@ -180,7 +180,7 @@ void
 AcousticModemEnergyModel::SetEnergyDepletionCallback (
   AcousticModemEnergyDepletionCallback callback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (callback.IsNull ())
     {
       NS_LOG_DEBUG ("AcousticModemEnergyModel:Setting NULL energy depletion callback!");
@@ -191,7 +191,7 @@ AcousticModemEnergyModel::SetEnergyDepletionCallback (
 void
 AcousticModemEnergyModel::ChangeState (int newState)
 {
-  NS_LOG_FUNCTION (this << newState);
+  NS_LOG_FUNCTION (newState);
   // NS_ASSERT (IsStateTransitionValid ((MicroModemState) newState));
 
   Time duration = Simulator::Now () - m_lastUpdateTime;
@@ -238,7 +238,7 @@ AcousticModemEnergyModel::ChangeState (int newState)
 void
 AcousticModemEnergyModel::HandleEnergyDepletion (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("AcousticModemEnergyModel:Energy is depleted at node #" <<
                 m_node->GetId ());
   // invoke energy depletion callback, if set.
@@ -258,7 +258,7 @@ AcousticModemEnergyModel::HandleEnergyDepletion (void)
 void
 AcousticModemEnergyModel::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   m_source = 0;
   m_energyDepletionCallback.Nullify ();
@@ -267,7 +267,7 @@ AcousticModemEnergyModel::DoDispose (void)
 double
 AcousticModemEnergyModel::DoGetCurrentA (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   double supplyVoltage = m_source->GetSupplyVoltage ();
   NS_ASSERT (supplyVoltage != 0.0);
@@ -296,14 +296,14 @@ AcousticModemEnergyModel::DoGetCurrentA (void) const
 bool
 AcousticModemEnergyModel::IsStateTransitionValid (const int destState)
 {
-  NS_LOG_FUNCTION (this << destState);
+  NS_LOG_FUNCTION (destState);
   return true;
 }
 
 void
 AcousticModemEnergyModel::SetMicroModemState (const int state)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (IsStateTransitionValid (state))
     {
       m_currentState = state;

@@ -72,7 +72,7 @@ Ipv6ListRouting::DoDispose (void)
 Ptr<Ipv6Route>
 Ipv6ListRouting::RouteOutput (Ptr<Packet> p, const Ipv6Header &header, Ptr<NetDevice> oif, enum Socket::SocketErrno &sockerr)
 {
-  NS_LOG_FUNCTION (this << header.GetDestinationAddress () << header.GetSourceAddress () << oif);
+  NS_LOG_FUNCTION (header.GetDestinationAddress () << header.GetSourceAddress () << oif);
   Ptr<Ipv6Route> route;
 
   for (Ipv6RoutingProtocolList::const_iterator i = m_routingProtocols.begin ();
@@ -200,7 +200,7 @@ Ipv6ListRouting::RouteInput (Ptr<const Packet> p, const Ipv6Header &header, Ptr<
 void
 Ipv6ListRouting::NotifyInterfaceUp (uint32_t interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -212,7 +212,7 @@ Ipv6ListRouting::NotifyInterfaceUp (uint32_t interface)
 void
 Ipv6ListRouting::NotifyInterfaceDown (uint32_t interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -224,7 +224,7 @@ Ipv6ListRouting::NotifyInterfaceDown (uint32_t interface)
 void
 Ipv6ListRouting::NotifyAddAddress (uint32_t interface, Ipv6InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -236,7 +236,7 @@ Ipv6ListRouting::NotifyAddAddress (uint32_t interface, Ipv6InterfaceAddress addr
 void
 Ipv6ListRouting::NotifyRemoveAddress (uint32_t interface, Ipv6InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -248,7 +248,7 @@ Ipv6ListRouting::NotifyRemoveAddress (uint32_t interface, Ipv6InterfaceAddress a
 
 void Ipv6ListRouting::NotifyAddRoute (Ipv6Address dst, Ipv6Prefix mask, Ipv6Address nextHop, uint32_t interface, Ipv6Address prefixToUse)
 {
-  NS_LOG_FUNCTION (this << dst << mask << nextHop << interface);
+  NS_LOG_FUNCTION (dst << mask << nextHop << interface);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -260,7 +260,7 @@ void Ipv6ListRouting::NotifyAddRoute (Ipv6Address dst, Ipv6Prefix mask, Ipv6Addr
 
 void Ipv6ListRouting::NotifyRemoveRoute (Ipv6Address dst, Ipv6Prefix mask, Ipv6Address nextHop, uint32_t interface, Ipv6Address prefixToUse)
 {
-  NS_LOG_FUNCTION (this << dst << mask << nextHop << interface);
+  NS_LOG_FUNCTION (dst << mask << nextHop << interface);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -273,7 +273,7 @@ void Ipv6ListRouting::NotifyRemoveRoute (Ipv6Address dst, Ipv6Prefix mask, Ipv6A
 void
 Ipv6ListRouting::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   *stream->GetStream () << "Node: " << m_ipv6->GetObject<Node> ()->GetId ()
                         << " Time: " << Simulator::Now ().GetSeconds () << "s "
@@ -290,7 +290,7 @@ Ipv6ListRouting::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 void
 Ipv6ListRouting::SetIpv6 (Ptr<Ipv6> ipv6)
 {
-  NS_LOG_FUNCTION (this << ipv6);
+  NS_LOG_FUNCTION (ipv6);
   NS_ASSERT (m_ipv6 == 0);
   for (Ipv6RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
@@ -305,7 +305,7 @@ Ipv6ListRouting::SetIpv6 (Ptr<Ipv6> ipv6)
 void
 Ipv6ListRouting::AddRoutingProtocol (Ptr<Ipv6RoutingProtocol> routingProtocol, int16_t priority)
 {
-  NS_LOG_FUNCTION (this << routingProtocol->GetInstanceTypeId () << priority);
+  NS_LOG_FUNCTION (routingProtocol->GetInstanceTypeId () << priority);
   m_routingProtocols.push_back (std::make_pair (priority, routingProtocol));
   m_routingProtocols.sort ( Compare );
   if (m_ipv6 != 0)
@@ -317,7 +317,7 @@ Ipv6ListRouting::AddRoutingProtocol (Ptr<Ipv6RoutingProtocol> routingProtocol, i
 uint32_t
 Ipv6ListRouting::GetNRoutingProtocols (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_routingProtocols.size ();
 }
 

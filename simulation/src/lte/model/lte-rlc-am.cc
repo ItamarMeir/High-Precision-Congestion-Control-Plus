@@ -34,7 +34,7 @@ NS_OBJECT_ENSURE_REGISTERED (LteRlcAm);
 
 LteRlcAm::LteRlcAm ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Buffers
   m_txonBufferSize = 0;
@@ -98,7 +98,7 @@ LteRlcAm::GetTypeId (void)
 void
 LteRlcAm::DoTransmitPdcpPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   /** Store arrival time */
   Time now = Simulator::Now ();
@@ -164,7 +164,7 @@ LteRlcAm::DoTransmitPdcpPdu (Ptr<Packet> p)
 void
 LteRlcAm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << bytes);
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << bytes);
   
   if (bytes <= 2)
     {
@@ -546,13 +546,13 @@ LteRlcAm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 void
 LteRlcAm::DoNotifyHarqDeliveryFailure ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteRlcAm::DoReceivePdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   // Receiver timestamp
   RlcTag rlcTag;
@@ -1006,7 +1006,7 @@ LteRlcAm::DoReceivePdu (Ptr<Packet> p)
 void
 LteRlcAm::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   LteMacSapProvider::ReportBufferStatusParameters p;
   p.rnti = m_rnti;
@@ -1024,7 +1024,7 @@ LteRlcAm::Start ()
 bool
 LteRlcAm::IsInsideReceivingWindow (SequenceNumber10 seqNumber)
 {
-  NS_LOG_FUNCTION (this << seqNumber);
+  NS_LOG_FUNCTION (seqNumber);
   NS_LOG_LOGIC ("Receiving Window: " <<
                 m_vrR << " <= " << seqNumber << " <= " << m_vrMr);
 

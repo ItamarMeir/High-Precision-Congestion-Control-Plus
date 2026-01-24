@@ -363,7 +363,7 @@ MacLow::MacLow ()
     m_currentPacket (0),
     m_listener (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_lastNavDuration = Seconds (0);
   m_lastNavStart = Seconds (0);
   m_promisc = false;
@@ -371,7 +371,7 @@ MacLow::MacLow ()
 
 MacLow::~MacLow ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
@@ -385,7 +385,7 @@ MacLow::SetupPhyMacLowListener (Ptr<WifiPhy> phy)
 void
 MacLow::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_normalAckTimeoutEvent.Cancel ();
   m_fastAckTimeoutEvent.Cancel ();
   m_superFastAckTimeoutEvent.Cancel ();
@@ -405,7 +405,7 @@ MacLow::DoDispose (void)
 void
 MacLow::CancelAllEvents (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   bool oneRunning = false;
   if (m_normalAckTimeoutEvent.IsRunning ())
     {
@@ -592,7 +592,7 @@ MacLow::StartTransmission (Ptr<const Packet> packet,
                            MacLowTransmissionParameters params,
                            MacLowTransmissionListener *listener)
 {
-  NS_LOG_FUNCTION (this << packet << hdr << params << listener);
+  NS_LOG_FUNCTION (packet << hdr << params << listener);
   /* m_currentPacket is not NULL because someone started
    * a transmission and was interrupted before one of:
    *   - ctsTimeout
@@ -634,7 +634,7 @@ MacLow::StartTransmission (Ptr<const Packet> packet,
 void
 MacLow::ReceiveError (Ptr<const Packet> packet, double rxSnr)
 {
-  NS_LOG_FUNCTION (this << packet << rxSnr);
+  NS_LOG_FUNCTION (packet << rxSnr);
   NS_LOG_DEBUG ("rx failed ");
   if (m_txParams.MustWaitFastAck ())
     {
@@ -664,7 +664,7 @@ MacLow::NotifySwitchingStartNow (Time duration)
 void
 MacLow::ReceiveOk (Ptr<Packet> packet, double rxSnr, WifiMode txMode, WifiPreamble preamble)
 {
-  NS_LOG_FUNCTION (this << packet << rxSnr << txMode << preamble);
+  NS_LOG_FUNCTION (packet << rxSnr << txMode << preamble);
   /* A packet is received from the PHY.
    * When we have handled this packet,
    * we handle any packet present in the
@@ -1173,7 +1173,7 @@ void
 MacLow::ForwardDown (Ptr<const Packet> packet, const WifiMacHeader* hdr,
                      WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this << packet << hdr << txMode);
+  NS_LOG_FUNCTION (packet << hdr << txMode);
   NS_LOG_DEBUG ("send " << hdr->GetTypeString () <<
                 ", to=" << hdr->GetAddr1 () <<
                 ", size=" << packet->GetSize () <<
@@ -1186,7 +1186,7 @@ MacLow::ForwardDown (Ptr<const Packet> packet, const WifiMacHeader* hdr,
 void
 MacLow::CtsTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("cts timeout");
   // XXX: should check that there was no rx start before now.
   // we should restart a new cts timeout now until the expected
@@ -1200,7 +1200,7 @@ MacLow::CtsTimeout (void)
 void
 MacLow::NormalAckTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("normal ack timeout");
   // XXX: should check that there was no rx start before now.
   // we should restart a new ack timeout now until the expected
@@ -1213,7 +1213,7 @@ MacLow::NormalAckTimeout (void)
 void
 MacLow::FastAckTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_stationManager->ReportDataFailed (m_currentHdr.GetAddr1 (), &m_currentHdr);
   MacLowTransmissionListener *listener = m_listener;
   m_listener = 0;
@@ -1230,7 +1230,7 @@ MacLow::FastAckTimeout (void)
 void
 MacLow::BlockAckTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("block ack timeout");
 
   m_stationManager->ReportDataFailed (m_currentHdr.GetAddr1 (), &m_currentHdr);
@@ -1241,7 +1241,7 @@ MacLow::BlockAckTimeout (void)
 void
 MacLow::SuperFastAckTimeout ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_stationManager->ReportDataFailed (m_currentHdr.GetAddr1 (), &m_currentHdr);
   MacLowTransmissionListener *listener = m_listener;
   m_listener = 0;
@@ -1260,7 +1260,7 @@ MacLow::SuperFastAckTimeout ()
 void
 MacLow::SendRtsForPacket (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /* send an RTS for this packet. */
   WifiMacHeader rts;
   rts.SetType (WIFI_MAC_CTL_RTS);
@@ -1359,7 +1359,7 @@ MacLow::StartDataTxTimers (void)
 void
 MacLow::SendDataPacket (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /* send this packet directly. No RTS is needed. */
   StartDataTxTimers ();
 
@@ -1424,7 +1424,7 @@ MacLow::IsNavZero (void) const
 void
 MacLow::SendCtsAfterRts (Mac48Address source, Time duration, WifiMode rtsTxMode, double rtsSnr)
 {
-  NS_LOG_FUNCTION (this << source << duration << rtsTxMode << rtsSnr);
+  NS_LOG_FUNCTION (source << duration << rtsTxMode << rtsSnr);
   /* send a CTS when you receive a RTS
    * right after SIFS.
    */
@@ -1456,7 +1456,7 @@ MacLow::SendCtsAfterRts (Mac48Address source, Time duration, WifiMode rtsTxMode,
 void
 MacLow::SendDataAfterCts (Mac48Address source, Time duration, WifiMode txMode)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /* send the third step in a
    * RTS/CTS/DATA/ACK hanshake
    */
@@ -1493,7 +1493,7 @@ MacLow::WaitSifsAfterEndTx (void)
 void
 MacLow::FastAckFailedTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   MacLowTransmissionListener *listener = m_listener;
   m_listener = 0;
   listener->MissedAck ();
@@ -1503,7 +1503,7 @@ MacLow::FastAckFailedTimeout (void)
 void
 MacLow::SendAckAfterData (Mac48Address source, Time duration, WifiMode dataTxMode, double dataSnr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /* send an ACK when you receive
    * a packet after SIFS.
    */
@@ -1773,7 +1773,7 @@ void
 MacLow::SendBlockAckAfterBlockAckRequest (const CtrlBAckRequestHeader reqHdr, Mac48Address originator,
                                           Time duration, WifiMode blockAckReqTxMode)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   CtrlBAckResponseHeader blockAck;
   uint8_t tid;
   bool immediate = false;

@@ -89,7 +89,7 @@ UdpL4Protocol::SetNode (Ptr<Node> node)
 void
 UdpL4Protocol::NotifyNewAggregate ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Node> node = this->GetObject<Node> ();
   Ptr<Ipv4> ipv4 = this->GetObject<Ipv4> ();
   Ptr<Ipv6L3Protocol> ipv6 = node->GetObject<Ipv6L3Protocol> ();
@@ -180,28 +180,28 @@ UdpL4Protocol::Allocate (void)
 Ipv4EndPoint *
 UdpL4Protocol::Allocate (Ipv4Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   return m_endPoints->Allocate (address);
 }
 
 Ipv4EndPoint *
 UdpL4Protocol::Allocate (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   return m_endPoints->Allocate (port);
 }
 
 Ipv4EndPoint *
 UdpL4Protocol::Allocate (Ipv4Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   return m_endPoints->Allocate (address, port);
 }
 Ipv4EndPoint *
 UdpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
                          Ipv4Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   return m_endPoints->Allocate (localAddress, localPort,
                                 peerAddress, peerPort);
 }
@@ -209,7 +209,7 @@ UdpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
 void 
 UdpL4Protocol::DeAllocate (Ipv4EndPoint *endPoint)
 {
-  NS_LOG_FUNCTION (this << endPoint);
+  NS_LOG_FUNCTION (endPoint);
   m_endPoints->DeAllocate (endPoint);
 }
 
@@ -223,28 +223,28 @@ UdpL4Protocol::Allocate6 (void)
 Ipv6EndPoint *
 UdpL4Protocol::Allocate6 (Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   return m_endPoints6->Allocate (address);
 }
 
 Ipv6EndPoint *
 UdpL4Protocol::Allocate6 (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   return m_endPoints6->Allocate (port);
 }
 
 Ipv6EndPoint *
 UdpL4Protocol::Allocate6 (Ipv6Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   return m_endPoints6->Allocate (address, port);
 }
 Ipv6EndPoint *
 UdpL4Protocol::Allocate6 (Ipv6Address localAddress, uint16_t localPort,
                          Ipv6Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   return m_endPoints6->Allocate (localAddress, localPort,
                                 peerAddress, peerPort);
 }
@@ -252,7 +252,7 @@ UdpL4Protocol::Allocate6 (Ipv6Address localAddress, uint16_t localPort,
 void 
 UdpL4Protocol::DeAllocate (Ipv6EndPoint *endPoint)
 {
-  NS_LOG_FUNCTION (this << endPoint);
+  NS_LOG_FUNCTION (endPoint);
   m_endPoints6->DeAllocate (endPoint);
 }
 
@@ -262,7 +262,7 @@ UdpL4Protocol::ReceiveIcmp (Ipv4Address icmpSource, uint8_t icmpTtl,
                             Ipv4Address payloadSource,Ipv4Address payloadDestination,
                             const uint8_t payload[8])
 {
-  NS_LOG_FUNCTION (this << icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo 
+  NS_LOG_FUNCTION (icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo 
                         << payloadSource << payloadDestination);
   uint16_t src, dst;
   src = payload[0] << 8;
@@ -289,7 +289,7 @@ UdpL4Protocol::ReceiveIcmp (Ipv6Address icmpSource, uint8_t icmpTtl,
                             Ipv6Address payloadSource,Ipv6Address payloadDestination,
                             const uint8_t payload[8])
 {
-  NS_LOG_FUNCTION (this << icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo 
+  NS_LOG_FUNCTION (icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo 
                         << payloadSource << payloadDestination);
   uint16_t src, dst;
   src = payload[0] << 8;
@@ -315,7 +315,7 @@ UdpL4Protocol::Receive (Ptr<Packet> packet,
                         Ipv4Header const &header,
                         Ptr<Ipv4Interface> interface)
 {
-  NS_LOG_FUNCTION (this << packet << header);
+  NS_LOG_FUNCTION (packet << header);
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
     {
@@ -382,7 +382,7 @@ UdpL4Protocol::Receive (Ptr<Packet> packet,
                         Ipv6Address &dst,
                         Ptr<Ipv6Interface> interface)
 {
-  NS_LOG_FUNCTION (this << packet << src << dst);
+  NS_LOG_FUNCTION (packet << src << dst);
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
     {
@@ -422,7 +422,7 @@ UdpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv4Address saddr, Ipv4Address daddr, 
                      uint16_t sport, uint16_t dport)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << sport << dport);
+  NS_LOG_FUNCTION (packet << saddr << daddr << sport << dport);
 
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
@@ -449,7 +449,7 @@ UdpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv4Address saddr, Ipv4Address daddr, 
                      uint16_t sport, uint16_t dport, Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << sport << dport << route);
+  NS_LOG_FUNCTION (packet << saddr << daddr << sport << dport << route);
 
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
@@ -476,7 +476,7 @@ UdpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv6Address saddr, Ipv6Address daddr,
                      uint16_t sport, uint16_t dport)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << sport << dport);
+  NS_LOG_FUNCTION (packet << saddr << daddr << sport << dport);
 
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
@@ -499,7 +499,7 @@ UdpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv6Address saddr, Ipv6Address daddr,
                      uint16_t sport, uint16_t dport, Ptr<Ipv6Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << sport << dport << route);
+  NS_LOG_FUNCTION (packet << saddr << daddr << sport << dport << route);
 
   UdpHeader udpHeader;
   if(Node::ChecksumEnabled ())
@@ -520,7 +520,7 @@ UdpL4Protocol::Send (Ptr<Packet> packet,
 void
 UdpL4Protocol::SetDownTarget (IpL4Protocol::DownTargetCallback callback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_downTarget = callback;
 }
 
@@ -533,7 +533,7 @@ UdpL4Protocol::GetDownTarget (void) const
 void
 UdpL4Protocol::SetDownTarget6 (IpL4Protocol::DownTargetCallback6 callback)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_downTarget6 = callback;
 }
 

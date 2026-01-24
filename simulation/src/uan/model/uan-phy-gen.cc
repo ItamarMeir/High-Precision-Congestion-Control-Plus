@@ -483,14 +483,14 @@ UanPhyGen::GetTypeId (void)
 void
 UanPhyGen::SetEnergyModelCallback (DeviceEnergyModel::ChangeStateCallback cb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_energyCallback = cb;
 }
 
 void
 UanPhyGen::UpdatePowerConsumption (const State state)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (!m_energyCallback.IsNull ())
     {
@@ -501,7 +501,7 @@ UanPhyGen::UpdatePowerConsumption (const State state)
 void
 UanPhyGen::EnergyDepletionHandler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("Energy depleted at node " << m_device->GetNode ()->GetId () <<
                 ", stopping rx/tx activities");
 
@@ -868,7 +868,7 @@ UanPhyGen::SetSleepMode (bool sleep)
 int64_t
 UanPhyGen::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_pg->SetStream (stream);
   return 1;
 }

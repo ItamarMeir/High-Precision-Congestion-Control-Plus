@@ -45,12 +45,12 @@ TypeId OrbisTopologyReader::GetTypeId (void)
 
 OrbisTopologyReader::OrbisTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 OrbisTopologyReader::~OrbisTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 NodeContainer

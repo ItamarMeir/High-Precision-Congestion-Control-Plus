@@ -52,7 +52,7 @@ DefaultSimulatorImpl::GetTypeId (void)
 
 DefaultSimulatorImpl::DefaultSimulatorImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_stop = false;
   // uids are allocated from 4.
   // uid 0 is "invalid" events
@@ -72,13 +72,13 @@ DefaultSimulatorImpl::DefaultSimulatorImpl ()
 
 DefaultSimulatorImpl::~DefaultSimulatorImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 DefaultSimulatorImpl::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while (!m_events->IsEmpty ())
     {
       Scheduler::Event next = m_events->RemoveNext ();
@@ -90,7 +90,7 @@ DefaultSimulatorImpl::DoDispose (void)
 void
 DefaultSimulatorImpl::Destroy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while (!m_destroyEvents.empty ()) 
     {
       Ptr<EventImpl> ev = m_destroyEvents.front ().PeekEventImpl ();
@@ -106,7 +106,7 @@ DefaultSimulatorImpl::Destroy ()
 void
 DefaultSimulatorImpl::SetScheduler (ObjectFactory schedulerFactory)
 {
-  NS_LOG_FUNCTION (this << schedulerFactory);
+  NS_LOG_FUNCTION (schedulerFactory);
   Ptr<Scheduler> scheduler = schedulerFactory.Create<Scheduler> ();
 
   if (m_events != 0)
@@ -186,7 +186,7 @@ DefaultSimulatorImpl::ProcessEventsWithContext (void)
 void
 DefaultSimulatorImpl::Run (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Set the current threadId as the main threadId
 #ifdef HAVE_PTHREAD_H 
   m_main = SystemThread::Self();
@@ -207,14 +207,14 @@ DefaultSimulatorImpl::Run (void)
 void 
 DefaultSimulatorImpl::Stop (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_stop = true;
 }
 
 void 
 DefaultSimulatorImpl::Stop (Time const &time)
 {
-  NS_LOG_FUNCTION (this << time.GetTimeStep ());
+  NS_LOG_FUNCTION (time.GetTimeStep ());
   Simulator::Schedule (time, &Simulator::Stop);
 }
 
@@ -224,7 +224,7 @@ DefaultSimulatorImpl::Stop (Time const &time)
 EventId
 DefaultSimulatorImpl::Schedule (Time const &time, EventImpl *event)
 {
-  NS_LOG_FUNCTION (this << time.GetTimeStep () << event);
+  NS_LOG_FUNCTION (time.GetTimeStep () << event);
 #ifdef HAVE_PTHREAD_H 
   NS_ASSERT_MSG (SystemThread::Equals (m_main), "Simulator::Schedule Thread-unsafe invocation!");
 #endif
@@ -247,7 +247,7 @@ DefaultSimulatorImpl::Schedule (Time const &time, EventImpl *event)
 void
 DefaultSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, EventImpl *event)
 {
-  NS_LOG_FUNCTION (this << context << time.GetTimeStep () << event);
+  NS_LOG_FUNCTION (context << time.GetTimeStep () << event);
 
   if (SystemThread::Equals (m_main))
     {
@@ -278,7 +278,7 @@ DefaultSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, E
 void
 DefaultSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, EventImpl *event)
 {
-  NS_LOG_FUNCTION (this << context << time.GetTimeStep () << event);
+  NS_LOG_FUNCTION (context << time.GetTimeStep () << event);
   Time tAbsolute = time + TimeStep (m_currentTs);
   Scheduler::Event ev;
   ev.impl = event;

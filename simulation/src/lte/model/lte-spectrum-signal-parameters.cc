@@ -30,20 +30,20 @@ namespace ns3 {
 
 LteSpectrumSignalParameters::LteSpectrumSignalParameters ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteSpectrumSignalParameters::LteSpectrumSignalParameters (const LteSpectrumSignalParameters& p)
   : SpectrumSignalParameters (p)
 {
-  NS_LOG_FUNCTION (this << &p);
+  NS_LOG_FUNCTION (&p);
   packetBurst = p.packetBurst->Copy ();
 }
 
 Ptr<SpectrumSignalParameters>
 LteSpectrumSignalParameters::Copy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Ideally we would use:
   //   return Copy<LteSpectrumSignalParameters> (*this);
   // but for some reason it doesn't work. Another alternative is 

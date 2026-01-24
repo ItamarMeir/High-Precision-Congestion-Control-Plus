@@ -82,7 +82,7 @@ ErrorBuffer::Enqueue (ErrorBuffEntry & entry)
 void
 ErrorBuffer::DropPacketForErrLink (Ipv4Address source, Ipv4Address nextHop)
 {
-  NS_LOG_FUNCTION (this << source << nextHop);
+  NS_LOG_FUNCTION (source << nextHop);
   Purge ();
   std::vector<Ipv4Address> list;
   list.push_back (source);

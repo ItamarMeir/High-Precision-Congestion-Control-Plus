@@ -38,18 +38,18 @@ SpectrumInterference::SpectrumInterference ()
     m_noise (0),
     m_errorModel (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 SpectrumInterference::~SpectrumInterference ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 SpectrumInterference::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rxSignal = 0;
   m_allSignals = 0;
   m_noise = 0;
@@ -60,7 +60,7 @@ SpectrumInterference::DoDispose ()
 void
 SpectrumInterference::StartRx (Ptr<const Packet> p, Ptr<const SpectrumValue> rxPsd)
 {
-  NS_LOG_FUNCTION (this << p << *rxPsd);
+  NS_LOG_FUNCTION (p << *rxPsd);
   m_rxSignal = rxPsd;
   m_lastChangeTime = Now ();
   m_receiving = true;
@@ -76,7 +76,7 @@ SpectrumInterference::AbortRx ()
 bool
 SpectrumInterference::EndRx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ConditionallyEvaluateChunk ();
   m_receiving = false;
   return m_errorModel->IsRxCorrect ();
@@ -86,7 +86,7 @@ SpectrumInterference::EndRx ()
 void
 SpectrumInterference::AddSignal (Ptr<const SpectrumValue> spd, const Time duration)
 {
-  NS_LOG_FUNCTION (this << *spd << duration);
+  NS_LOG_FUNCTION (*spd << duration);
   DoAddSignal (spd);
   Simulator::Schedule (duration, &SpectrumInterference::DoSubtractSignal, this, spd);
 }
@@ -95,7 +95,7 @@ SpectrumInterference::AddSignal (Ptr<const SpectrumValue> spd, const Time durati
 void
 SpectrumInterference::DoAddSignal  (Ptr<const SpectrumValue> spd)
 {
-  NS_LOG_FUNCTION (this << *spd);
+  NS_LOG_FUNCTION (*spd);
   ConditionallyEvaluateChunk ();
   (*m_allSignals) += (*spd);
   m_lastChangeTime = Now ();
@@ -104,7 +104,7 @@ SpectrumInterference::DoAddSignal  (Ptr<const SpectrumValue> spd)
 void
 SpectrumInterference::DoSubtractSignal  (Ptr<const SpectrumValue> spd)
 {
-  NS_LOG_FUNCTION (this << *spd);
+  NS_LOG_FUNCTION (*spd);
   ConditionallyEvaluateChunk ();
   (*m_allSignals) -= (*spd);
   m_lastChangeTime = Now ();
@@ -114,7 +114,7 @@ SpectrumInterference::DoSubtractSignal  (Ptr<const SpectrumValue> spd)
 void
 SpectrumInterference::ConditionallyEvaluateChunk ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("m_receiving: " << m_receiving );
   NS_LOG_LOGIC ("m_lastChangeTime: " << m_lastChangeTime << " Now: " << Now ());
   bool condition  = m_receiving && (Now () > m_lastChangeTime);
@@ -131,7 +131,7 @@ SpectrumInterference::ConditionallyEvaluateChunk ()
 void
 SpectrumInterference::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd)
 {
-  NS_LOG_FUNCTION (this << noisePsd);
+  NS_LOG_FUNCTION (noisePsd);
   m_noise = noisePsd;
   // we can initialize m_allSignal only now, because earlier we
   // didn't know what spectrum model was going to be used.
@@ -143,7 +143,7 @@ SpectrumInterference::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noi
 void
 SpectrumInterference::SetErrorModel (Ptr<SpectrumErrorModel> e)
 {
-  NS_LOG_FUNCTION (this << e);
+  NS_LOG_FUNCTION (e);
   m_errorModel = e;
 }
 

@@ -1172,7 +1172,7 @@ HwmpProtocol::ResetStats ()
 int64_t
 HwmpProtocol::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_coefficient->SetStream (stream);
   return 1;
 }

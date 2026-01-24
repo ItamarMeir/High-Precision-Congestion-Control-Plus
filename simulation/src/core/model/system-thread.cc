@@ -32,18 +32,18 @@ namespace ns3 {
 SystemThread::SystemThread (Callback<void> callback)
   : m_callback (callback)
 {
-  NS_LOG_FUNCTION (this << &callback);
+  NS_LOG_FUNCTION (&callback);
 }
 
 SystemThread::~SystemThread()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 SystemThread::Start (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   int rc = pthread_create (&m_thread, NULL, &SystemThread::DoRun,
                            (void *)this);
@@ -58,7 +58,7 @@ SystemThread::Start (void)
 void
 SystemThread::Join (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   void *thread_return;
   int rc = pthread_join (m_thread, &thread_return);

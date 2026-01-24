@@ -27,19 +27,19 @@ namespace ns3 {
 
 EventImpl::~EventImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 EventImpl::EventImpl ()
   : m_cancel (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 EventImpl::Invoke (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_cancel)
     {
       Notify ();
@@ -49,14 +49,14 @@ EventImpl::Invoke (void)
 void
 EventImpl::Cancel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_cancel = true;
 }
 
 bool
 EventImpl::IsCancelled (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_cancel;
 }
 

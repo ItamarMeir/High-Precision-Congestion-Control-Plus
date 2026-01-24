@@ -87,7 +87,7 @@ BuildingsShadowingTestCase::~BuildingsShadowingTestCase ()
 void
 BuildingsShadowingTestCase::DoRun (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // the building basically occupies the negative x plane, so any node
   // in this area will fall in the building 

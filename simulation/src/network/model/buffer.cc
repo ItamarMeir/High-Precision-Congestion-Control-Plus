@@ -176,19 +176,19 @@ Buffer::Deallocate (struct Buffer::Data *data)
 
 Buffer::Buffer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Initialize (0);
 }
 
 Buffer::Buffer (uint32_t dataSize)
 {
-  NS_LOG_FUNCTION (this << dataSize);
+  NS_LOG_FUNCTION (dataSize);
   Initialize (dataSize);
 }
 
 Buffer::Buffer (uint32_t dataSize, bool initialize)
 {
-  NS_LOG_FUNCTION (this << dataSize << initialize);
+  NS_LOG_FUNCTION (dataSize << initialize);
   if (initialize == true)
     {
       Initialize (dataSize);
@@ -231,7 +231,7 @@ Buffer::CheckInternalState (void) const
 void
 Buffer::Initialize (uint32_t zeroSize)
 {
-  NS_LOG_FUNCTION (this << zeroSize);
+  NS_LOG_FUNCTION (zeroSize);
   m_data = Buffer::Create (0);
   m_start = std::min (m_data->m_size, g_recommendedStart);
   m_maxZeroAreaStart = m_start;
@@ -246,7 +246,7 @@ Buffer::Initialize (uint32_t zeroSize)
 Buffer &
 Buffer::operator = (Buffer const&o)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   NS_ASSERT (CheckInternalState ());
   if (m_data != o.m_data) 
     {
@@ -271,7 +271,7 @@ Buffer::operator = (Buffer const&o)
 
 Buffer::~Buffer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (CheckInternalState ());
   g_recommendedStart = std::max (g_recommendedStart, m_maxZeroAreaStart);
   m_data->m_count--;
@@ -295,7 +295,7 @@ Buffer::GetInternalEnd (void) const
 bool
 Buffer::AddAtStart (uint32_t start)
 {
-  NS_LOG_FUNCTION (this << start);
+  NS_LOG_FUNCTION (start);
   bool dirty;
   NS_ASSERT (CheckInternalState ());
   bool isDirty = m_data->m_count > 1 && m_start > m_data->m_dirtyStart;
@@ -346,7 +346,7 @@ Buffer::AddAtStart (uint32_t start)
 bool
 Buffer::AddAtEnd (uint32_t end)
 {
-  NS_LOG_FUNCTION (this << end);
+  NS_LOG_FUNCTION (end);
   bool dirty;
   NS_ASSERT (CheckInternalState ());
   bool isDirty = m_data->m_count > 1 && m_end < m_data->m_dirtyEnd;
@@ -401,7 +401,7 @@ Buffer::AddAtEnd (uint32_t end)
 void
 Buffer::AddAtEnd (const Buffer &o)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   if (m_data->m_count == 1 &&
       m_end == m_zeroAreaEnd &&
       m_end == m_data->m_dirtyEnd &&
@@ -442,7 +442,7 @@ Buffer::AddAtEnd (const Buffer &o)
 void 
 Buffer::RemoveAtStart (uint32_t start)
 {
-  NS_LOG_FUNCTION (this << start);
+  NS_LOG_FUNCTION (start);
   NS_ASSERT (CheckInternalState ());
   uint32_t newStart = m_start + start;
   if (newStart <= m_zeroAreaStart)
@@ -487,7 +487,7 @@ Buffer::RemoveAtStart (uint32_t start)
 void 
 Buffer::RemoveAtEnd (uint32_t end)
 {
-  NS_LOG_FUNCTION (this << end);
+  NS_LOG_FUNCTION (end);
   NS_ASSERT (CheckInternalState ());
   uint32_t newEnd = m_end - std::min (end, m_end - m_start);
   if (newEnd > m_zeroAreaEnd)
@@ -523,7 +523,7 @@ Buffer::RemoveAtEnd (uint32_t end)
 Buffer 
 Buffer::CreateFragment (uint32_t start, uint32_t length) const
 {
-  NS_LOG_FUNCTION (this << start << length);
+  NS_LOG_FUNCTION (start << length);
   NS_ASSERT (CheckInternalState ());
   Buffer tmp = *this;
   tmp.RemoveAtStart (start);
@@ -535,7 +535,7 @@ Buffer::CreateFragment (uint32_t start, uint32_t length) const
 Buffer 
 Buffer::CreateFullCopy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (CheckInternalState ());
   if (m_zeroAreaEnd - m_zeroAreaStart != 0) 
     {
@@ -582,7 +582,7 @@ Buffer::Serialize (uint8_t* buffer, uint32_t maxSize) const
   uint32_t* p = reinterpret_cast<uint32_t *> (buffer);
   uint32_t size = 0;
 
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Add the zero data length
   if (size + 4 <= maxSize)

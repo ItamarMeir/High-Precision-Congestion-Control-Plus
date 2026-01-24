@@ -54,7 +54,7 @@ PacketSocket::GetTypeId (void)
 
 PacketSocket::PacketSocket () : m_rxAvailable (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_state = STATE_OPEN;
   m_shutdownSend = false;
   m_shutdownRecv = false;
@@ -66,26 +66,26 @@ PacketSocket::PacketSocket () : m_rxAvailable (0)
 void 
 PacketSocket::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
 }
 
 PacketSocket::~PacketSocket ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 
 PacketSocket::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_device = 0;
 }
 
 enum Socket::SocketErrno
 PacketSocket::GetErrno (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_errno;
 }
 
@@ -98,14 +98,14 @@ PacketSocket::GetSocketType (void) const
 Ptr<Node>
 PacketSocket::GetNode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_node;
 }
 
 int
 PacketSocket::Bind (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PacketSocketAddress address;
   address.SetProtocol (0);
   address.SetAllDevices ();
@@ -121,7 +121,7 @@ PacketSocket::Bind6 (void)
 int
 PacketSocket::Bind (const Address &address)
 { 
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (!PacketSocketAddress::IsMatchingType (address))
     {
       m_errno = ERROR_INVAL;
@@ -134,7 +134,7 @@ PacketSocket::Bind (const Address &address)
 int
 PacketSocket::DoBind (const PacketSocketAddress &address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (m_state == STATE_BOUND ||
       m_state == STATE_CONNECTED)
     {
@@ -167,7 +167,7 @@ PacketSocket::DoBind (const PacketSocketAddress &address)
 int
 PacketSocket::ShutdownSend (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_state == STATE_CLOSED)
     {
       m_errno = ERROR_BADF;
@@ -180,7 +180,7 @@ PacketSocket::ShutdownSend (void)
 int
 PacketSocket::ShutdownRecv (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_state == STATE_CLOSED)
     {
       m_errno = ERROR_BADF;
@@ -193,7 +193,7 @@ PacketSocket::ShutdownRecv (void)
 int
 PacketSocket::Close (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_state == STATE_CLOSED)
     {
       m_errno = ERROR_BADF;
@@ -212,7 +212,7 @@ PacketSocket::Close (void)
 int
 PacketSocket::Connect (const Address &ad)
 {
-  NS_LOG_FUNCTION (this << ad);
+  NS_LOG_FUNCTION (ad);
   PacketSocketAddress address;
   if (m_state == STATE_CLOSED)
     {
@@ -257,7 +257,7 @@ PacketSocket::Send (Ptr<Packet> p, uint32_t flags)
 	//p->PeekHeader(sth);
 	//std::cout << "in packet socket send " << sth.GetSeq() << "\n";
 
-  NS_LOG_FUNCTION (this << p << flags);
+  NS_LOG_FUNCTION (p << flags);
   if (m_state == STATE_OPEN ||
       m_state == STATE_BOUND)
     {
@@ -306,7 +306,7 @@ PacketSocket::SendTo (Ptr<Packet> p, uint32_t flags, const Address &address)
 	//p->PeekHeader(sth);
 	//std::cout << "in packet socket sendto " << sth.GetSeq() << "\n";
 
-  NS_LOG_FUNCTION (this << p << flags << address);
+  NS_LOG_FUNCTION (p << flags << address);
   PacketSocketAddress ad;
   if (m_state == STATE_CLOSED)
     {
@@ -384,7 +384,7 @@ PacketSocket::ForwardUp (Ptr<NetDevice> device, Ptr<const Packet> packet,
                          uint16_t protocol, const Address &from,
                          const Address &to, NetDevice::PacketType packetType)
 {
-  NS_LOG_FUNCTION (this << device << packet << protocol << from << to << packetType);
+  NS_LOG_FUNCTION (device << packet << protocol << from << to << packetType);
   if (m_shutdownRecv)
     {
       return;
@@ -422,7 +422,7 @@ PacketSocket::ForwardUp (Ptr<NetDevice> device, Ptr<const Packet> packet,
 uint32_t
 PacketSocket::GetRxAvailable (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // We separately maintain this state to avoid walking the queue 
   // every time this might be called
   return m_rxAvailable;
@@ -431,7 +431,7 @@ PacketSocket::GetRxAvailable (void) const
 Ptr<Packet> 
 PacketSocket::Recv (uint32_t maxSize, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   if (m_deliveryQueue.empty () )
     {
       return 0;
@@ -452,7 +452,7 @@ PacketSocket::Recv (uint32_t maxSize, uint32_t flags)
 Ptr<Packet>
 PacketSocket::RecvFrom (uint32_t maxSize, uint32_t flags, Address &fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags << fromAddress);
+  NS_LOG_FUNCTION (maxSize << flags << fromAddress);
   Ptr<Packet> packet = Recv (maxSize, flags);
   if (packet != 0)
     {
@@ -468,7 +468,7 @@ PacketSocket::RecvFrom (uint32_t maxSize, uint32_t flags, Address &fromAddress)
 int
 PacketSocket::GetSockName (Address &address) const
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   PacketSocketAddress ad = PacketSocketAddress::ConvertFrom (address);
 
   ad.SetProtocol (m_protocol);

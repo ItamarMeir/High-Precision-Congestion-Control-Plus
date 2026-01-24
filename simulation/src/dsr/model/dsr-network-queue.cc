@@ -101,7 +101,7 @@ DsrNetworkQueue::GetMaxNetworkDelay (void) const
 bool
 DsrNetworkQueue::Enqueue (DsrNetworkQueueEntry & entry)
 {
-  NS_LOG_FUNCTION (this << m_size << m_maxSize);
+  NS_LOG_FUNCTION (m_size << m_maxSize);
   if (m_size >= m_maxSize)
     {
       return false;
@@ -117,7 +117,7 @@ DsrNetworkQueue::Enqueue (DsrNetworkQueueEntry & entry)
 bool
 DsrNetworkQueue::Dequeue (DsrNetworkQueueEntry & entry)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Cleanup ();
   std::vector<DsrNetworkQueueEntry>::iterator i = m_dsrNetworkQueue.begin ();
   if (i == m_dsrNetworkQueue.end ())
@@ -135,7 +135,7 @@ DsrNetworkQueue::Dequeue (DsrNetworkQueueEntry & entry)
 void
 DsrNetworkQueue::Cleanup (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_dsrNetworkQueue.empty ())
     {
       return;
@@ -161,14 +161,14 @@ DsrNetworkQueue::Cleanup (void)
 uint32_t
 DsrNetworkQueue::GetSize ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_size;
 }
 
 void
 DsrNetworkQueue::Flush (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_dsrNetworkQueue.erase (m_dsrNetworkQueue.begin (), m_dsrNetworkQueue.end ());
   m_size = 0;
 }

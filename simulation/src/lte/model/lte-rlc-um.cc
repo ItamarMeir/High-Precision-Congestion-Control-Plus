@@ -42,7 +42,7 @@ LteRlcUm::LteRlcUm ()
     m_windowSize (512),
     m_expectedSeqNumber (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_reassemblingState = WAITING_S0_FULL;
 
   Simulator::ScheduleNow (&LteRlcUm::Start, this);
@@ -75,7 +75,7 @@ LteRlcUm::GetTypeId (void)
 void
 LteRlcUm::DoTransmitPdcpPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   if (m_txBufferSize + p->GetSize () <= m_maxTxBufferSize)
     {
@@ -117,7 +117,7 @@ LteRlcUm::DoTransmitPdcpPdu (Ptr<Packet> p)
 void
 LteRlcUm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << bytes);
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << bytes);
 
   if (bytes <= 2)
     {
@@ -385,13 +385,13 @@ LteRlcUm::DoNotifyTxOpportunity (uint32_t bytes, uint8_t layer)
 void
 LteRlcUm::DoNotifyHarqDeliveryFailure ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteRlcUm::DoReceivePdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid << p->GetSize ());
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid << p->GetSize ());
 
   // Receiver timestamp
   RlcTag rlcTag;
@@ -554,7 +554,7 @@ LteRlcUm::DoReceivePdu (Ptr<Packet> p)
 void
 LteRlcUm::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   DoReportBufferStatus ();
 }
@@ -563,7 +563,7 @@ LteRlcUm::Start ()
 bool
 LteRlcUm::IsInsideReorderingWindow (SequenceNumber10 seqNumber)
 {
-  NS_LOG_FUNCTION (this << seqNumber);
+  NS_LOG_FUNCTION (seqNumber);
   NS_LOG_LOGIC ("Reordering Window: " <<
                 m_vrUh << " - " << m_windowSize << " <= " << seqNumber << " < " << m_vrUh);
 
@@ -1139,7 +1139,7 @@ LteRlcUm::DoReportBufferStatus (void)
 void
 LteRlcUm::ExpireReorderingTimer (void)
 {
-  NS_LOG_FUNCTION (this << m_rnti << (uint32_t) m_lcid);
+  NS_LOG_FUNCTION (m_rnti << (uint32_t) m_lcid);
   NS_LOG_LOGIC ("Reordering timer has expired");
 
   // 5.1.2.2.4 Actions when t-Reordering expires

@@ -99,7 +99,7 @@ Ipv4ListRouting::DoStart (void)
 Ptr<Ipv4Route>
 Ipv4ListRouting::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, enum Socket::SocketErrno &sockerr)
 {
-  NS_LOG_FUNCTION (this << header.GetDestination () << " " << header.GetSource () << " " << oif);
+  NS_LOG_FUNCTION (header.GetDestination () << " " << header.GetSource () << " " << oif);
   Ptr<Ipv4Route> route;
 
   for (Ipv4RoutingProtocolList::const_iterator i = m_routingProtocols.begin ();
@@ -186,7 +186,7 @@ Ipv4ListRouting::RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<
 void 
 Ipv4ListRouting::NotifyInterfaceUp (uint32_t interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   for (Ipv4RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -198,7 +198,7 @@ Ipv4ListRouting::NotifyInterfaceUp (uint32_t interface)
 void 
 Ipv4ListRouting::NotifyInterfaceDown (uint32_t interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   for (Ipv4RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -210,7 +210,7 @@ Ipv4ListRouting::NotifyInterfaceDown (uint32_t interface)
 void 
 Ipv4ListRouting::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   for (Ipv4RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -222,7 +222,7 @@ Ipv4ListRouting::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress addr
 void 
 Ipv4ListRouting::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   for (Ipv4RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
        rprotoIter != m_routingProtocols.end ();
@@ -234,7 +234,7 @@ Ipv4ListRouting::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress a
 void 
 Ipv4ListRouting::SetIpv4 (Ptr<Ipv4> ipv4)
 {
-  NS_LOG_FUNCTION (this << ipv4);
+  NS_LOG_FUNCTION (ipv4);
   NS_ASSERT (m_ipv4 == 0);
   for (Ipv4RoutingProtocolList::const_iterator rprotoIter =
          m_routingProtocols.begin ();
@@ -249,7 +249,7 @@ Ipv4ListRouting::SetIpv4 (Ptr<Ipv4> ipv4)
 void
 Ipv4ListRouting::AddRoutingProtocol (Ptr<Ipv4RoutingProtocol> routingProtocol, int16_t priority)
 {
-  NS_LOG_FUNCTION (this << routingProtocol->GetInstanceTypeId () << priority);
+  NS_LOG_FUNCTION (routingProtocol->GetInstanceTypeId () << priority);
   m_routingProtocols.push_back (std::make_pair (priority, routingProtocol));
   m_routingProtocols.sort ( Compare );
   if (m_ipv4 != 0)
@@ -261,7 +261,7 @@ Ipv4ListRouting::AddRoutingProtocol (Ptr<Ipv4RoutingProtocol> routingProtocol, i
 uint32_t 
 Ipv4ListRouting::GetNRoutingProtocols (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_routingProtocols.size (); 
 }
 

@@ -29,35 +29,35 @@ namespace ns3 {
 EnumValue::EnumValue ()
   : m_v ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 EnumValue::EnumValue (int v)
   : m_v (v)
 {
-  NS_LOG_FUNCTION (this << v);
+  NS_LOG_FUNCTION (v);
 }
 void
 EnumValue::Set (int v)
 {
-  NS_LOG_FUNCTION (this << v);
+  NS_LOG_FUNCTION (v);
   m_v = v;
 }
 int
 EnumValue::Get (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_v;
 }
 Ptr<AttributeValue>
 EnumValue::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return ns3::Create<EnumValue> (*this);
 }
 std::string 
 EnumValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
   const EnumChecker *p = dynamic_cast<const EnumChecker *> (PeekPointer (checker));
   NS_ASSERT (p != 0);
   for (EnumChecker::ValueSet::const_iterator i = p->m_valueSet.begin (); i != p->m_valueSet.end (); i++)
@@ -75,7 +75,7 @@ EnumValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 bool 
 EnumValue::DeserializeFromString (std::string value, Ptr<const AttributeChecker> checker)
 {
-  NS_LOG_FUNCTION (this << value << checker);
+  NS_LOG_FUNCTION (value << checker);
   const EnumChecker *p = dynamic_cast<const EnumChecker *> (PeekPointer (checker));
   NS_ASSERT (p != 0);
   for (EnumChecker::ValueSet::const_iterator i = p->m_valueSet.begin (); i != p->m_valueSet.end (); i++)
@@ -91,25 +91,25 @@ EnumValue::DeserializeFromString (std::string value, Ptr<const AttributeChecker>
 
 EnumChecker::EnumChecker ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 EnumChecker::AddDefault (int v, std::string name)
 {
-  NS_LOG_FUNCTION (this << v << name);
+  NS_LOG_FUNCTION (v << name);
   m_valueSet.push_front (std::make_pair (v, name));
 }
 void
 EnumChecker::Add (int v, std::string name)
 {
-  NS_LOG_FUNCTION (this << v << name);
+  NS_LOG_FUNCTION (v << name);
   m_valueSet.push_back (std::make_pair (v, name));
 }
 bool
 EnumChecker::Check (const AttributeValue &value) const
 {
-  NS_LOG_FUNCTION (this << &value);
+  NS_LOG_FUNCTION (&value);
   const EnumValue *p = dynamic_cast<const EnumValue *> (&value);
   if (p == 0)
     {
@@ -127,19 +127,19 @@ EnumChecker::Check (const AttributeValue &value) const
 std::string 
 EnumChecker::GetValueTypeName (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return "ns3::EnumValue";
 }
 bool 
 EnumChecker::HasUnderlyingTypeInformation (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 std::string 
 EnumChecker::GetUnderlyingTypeInformation (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::ostringstream oss;
   for (ValueSet::const_iterator i = m_valueSet.begin (); i != m_valueSet.end ();)
     {
@@ -155,14 +155,14 @@ EnumChecker::GetUnderlyingTypeInformation (void) const
 Ptr<AttributeValue>
 EnumChecker::Create (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return ns3::Create<EnumValue> ();
 }
 
 bool 
 EnumChecker::Copy (const AttributeValue &source, AttributeValue &destination) const
 {
-  NS_LOG_FUNCTION (this << &source << &destination);
+  NS_LOG_FUNCTION (&source << &destination);
   const EnumValue *src = dynamic_cast<const EnumValue *> (&source);
   EnumValue *dst = dynamic_cast<EnumValue *> (&destination);
   if (src == 0 || dst == 0)

@@ -64,7 +64,7 @@ CosineAntennaModel::GetTypeId ()
 void 
 CosineAntennaModel::SetBeamwidth (double beamwidthDegrees)
 { 
-  NS_LOG_FUNCTION (this << beamwidthDegrees);
+  NS_LOG_FUNCTION (beamwidthDegrees);
   m_beamwidthRadians = DegreesToRadians (beamwidthDegrees);
   m_exponent = -3.0 / (20*log10 (cos (m_beamwidthRadians / 4.0)));
   NS_LOG_LOGIC (this << " m_exponent = " << m_exponent);
@@ -79,7 +79,7 @@ CosineAntennaModel::GetBeamwidth () const
 void 
 CosineAntennaModel::SetOrientation (double orientationDegrees)
 {
-  NS_LOG_FUNCTION (this << orientationDegrees);
+  NS_LOG_FUNCTION (orientationDegrees);
   m_orientationRadians = DegreesToRadians (orientationDegrees);
 }
 
@@ -92,7 +92,7 @@ CosineAntennaModel::GetOrientation () const
 double 
 CosineAntennaModel::GetGainDb (Angles a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   // azimuth angle w.r.t. the reference system of the antenna
   double phi = a.phi - m_orientationRadians;
 

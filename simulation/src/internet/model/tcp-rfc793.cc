@@ -39,7 +39,7 @@ TcpRfc793::GetTypeId (void)
 
 TcpRfc793::TcpRfc793 (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetDelAckMaxCount (0);  // Delayed ACK is not in RFC793
 }
 

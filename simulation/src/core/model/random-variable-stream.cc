@@ -67,30 +67,30 @@ RandomVariableStream::GetTypeId (void)
 RandomVariableStream::RandomVariableStream()
   : m_rng (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 RandomVariableStream::~RandomVariableStream()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_rng;
 }
 
 void
 RandomVariableStream::SetAntithetic(bool isAntithetic)
 {
-  NS_LOG_FUNCTION (this << isAntithetic);
+  NS_LOG_FUNCTION (isAntithetic);
   m_isAntithetic = isAntithetic;
 }
 bool
 RandomVariableStream::IsAntithetic(void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_isAntithetic;
 }
 void
 RandomVariableStream::SetStream (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   // negative values are not legal.
   NS_ASSERT (stream >= -1);
   delete m_rng;
@@ -119,14 +119,14 @@ RandomVariableStream::SetStream (int64_t stream)
 int64_t
 RandomVariableStream::GetStream(void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_stream;
 }
 
 RngStream *
 RandomVariableStream::Peek(void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rng;
 }
 
@@ -152,26 +152,26 @@ UniformRandomVariable::GetTypeId (void)
 UniformRandomVariable::UniformRandomVariable ()
 {
   // m_min and m_max are initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 UniformRandomVariable::GetMin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_min;
 }
 double 
 UniformRandomVariable::GetMax (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_max;
 }
 
 double 
 UniformRandomVariable::GetValue (double min, double max)
 {
-  NS_LOG_FUNCTION (this << min << max);
+  NS_LOG_FUNCTION (min << max);
   double v = min + Peek ()->RandU01 () * (max - min);
   if (IsAntithetic ())
     {
@@ -182,7 +182,7 @@ UniformRandomVariable::GetValue (double min, double max)
 uint32_t 
 UniformRandomVariable::GetInteger (uint32_t min, uint32_t max)
 {
-  NS_LOG_FUNCTION (this << min << max);
+  NS_LOG_FUNCTION (min << max);
   NS_ASSERT (min <= max);
   return static_cast<uint32_t> ( GetValue (min, max + 1) );
 }
@@ -190,13 +190,13 @@ UniformRandomVariable::GetInteger (uint32_t min, uint32_t max)
 double 
 UniformRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_min, m_max);
 }
 uint32_t 
 UniformRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_min, m_max + 1);
 }
 
@@ -218,39 +218,39 @@ ConstantRandomVariable::GetTypeId (void)
 ConstantRandomVariable::ConstantRandomVariable ()
 {
   // m_constant is initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 ConstantRandomVariable::GetConstant (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_constant;
 }
 
 double 
 ConstantRandomVariable::GetValue (double constant)
 {
-  NS_LOG_FUNCTION (this << constant);
+  NS_LOG_FUNCTION (constant);
   return constant;
 }
 uint32_t 
 ConstantRandomVariable::GetInteger (uint32_t constant)
 {
-  NS_LOG_FUNCTION (this << constant);
+  NS_LOG_FUNCTION (constant);
   return constant;
 }
 
 double 
 ConstantRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_constant);
 }
 uint32_t 
 ConstantRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_constant);
 }
 
@@ -289,34 +289,34 @@ SequentialRandomVariable::SequentialRandomVariable ()
 {
   // m_min, m_max, m_increment, and m_consecutive are initialized
   // after constructor by attributes.
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 SequentialRandomVariable::GetMin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_min;
 }
 
 double 
 SequentialRandomVariable::GetMax (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_max;
 }
 
 Ptr<RandomVariableStream> 
 SequentialRandomVariable::GetIncrement (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_increment;
 }
 
 uint32_t 
 SequentialRandomVariable::GetConsecutive (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_consecutive;
 }
 
@@ -324,7 +324,7 @@ double
 SequentialRandomVariable::GetValue (void)
 {
   // Set the current sequence value if it hasn't been set.
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_isCurrentSet)
     {
       // Start the sequence at its minimium value.
@@ -349,7 +349,7 @@ SequentialRandomVariable::GetValue (void)
 uint32_t 
 SequentialRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue ();
 }
 
@@ -375,26 +375,26 @@ ExponentialRandomVariable::GetTypeId (void)
 ExponentialRandomVariable::ExponentialRandomVariable ()
 {
   // m_mean and m_bound are initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 ExponentialRandomVariable::GetMean (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mean;
 }
 double 
 ExponentialRandomVariable::GetBound (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_bound;
 }
 
 double 
 ExponentialRandomVariable::GetValue (double mean, double bound)
 {
-  NS_LOG_FUNCTION (this << mean << bound);
+  NS_LOG_FUNCTION (mean << bound);
   while (1)
     {
       // Get a uniform random variable in [0,1].
@@ -417,20 +417,20 @@ ExponentialRandomVariable::GetValue (double mean, double bound)
 uint32_t 
 ExponentialRandomVariable::GetInteger (uint32_t mean, uint32_t bound)
 {
-  NS_LOG_FUNCTION (this << mean << bound);
+  NS_LOG_FUNCTION (mean << bound);
   return static_cast<uint32_t> ( GetValue (mean, bound) );
 }
 
 double 
 ExponentialRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_mean, m_bound);
 }
 uint32_t 
 ExponentialRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_mean, m_bound);
 }
 
@@ -461,25 +461,25 @@ ParetoRandomVariable::ParetoRandomVariable ()
 {
   // m_mean, m_shape, and m_bound are initialized after constructor
   // by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 ParetoRandomVariable::GetMean (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mean;
 }
 double 
 ParetoRandomVariable::GetShape (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_shape;
 }
 double 
 ParetoRandomVariable::GetBound (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_bound;
 }
 
@@ -487,7 +487,7 @@ double
 ParetoRandomVariable::GetValue (double mean, double shape, double bound)
 {
   // Calculate the scale parameter.
-  NS_LOG_FUNCTION (this << mean << shape << bound);
+  NS_LOG_FUNCTION (mean << shape << bound);
   double scale = mean * (shape - 1.0) / shape;
 
   while (1)
@@ -512,20 +512,20 @@ ParetoRandomVariable::GetValue (double mean, double shape, double bound)
 uint32_t 
 ParetoRandomVariable::GetInteger (uint32_t mean, uint32_t shape, uint32_t bound)
 {
-  NS_LOG_FUNCTION (this << mean << shape << bound);
+  NS_LOG_FUNCTION (mean << shape << bound);
   return static_cast<uint32_t> ( GetValue (mean, shape, bound) );
 }
 
 double 
 ParetoRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_mean, m_shape, m_bound);
 }
 uint32_t 
 ParetoRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_mean, m_shape, m_bound);
 }
 
@@ -556,32 +556,32 @@ WeibullRandomVariable::WeibullRandomVariable ()
 {
   // m_scale, m_shape, and m_bound are initialized after constructor
   // by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 WeibullRandomVariable::GetScale (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_scale;
 }
 double 
 WeibullRandomVariable::GetShape (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_shape;
 }
 double 
 WeibullRandomVariable::GetBound (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_bound;
 }
 
 double 
 WeibullRandomVariable::GetValue (double scale, double shape, double bound)
 {
-  NS_LOG_FUNCTION (this << scale << shape << bound);
+  NS_LOG_FUNCTION (scale << shape << bound);
   double exponent = 1.0 / shape;
   while (1)
     {
@@ -605,20 +605,20 @@ WeibullRandomVariable::GetValue (double scale, double shape, double bound)
 uint32_t 
 WeibullRandomVariable::GetInteger (uint32_t scale, uint32_t shape, uint32_t bound)
 {
-  NS_LOG_FUNCTION (this << scale << shape << bound);
+  NS_LOG_FUNCTION (scale << shape << bound);
   return static_cast<uint32_t> ( GetValue (scale, shape, bound) );
 }
 
 double 
 WeibullRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_scale, m_shape, m_bound);
 }
 uint32_t 
 WeibullRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_scale, m_shape, m_bound);
 }
 
@@ -653,32 +653,32 @@ NormalRandomVariable::NormalRandomVariable ()
 {
   // m_mean, m_variance, and m_bound are initialized after constructor
   // by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 NormalRandomVariable::GetMean (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mean;
 }
 double 
 NormalRandomVariable::GetVariance (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_variance;
 }
 double 
 NormalRandomVariable::GetBound (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_bound;
 }
 
 double 
 NormalRandomVariable::GetValue (double mean, double variance, double bound)
 {
-  NS_LOG_FUNCTION (this << mean << variance << bound);
+  NS_LOG_FUNCTION (mean << variance << bound);
   if (m_nextValid)
     { // use previously generated
       m_nextValid = false;
@@ -724,20 +724,20 @@ NormalRandomVariable::GetValue (double mean, double variance, double bound)
 uint32_t 
 NormalRandomVariable::GetInteger (uint32_t mean, uint32_t variance, uint32_t bound)
 {
-  NS_LOG_FUNCTION (this << mean << variance << bound);
+  NS_LOG_FUNCTION (mean << variance << bound);
   return static_cast<uint32_t> ( GetValue (mean, variance, bound) );
 }
 
 double 
 NormalRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_mean, m_variance, m_bound);
 }
 uint32_t 
 NormalRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_mean, m_variance, m_bound);
 }
 
@@ -764,19 +764,19 @@ LogNormalRandomVariable::LogNormalRandomVariable ()
 {
   // m_mu and m_sigma are initialized after constructor by
   // attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 LogNormalRandomVariable::GetMu (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mu;
 }
 double 
 LogNormalRandomVariable::GetSigma (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_sigma;
 }
 
@@ -811,7 +811,7 @@ LogNormalRandomVariable::GetValue (double mu, double sigma)
 {
   double v1, v2, r2, normal, x;
 
-  NS_LOG_FUNCTION (this << mu << sigma);
+  NS_LOG_FUNCTION (mu << sigma);
 
   do
     {
@@ -843,20 +843,20 @@ LogNormalRandomVariable::GetValue (double mu, double sigma)
 uint32_t 
 LogNormalRandomVariable::GetInteger (uint32_t mu, uint32_t sigma)
 {
-  NS_LOG_FUNCTION (this << mu << sigma);
+  NS_LOG_FUNCTION (mu << sigma);
   return static_cast<uint32_t> ( GetValue (mu, sigma));
 }
 
 double 
 LogNormalRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_mu, m_sigma);
 }
 uint32_t 
 LogNormalRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_mu, m_sigma);
 }
 
@@ -885,19 +885,19 @@ GammaRandomVariable::GammaRandomVariable ()
 {
   // m_alpha and m_beta are initialized after constructor by
   // attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 GammaRandomVariable::GetAlpha (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_alpha;
 }
 double 
 GammaRandomVariable::GetBeta (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_beta;
 }
 
@@ -920,7 +920,7 @@ GammaRandomVariable::GetBeta (void) const
 double 
 GammaRandomVariable::GetValue (double alpha, double beta)
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
   if (alpha < 1)
     {
       double u = Peek ()->RandU01 ();
@@ -972,27 +972,27 @@ GammaRandomVariable::GetValue (double alpha, double beta)
 uint32_t 
 GammaRandomVariable::GetInteger (uint32_t alpha, uint32_t beta)
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
   return static_cast<uint32_t> ( GetValue (alpha, beta));
 }
 
 double 
 GammaRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_alpha, m_beta);
 }
 uint32_t 
 GammaRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_alpha, m_beta);
 }
 
 double 
 GammaRandomVariable::GetNormalValue (double mean, double variance, double bound)
 {
-  NS_LOG_FUNCTION (this << mean << variance << bound);
+  NS_LOG_FUNCTION (mean << variance << bound);
   if (m_nextValid)
     { // use previously generated
       m_nextValid = false;
@@ -1057,19 +1057,19 @@ ErlangRandomVariable::GetTypeId (void)
 ErlangRandomVariable::ErlangRandomVariable ()
 {
   // m_k and m_lambda are initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t 
 ErlangRandomVariable::GetK (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_k;
 }
 double 
 ErlangRandomVariable::GetLambda (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_lambda;
 }
 
@@ -1088,7 +1088,7 @@ ErlangRandomVariable::GetLambda (void) const
 double 
 ErlangRandomVariable::GetValue (uint32_t k, double lambda)
 {
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
   double mean = lambda;
   double bound = 0.0;
 
@@ -1105,27 +1105,27 @@ ErlangRandomVariable::GetValue (uint32_t k, double lambda)
 uint32_t 
 ErlangRandomVariable::GetInteger (uint32_t k, uint32_t lambda)
 {
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
   return static_cast<uint32_t> ( GetValue (k, lambda));
 }
 
 double 
 ErlangRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_k, m_lambda);
 }
 uint32_t 
 ErlangRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_k, m_lambda);
 }
 
 double 
 ErlangRandomVariable::GetExponentialValue (double mean, double bound)
 {
-  NS_LOG_FUNCTION (this << mean << bound);
+  NS_LOG_FUNCTION (mean << bound);
   while (1)
     {
       // Get a uniform random variable in [0,1].
@@ -1173,25 +1173,25 @@ TriangularRandomVariable::TriangularRandomVariable ()
 {
   // m_mean, m_min, and m_max are initialized after constructor by
   // attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 TriangularRandomVariable::GetMean (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mean;
 }
 double 
 TriangularRandomVariable::GetMin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_min;
 }
 double 
 TriangularRandomVariable::GetMax (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_max;
 }
 
@@ -1199,7 +1199,7 @@ double
 TriangularRandomVariable::GetValue (double mean, double min, double max)
 {
   // Calculate the mode.
-  NS_LOG_FUNCTION (this << mean << min << max);
+  NS_LOG_FUNCTION (mean << min << max);
   double mode = 3.0 * mean - min - max;
 
   // Get a uniform random variable in [0,1].
@@ -1223,20 +1223,20 @@ TriangularRandomVariable::GetValue (double mean, double min, double max)
 uint32_t 
 TriangularRandomVariable::GetInteger (uint32_t mean, uint32_t min, uint32_t max)
 {
-  NS_LOG_FUNCTION (this << mean << min << max);
+  NS_LOG_FUNCTION (mean << min << max);
   return static_cast<uint32_t> ( GetValue (mean, min, max) );
 }
 
 double 
 TriangularRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_mean, m_min, m_max);
 }
 uint32_t 
 TriangularRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_mean, m_min, m_max);
 }
 
@@ -1262,26 +1262,26 @@ ZipfRandomVariable::GetTypeId (void)
 ZipfRandomVariable::ZipfRandomVariable ()
 {
   // m_n and m_alpha are initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t 
 ZipfRandomVariable::GetN (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_n;
 }
 double 
 ZipfRandomVariable::GetAlpha (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_alpha;
 }
 
 double 
 ZipfRandomVariable::GetValue (uint32_t n, double alpha)
 {
-  NS_LOG_FUNCTION (this << n << alpha);
+  NS_LOG_FUNCTION (n << alpha);
   // Calculate the normalization constant c.
   m_c = 0.0;
   for (uint32_t i = 1; i <= n; i++)
@@ -1313,20 +1313,20 @@ ZipfRandomVariable::GetValue (uint32_t n, double alpha)
 uint32_t 
 ZipfRandomVariable::GetInteger (uint32_t n, uint32_t alpha)
 {
-  NS_LOG_FUNCTION (this << n << alpha);
+  NS_LOG_FUNCTION (n << alpha);
   return static_cast<uint32_t> ( GetValue (n, alpha));
 }
 
 double 
 ZipfRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_n, m_alpha);
 }
 uint32_t 
 ZipfRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_n, m_alpha);
 }
 
@@ -1348,20 +1348,20 @@ ZetaRandomVariable::GetTypeId (void)
 ZetaRandomVariable::ZetaRandomVariable ()
 {
   // m_alpha is initialized after constructor by attributes
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 ZetaRandomVariable::GetAlpha (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_alpha;
 }
 
 double 
 ZetaRandomVariable::GetValue (double alpha)
 {
-  NS_LOG_FUNCTION (this << alpha);
+  NS_LOG_FUNCTION (alpha);
   m_b = std::pow (2.0, alpha - 1.0);
 
   double u, v;
@@ -1396,20 +1396,20 @@ ZetaRandomVariable::GetValue (double alpha)
 uint32_t 
 ZetaRandomVariable::GetInteger (uint32_t alpha)
 {
-  NS_LOG_FUNCTION (this << alpha);
+  NS_LOG_FUNCTION (alpha);
   return static_cast<uint32_t> ( GetValue (alpha));
 }
 
 double 
 ZetaRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_alpha);
 }
 uint32_t 
 ZetaRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue (m_alpha);
 }
 
@@ -1430,12 +1430,12 @@ DeterministicRandomVariable::DeterministicRandomVariable ()
   m_next (0),
   m_data (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 DeterministicRandomVariable::~DeterministicRandomVariable ()
 {
   // Delete any values currently set.
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_data != 0)
   {
     delete[] m_data;
@@ -1445,7 +1445,7 @@ DeterministicRandomVariable::~DeterministicRandomVariable ()
 void
 DeterministicRandomVariable::SetValueArray (double* values, uint64_t length)
 {
-  NS_LOG_FUNCTION (this << values << length);
+  NS_LOG_FUNCTION (values << length);
   // Delete any values currently set.
   if (m_data != 0)
   {
@@ -1467,7 +1467,7 @@ DeterministicRandomVariable::SetValueArray (double* values, uint64_t length)
 double 
 DeterministicRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Make sure the array has been set.
   NS_ASSERT (m_count > 0);
 
@@ -1481,7 +1481,7 @@ DeterministicRandomVariable::GetValue (void)
 uint32_t 
 DeterministicRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue ();
 }
 
@@ -1492,19 +1492,19 @@ EmpiricalRandomVariable::ValueCDF::ValueCDF ()
   : value (0.0),
     cdf (0.0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 EmpiricalRandomVariable::ValueCDF::ValueCDF (double v, double c)
   : value (v),
     cdf (c)
 {
-  NS_LOG_FUNCTION (this << v << c);
+  NS_LOG_FUNCTION (v << c);
 }
 EmpiricalRandomVariable::ValueCDF::ValueCDF (const ValueCDF& c)
   : value (c.value),
     cdf (c.cdf)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 TypeId 
@@ -1520,13 +1520,13 @@ EmpiricalRandomVariable::EmpiricalRandomVariable ()
   :
   validated (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double 
 EmpiricalRandomVariable::GetValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Return a value from the empirical distribution
   // This code based (loosely) on code by Bruce Mah (Thanks Bruce!)
   if (emp.size () == 0)
@@ -1580,20 +1580,20 @@ EmpiricalRandomVariable::GetValue (void)
 uint32_t 
 EmpiricalRandomVariable::GetInteger (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue ();
 }
 
 void EmpiricalRandomVariable::CDF (double v, double c)
 { // Add a new empirical datapoint to the empirical cdf
   // NOTE.   These MUST be inserted in non-decreasing order
-  NS_LOG_FUNCTION (this << v << c);
+  NS_LOG_FUNCTION (v << c);
   emp.push_back (ValueCDF (v, c));
 }
 
 void EmpiricalRandomVariable::Validate ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ValueCDF prior;
   for (std::vector<ValueCDF>::size_type i = 0; i < emp.size (); ++i)
     {
@@ -1615,7 +1615,7 @@ void EmpiricalRandomVariable::Validate ()
 double EmpiricalRandomVariable::Interpolate (double c1, double c2,
                                            double v1, double v2, double r)
 { // Interpolate random value in range [v1..v2) based on [c1 .. r .. c2)
-  NS_LOG_FUNCTION (this << c1 << c2 << v1 << v2 << r);
+  NS_LOG_FUNCTION (c1 << c2 << v1 << v2 << r);
   return (v1 + ((v2 - v1) / (c2 - c1)) * (r - c1));
 }
 

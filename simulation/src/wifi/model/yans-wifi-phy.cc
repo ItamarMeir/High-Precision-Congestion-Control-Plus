@@ -129,20 +129,20 @@ YansWifiPhy::YansWifiPhy ()
     m_endRxEvent (),
     m_channelStartingFrequency (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_random = CreateObject<UniformRandomVariable> ();
   m_state = CreateObject<WifiPhyStateHelper> ();
 }
 
 YansWifiPhy::~YansWifiPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 YansWifiPhy::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channel = 0;
   m_deviceRateSet.clear ();
   m_device = 0;
@@ -153,7 +153,7 @@ YansWifiPhy::DoDispose (void)
 void
 YansWifiPhy::ConfigureStandard (enum WifiPhyStandard standard)
 {
-  NS_LOG_FUNCTION (this << standard);
+  NS_LOG_FUNCTION (standard);
   switch (standard)
     {
     case WIFI_PHY_STANDARD_80211a:
@@ -190,49 +190,49 @@ YansWifiPhy::ConfigureStandard (enum WifiPhyStandard standard)
 void
 YansWifiPhy::SetRxNoiseFigure (double noiseFigureDb)
 {
-  NS_LOG_FUNCTION (this << noiseFigureDb);
+  NS_LOG_FUNCTION (noiseFigureDb);
   m_interference.SetNoiseFigure (DbToRatio (noiseFigureDb));
 }
 void
 YansWifiPhy::SetTxPowerStart (double start)
 {
-  NS_LOG_FUNCTION (this << start);
+  NS_LOG_FUNCTION (start);
   m_txPowerBaseDbm = start;
 }
 void
 YansWifiPhy::SetTxPowerEnd (double end)
 {
-  NS_LOG_FUNCTION (this << end);
+  NS_LOG_FUNCTION (end);
   m_txPowerEndDbm = end;
 }
 void
 YansWifiPhy::SetNTxPower (uint32_t n)
 {
-  NS_LOG_FUNCTION (this << n);
+  NS_LOG_FUNCTION (n);
   m_nTxPower = n;
 }
 void
 YansWifiPhy::SetTxGain (double gain)
 {
-  NS_LOG_FUNCTION (this << gain);
+  NS_LOG_FUNCTION (gain);
   m_txGainDb = gain;
 }
 void
 YansWifiPhy::SetRxGain (double gain)
 {
-  NS_LOG_FUNCTION (this << gain);
+  NS_LOG_FUNCTION (gain);
   m_rxGainDb = gain;
 }
 void
 YansWifiPhy::SetEdThreshold (double threshold)
 {
-  NS_LOG_FUNCTION (this << threshold);
+  NS_LOG_FUNCTION (threshold);
   m_edThresholdW = DbmToW (threshold);
 }
 void
 YansWifiPhy::SetCcaMode1Threshold (double threshold)
 {
-  NS_LOG_FUNCTION (this << threshold);
+  NS_LOG_FUNCTION (threshold);
   m_ccaMode1ThresholdW = DbmToW (threshold);
 }
 void
@@ -400,7 +400,7 @@ YansWifiPhy::StartReceivePacket (Ptr<Packet> packet,
                                  WifiMode txMode,
                                  enum WifiPreamble preamble)
 {
-  NS_LOG_FUNCTION (this << packet << rxPowerDbm << txMode << preamble);
+  NS_LOG_FUNCTION (packet << rxPowerDbm << txMode << preamble);
   rxPowerDbm += m_rxGainDb;
   double rxPowerW = DbmToW (rxPowerDbm);
   Time rxDuration = CalculateTxDuration (packet->GetSize (), txMode, preamble);
@@ -497,7 +497,7 @@ maybeCcaBusy:
 void
 YansWifiPhy::SendPacket (Ptr<const Packet> packet, WifiMode txMode, WifiPreamble preamble, uint8_t txPower)
 {
-  NS_LOG_FUNCTION (this << packet << txMode << preamble << (uint32_t)txPower);
+  NS_LOG_FUNCTION (packet << txMode << preamble << (uint32_t)txPower);
   /* Transmission can happen if:
    *  - we are syncing on a packet. It is the responsability of the
    *    MAC layer to avoid doing this but the PHY does nothing to
@@ -539,7 +539,7 @@ YansWifiPhy::GetNTxPower (void) const
 void
 YansWifiPhy::Configure80211a (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 5.000 GHz
 
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate6Mbps ());
@@ -556,7 +556,7 @@ YansWifiPhy::Configure80211a (void)
 void
 YansWifiPhy::Configure80211b (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 2407; // 2.407 GHz
 
   m_deviceRateSet.push_back (WifiPhy::GetDsssRate1Mbps ());
@@ -568,7 +568,7 @@ YansWifiPhy::Configure80211b (void)
 void
 YansWifiPhy::Configure80211g (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 2407; // 2.407 GHz
 
   m_deviceRateSet.push_back (WifiPhy::GetDsssRate1Mbps ());
@@ -588,7 +588,7 @@ YansWifiPhy::Configure80211g (void)
 void
 YansWifiPhy::Configure80211_10Mhz (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 5.000 GHz, suppose 802.11a
 
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate3MbpsBW10MHz ());
@@ -604,7 +604,7 @@ YansWifiPhy::Configure80211_10Mhz (void)
 void
 YansWifiPhy::Configure80211_5Mhz (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 5.000 GHz, suppose 802.11a
 
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate1_5MbpsBW5MHz ());
@@ -620,7 +620,7 @@ YansWifiPhy::Configure80211_5Mhz (void)
 void
 YansWifiPhy::ConfigureHolland (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 5.000 GHz
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate6Mbps ());
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate12Mbps ());
@@ -632,7 +632,7 @@ YansWifiPhy::ConfigureHolland (void)
 void
 YansWifiPhy::Configure80211p_CCH (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 802.11p works over the 5Ghz freq range
 
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate3MbpsBW10MHz ());
@@ -648,7 +648,7 @@ YansWifiPhy::Configure80211p_CCH (void)
 void
 YansWifiPhy::Configure80211p_SCH (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channelStartingFrequency = 5e3; // 802.11p works over the 5Ghz freq range
 
   m_deviceRateSet.push_back (WifiPhy::GetOfdmRate3MbpsBW10MHz ());
@@ -769,7 +769,7 @@ YansWifiPhy::GetPowerDbm (uint8_t power) const
 void
 YansWifiPhy::EndReceive (Ptr<Packet> packet, Ptr<InterferenceHelper::Event> event)
 {
-  NS_LOG_FUNCTION (this << packet << event);
+  NS_LOG_FUNCTION (packet << event);
   NS_ASSERT (IsStateRx ());
   NS_ASSERT (event->GetEndTime () == Simulator::Now ());
 
@@ -800,7 +800,7 @@ YansWifiPhy::EndReceive (Ptr<Packet> packet, Ptr<InterferenceHelper::Event> even
 int64_t
 YansWifiPhy::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_random->SetStream (stream);
   return 1;
 }

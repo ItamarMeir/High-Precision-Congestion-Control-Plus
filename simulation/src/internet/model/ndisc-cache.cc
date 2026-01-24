@@ -69,7 +69,7 @@ void NdiscCache::DoDispose ()
 
 void NdiscCache::SetDevice (Ptr<NetDevice> device, Ptr<Ipv6Interface> interface)
 {
-  NS_LOG_FUNCTION (this << device << interface);
+  NS_LOG_FUNCTION (device << interface);
   m_device = device;
   m_interface = interface;
 }
@@ -88,7 +88,7 @@ Ptr<NetDevice> NdiscCache::GetDevice () const
 
 NdiscCache::Entry* NdiscCache::Lookup (Ipv6Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
 
   if (m_ndCache.find (dst) != m_ndCache.end ())
     {
@@ -100,7 +100,7 @@ NdiscCache::Entry* NdiscCache::Lookup (Ipv6Address dst)
 
 NdiscCache::Entry* NdiscCache::Add (Ipv6Address to)
 {
-  NS_LOG_FUNCTION (this << to);
+  NS_LOG_FUNCTION (to);
   NS_ASSERT (m_ndCache.find (to) == m_ndCache.end ());
 
   NdiscCache::Entry* entry = new NdiscCache::Entry (this);
@@ -139,7 +139,7 @@ void NdiscCache::Flush ()
 
 void NdiscCache::SetUnresQlen (uint32_t unresQlen)
 {
-  NS_LOG_FUNCTION (this << unresQlen);
+  NS_LOG_FUNCTION (unresQlen);
   m_unresQlen = unresQlen;
 }
 
@@ -165,7 +165,7 @@ NdiscCache::Entry::Entry (NdiscCache* nd)
 
 void NdiscCache::Entry::SetRouter (bool router)
 {
-  NS_LOG_FUNCTION (this << router);
+  NS_LOG_FUNCTION (router);
   m_router = router;
 }
 
@@ -177,7 +177,7 @@ bool NdiscCache::Entry::IsRouter () const
 
 void NdiscCache::Entry::AddWaitingPacket (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   if (m_waiting.size () >= m_ndCache->GetUnresQlen ())
     {
@@ -331,7 +331,7 @@ void NdiscCache::Entry::FunctionProbeTimeout ()
 
 void NdiscCache::Entry::SetIpv6Address (Ipv6Address ipv6Address)
 {
-  NS_LOG_FUNCTION (this << ipv6Address);
+  NS_LOG_FUNCTION (ipv6Address);
   m_ipv6Address = ipv6Address;
 }
 
@@ -426,7 +426,7 @@ void NdiscCache::Entry::StopRetransmitTimer ()
 
 void NdiscCache::Entry::MarkIncomplete (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   m_state = INCOMPLETE;
 
   if (p)
@@ -437,7 +437,7 @@ void NdiscCache::Entry::MarkIncomplete (Ptr<Packet> p)
 
 std::list<Ptr<Packet> > NdiscCache::Entry::MarkReachable (Address mac)
 {
-  NS_LOG_FUNCTION (this << mac);
+  NS_LOG_FUNCTION (mac);
   m_state = REACHABLE;
   m_macAddress = mac;
   return m_waiting;
@@ -463,7 +463,7 @@ void NdiscCache::Entry::MarkReachable ()
 
 std::list<Ptr<Packet> > NdiscCache::Entry::MarkStale (Address mac)
 {
-  NS_LOG_FUNCTION (this << mac);
+  NS_LOG_FUNCTION (mac);
   m_state = STALE;
   m_macAddress = mac;
   return m_waiting;
@@ -513,7 +513,7 @@ Address NdiscCache::Entry::GetMacAddress () const
 
 void NdiscCache::Entry::SetMacAddress (Address mac)
 {
-  NS_LOG_FUNCTION (this << mac);
+  NS_LOG_FUNCTION (mac);
   m_macAddress = mac;
 }
 

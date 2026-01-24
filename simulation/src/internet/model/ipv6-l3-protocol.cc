@@ -134,7 +134,7 @@ void Ipv6L3Protocol::DoDispose ()
 
 void Ipv6L3Protocol::SetRoutingProtocol (Ptr<Ipv6RoutingProtocol> routingProtocol)
 {
-  NS_LOG_FUNCTION (this << routingProtocol);
+  NS_LOG_FUNCTION (routingProtocol);
   m_routingProtocol = routingProtocol;
   m_routingProtocol->SetIpv6 (this);
 }
@@ -147,7 +147,7 @@ Ptr<Ipv6RoutingProtocol> Ipv6L3Protocol::GetRoutingProtocol () const
 
 uint32_t Ipv6L3Protocol::AddInterface (Ptr<NetDevice> device)
 {
-  NS_LOG_FUNCTION (this << device);
+  NS_LOG_FUNCTION (device);
   Ptr<Node> node = GetObject<Node> ();
   Ptr<Ipv6Interface> interface = CreateObject<Ipv6Interface> ();
 
@@ -160,7 +160,7 @@ uint32_t Ipv6L3Protocol::AddInterface (Ptr<NetDevice> device)
 
 uint32_t Ipv6L3Protocol::AddIpv6Interface (Ptr<Ipv6Interface> interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   uint32_t index = m_nInterfaces;
 
   m_interfaces.push_back (interface);
@@ -170,7 +170,7 @@ uint32_t Ipv6L3Protocol::AddIpv6Interface (Ptr<Ipv6Interface> interface)
 
 Ptr<Ipv6Interface> Ipv6L3Protocol::GetInterface (uint32_t index) const
 {
-  NS_LOG_FUNCTION (this << index);
+  NS_LOG_FUNCTION (index);
   uint32_t tmp = 0;
 
   for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
@@ -192,7 +192,7 @@ uint32_t Ipv6L3Protocol::GetNInterfaces () const
 
 int32_t Ipv6L3Protocol::GetInterfaceForAddress (Ipv6Address address) const
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   int32_t index = 0;
 
   for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
@@ -214,7 +214,7 @@ int32_t Ipv6L3Protocol::GetInterfaceForAddress (Ipv6Address address) const
 
 int32_t Ipv6L3Protocol::GetInterfaceForPrefix (Ipv6Address address, Ipv6Prefix mask) const
 {
-  NS_LOG_FUNCTION (this << address << mask);
+  NS_LOG_FUNCTION (address << mask);
   int32_t index = 0;
 
   for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
@@ -234,13 +234,13 @@ int32_t Ipv6L3Protocol::GetInterfaceForPrefix (Ipv6Address address, Ipv6Prefix m
 
 Ptr<NetDevice> Ipv6L3Protocol::GetNetDevice (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   return GetInterface (i)->GetDevice ();
 }
 
 int32_t Ipv6L3Protocol::GetInterfaceForDevice (Ptr<const NetDevice> device) const
 {
-  NS_LOG_FUNCTION (this << device);
+  NS_LOG_FUNCTION (device);
   int32_t index = 0;
 
   for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
@@ -256,7 +256,7 @@ int32_t Ipv6L3Protocol::GetInterfaceForDevice (Ptr<const NetDevice> device) cons
 
 void Ipv6L3Protocol::AddAutoconfiguredAddress (uint32_t interface, Ipv6Address network, Ipv6Prefix mask, uint8_t flags, uint32_t validTime, uint32_t preferredTime, Ipv6Address defaultRouter)
 {
-  NS_LOG_FUNCTION (this << interface << network << mask << (uint32_t)flags << validTime << preferredTime);
+  NS_LOG_FUNCTION (interface << network << mask << (uint32_t)flags << validTime << preferredTime);
   Ipv6InterfaceAddress address;
 
   Address addr = GetInterface (interface)->GetDevice ()->GetAddress ();
@@ -304,7 +304,7 @@ void Ipv6L3Protocol::AddAutoconfiguredAddress (uint32_t interface, Ipv6Address n
 
 void Ipv6L3Protocol::RemoveAutoconfiguredAddress (uint32_t interface, Ipv6Address network, Ipv6Prefix mask, Ipv6Address defaultRouter)
 {
-  NS_LOG_FUNCTION (this << interface << network << mask);
+  NS_LOG_FUNCTION (interface << network << mask);
   Ptr<Ipv6Interface> iface = GetInterface (interface);
   Address addr = iface->GetDevice ()->GetAddress ();
   uint32_t max = iface->GetNAddresses ();
@@ -336,7 +336,7 @@ void Ipv6L3Protocol::RemoveAutoconfiguredAddress (uint32_t interface, Ipv6Addres
 
 bool Ipv6L3Protocol::AddAddress (uint32_t i, Ipv6InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << i << address);
+  NS_LOG_FUNCTION (i << address);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   bool ret = interface->AddAddress (address);
 
@@ -349,21 +349,21 @@ bool Ipv6L3Protocol::AddAddress (uint32_t i, Ipv6InterfaceAddress address)
 
 uint32_t Ipv6L3Protocol::GetNAddresses (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   return interface->GetNAddresses ();
 }
 
 Ipv6InterfaceAddress Ipv6L3Protocol::GetAddress (uint32_t i, uint32_t addressIndex) const
 {
-  NS_LOG_FUNCTION (this << i << addressIndex);
+  NS_LOG_FUNCTION (i << addressIndex);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   return interface->GetAddress (addressIndex);
 }
 
 bool Ipv6L3Protocol::RemoveAddress (uint32_t i, uint32_t addressIndex)
 {
-  NS_LOG_FUNCTION (this << i << addressIndex);
+  NS_LOG_FUNCTION (i << addressIndex);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   Ipv6InterfaceAddress address = interface->RemoveAddress (addressIndex);
 
@@ -380,35 +380,35 @@ bool Ipv6L3Protocol::RemoveAddress (uint32_t i, uint32_t addressIndex)
 
 void Ipv6L3Protocol::SetMetric (uint32_t i, uint16_t metric)
 {
-  NS_LOG_FUNCTION (this << i << metric);
+  NS_LOG_FUNCTION (i << metric);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   interface->SetMetric (metric);
 }
 
 uint16_t Ipv6L3Protocol::GetMetric (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   return interface->GetMetric ();
 }
 
 uint16_t Ipv6L3Protocol::GetMtu (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   return interface->GetDevice ()->GetMtu ();
 }
 
 bool Ipv6L3Protocol::IsUp (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   return interface->IsUp ();
 }
 
 void Ipv6L3Protocol::SetUp (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
 
   interface->SetUp ();
@@ -421,7 +421,7 @@ void Ipv6L3Protocol::SetUp (uint32_t i)
 
 void Ipv6L3Protocol::SetDown (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
 
   interface->SetDown ();
@@ -471,7 +471,7 @@ void Ipv6L3Protocol::SetupLoopback ()
 
 bool Ipv6L3Protocol::IsForwarding (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Ptr<Ipv6Interface> interface = GetInterface (i);
 
   NS_LOG_LOGIC ("Forwarding state: " << interface->IsForwarding ());
@@ -480,14 +480,14 @@ bool Ipv6L3Protocol::IsForwarding (uint32_t i) const
 
 void Ipv6L3Protocol::SetForwarding (uint32_t i, bool val)
 {
-  NS_LOG_FUNCTION (this << i << val);
+  NS_LOG_FUNCTION (i << val);
   Ptr<Ipv6Interface> interface = GetInterface (i);
   interface->SetForwarding (val);
 }
 
 void Ipv6L3Protocol::SetIpForward (bool forward)
 {
-  NS_LOG_FUNCTION (this << forward);
+  NS_LOG_FUNCTION (forward);
   m_ipForward = forward;
 
   for (Ipv6InterfaceList::const_iterator it = m_interfaces.begin (); it != m_interfaces.end (); it++)
@@ -504,7 +504,7 @@ bool Ipv6L3Protocol::GetIpForward () const
 
 void Ipv6L3Protocol::SetSendIcmpv6Redirect (bool sendIcmpv6Redirect)
 {
-  NS_LOG_FUNCTION (this << sendIcmpv6Redirect);
+  NS_LOG_FUNCTION (sendIcmpv6Redirect);
   m_sendIcmpv6Redirect = sendIcmpv6Redirect;
 }
 
@@ -533,7 +533,7 @@ void Ipv6L3Protocol::NotifyNewAggregate ()
 
 void Ipv6L3Protocol::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
   /* add LoopbackNetDevice if needed, and an Ipv6Interface on top of it */
   SetupLoopback ();
@@ -541,19 +541,19 @@ void Ipv6L3Protocol::SetNode (Ptr<Node> node)
 
 void Ipv6L3Protocol::Insert (Ptr<IpL4Protocol> protocol)
 {
-  NS_LOG_FUNCTION (this << protocol);
+  NS_LOG_FUNCTION (protocol);
   m_protocols.push_back (protocol);
 }
 
 void Ipv6L3Protocol::Remove (Ptr<IpL4Protocol> protocol)
 {
-  NS_LOG_FUNCTION (this << protocol);
+  NS_LOG_FUNCTION (protocol);
   m_protocols.remove (protocol);
 }
 
 Ptr<IpL4Protocol> Ipv6L3Protocol::GetProtocol (int protocolNumber) const
 {
-  NS_LOG_FUNCTION (this << protocolNumber);
+  NS_LOG_FUNCTION (protocolNumber);
 
   for (L4List_t::const_iterator i = m_protocols.begin (); i != m_protocols.end (); ++i)
     {
@@ -576,7 +576,7 @@ Ptr<Socket> Ipv6L3Protocol::CreateRawSocket ()
 
 void Ipv6L3Protocol::DeleteRawSocket (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
 
   for (SocketList::iterator it = m_sockets.begin (); it != m_sockets.end (); ++it)
     {
@@ -605,19 +605,19 @@ Ptr<Icmpv6L4Protocol> Ipv6L3Protocol::GetIcmpv6 () const
 
 void Ipv6L3Protocol::SetDefaultTtl (uint8_t ttl)
 {
-  NS_LOG_FUNCTION (this << ttl);
+  NS_LOG_FUNCTION (ttl);
   m_defaultTtl = ttl;
 }
 
 void Ipv6L3Protocol::SetDefaultTclass (uint8_t tclass)
 {
-  NS_LOG_FUNCTION (this << tclass);
+  NS_LOG_FUNCTION (tclass);
   m_defaultTclass = tclass;
 }
 
 void Ipv6L3Protocol::Send (Ptr<Packet> packet, Ipv6Address source, Ipv6Address destination, uint8_t tClass, uint8_t protocol, Ptr<Ipv6Route> route)
 {
-  NS_LOG_FUNCTION (this << packet << source << destination << (uint32_t)protocol << route);
+  NS_LOG_FUNCTION (packet << source << destination << (uint32_t)protocol << route);
   Ipv6Header hdr;
   uint8_t ttl = m_defaultTtl;
   SocketIpv6HopLimitTag tag;
@@ -700,7 +700,7 @@ void Ipv6L3Protocol::Send (Ptr<Packet> packet, Ipv6Address source, Ipv6Address d
 
 void Ipv6L3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t protocol, const Address &from, const Address &to, NetDevice::PacketType packetType)
 {
-  NS_LOG_FUNCTION (this << device << p << protocol << from << to << packetType);
+  NS_LOG_FUNCTION (device << p << protocol << from << to << packetType);
   NS_LOG_LOGIC ("Packet from " << from << " received on node " << m_node->GetId ());
   uint32_t interface = 0;
   Ptr<Packet> packet = p->Copy ();
@@ -778,7 +778,7 @@ void Ipv6L3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16
 
 void Ipv6L3Protocol::SendRealOut (Ptr<Ipv6Route> route, Ptr<Packet> packet, Ipv6Header const& ipHeader)
 {
-  NS_LOG_FUNCTION (this << route << packet << ipHeader);
+  NS_LOG_FUNCTION (route << packet << ipHeader);
 
   if (!route)
     {
@@ -883,7 +883,7 @@ void Ipv6L3Protocol::SendRealOut (Ptr<Ipv6Route> route, Ptr<Packet> packet, Ipv6
 
 void Ipv6L3Protocol::IpForward (Ptr<Ipv6Route> rtentry, Ptr<const Packet> p, const Ipv6Header& header)
 {
-  NS_LOG_FUNCTION (this << rtentry << p << header);
+  NS_LOG_FUNCTION (rtentry << p << header);
   NS_LOG_LOGIC ("Forwarding logic for node: " << m_node->GetId ());
 
   // Forwarding
@@ -952,7 +952,7 @@ void Ipv6L3Protocol::IpForward (Ptr<Ipv6Route> rtentry, Ptr<const Packet> p, con
 
 void Ipv6L3Protocol::IpMulticastForward (Ptr<Ipv6MulticastRoute> mrtentry, Ptr<const Packet> p, const Ipv6Header& header)
 {
-  NS_LOG_FUNCTION (this << mrtentry << p << header);
+  NS_LOG_FUNCTION (mrtentry << p << header);
   NS_LOG_LOGIC ("Multicast forwarding logic for node: " << m_node->GetId ());
 
   std::map<uint32_t, uint32_t> ttlMap = mrtentry->GetOutputTtlMap ();
@@ -984,7 +984,7 @@ void Ipv6L3Protocol::IpMulticastForward (Ptr<Ipv6MulticastRoute> mrtentry, Ptr<c
 
 void Ipv6L3Protocol::LocalDeliver (Ptr<const Packet> packet, Ipv6Header const& ip, uint32_t iif)
 {
-  NS_LOG_FUNCTION (this << packet << ip << iif);
+  NS_LOG_FUNCTION (packet << ip << iif);
   Ptr<Packet> p = packet->Copy ();
   Ptr<IpL4Protocol> protocol = 0;
   Ptr<Ipv6ExtensionDemux> ipv6ExtensionDemux = m_node->GetObject<Ipv6ExtensionDemux> ();
@@ -1083,14 +1083,14 @@ void Ipv6L3Protocol::LocalDeliver (Ptr<const Packet> packet, Ipv6Header const& i
 
 void Ipv6L3Protocol::RouteInputError (Ptr<const Packet> p, const Ipv6Header& ipHeader, Socket::SocketErrno sockErrno)
 {
-  NS_LOG_FUNCTION (this << p << ipHeader << sockErrno);
+  NS_LOG_FUNCTION (p << ipHeader << sockErrno);
   NS_LOG_LOGIC ("Route input failure-- dropping packet to " << ipHeader << " with errno " << sockErrno);
   m_dropTrace (ipHeader, p, DROP_ROUTE_ERROR, m_node->GetObject<Ipv6> (), 0);
 }
 
 Ipv6Header Ipv6L3Protocol::BuildHeader (Ipv6Address src, Ipv6Address dst, uint8_t protocol, uint16_t payloadSize, uint8_t ttl, uint8_t tclass)
 {
-  NS_LOG_FUNCTION (this << src << dst << (uint32_t)protocol << (uint32_t)payloadSize << (uint32_t)ttl << (uint32_t)tclass);
+  NS_LOG_FUNCTION (src << dst << (uint32_t)protocol << (uint32_t)payloadSize << (uint32_t)ttl << (uint32_t)tclass);
   Ipv6Header hdr;
 
   hdr.SetSourceAddress (src);

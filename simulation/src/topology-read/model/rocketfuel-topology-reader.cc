@@ -44,12 +44,12 @@ TypeId RocketfuelTopologyReader::GetTypeId (void)
 
 RocketfuelTopologyReader::RocketfuelTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RocketfuelTopologyReader::~RocketfuelTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 /* uid @loc [+] [bb] (num_neigh) [&ext] -> <nuid-1> <nuid-2> ... {-euid} ... =name[!] rn */

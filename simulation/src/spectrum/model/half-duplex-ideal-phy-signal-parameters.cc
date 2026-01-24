@@ -29,20 +29,20 @@ namespace ns3 {
 
 HalfDuplexIdealPhySignalParameters::HalfDuplexIdealPhySignalParameters ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 HalfDuplexIdealPhySignalParameters::HalfDuplexIdealPhySignalParameters (const HalfDuplexIdealPhySignalParameters& p)
   : SpectrumSignalParameters (p)
 {
-  NS_LOG_FUNCTION (this << &p);
+  NS_LOG_FUNCTION (&p);
   data = p.data->Copy ();
 }
 
 Ptr<SpectrumSignalParameters>
 HalfDuplexIdealPhySignalParameters::Copy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Create<HalfDuplexIdealPhySignalParameters> (*this);
 }
 

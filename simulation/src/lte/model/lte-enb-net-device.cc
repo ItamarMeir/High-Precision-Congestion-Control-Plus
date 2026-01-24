@@ -112,18 +112,18 @@ TypeId LteEnbNetDevice::GetTypeId (void)
 
 LteEnbNetDevice::LteEnbNetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteEnbNetDevice::~LteEnbNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbNetDevice::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_mac->Dispose ();
   m_mac = 0;
@@ -145,7 +145,7 @@ LteEnbNetDevice::DoDispose ()
 Ptr<LteEnbMac>
 LteEnbNetDevice::GetMac (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mac;
 }
 
@@ -153,7 +153,7 @@ LteEnbNetDevice::GetMac (void) const
 Ptr<LteEnbPhy>
 LteEnbNetDevice::GetPhy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_phy;
 }
 
@@ -263,7 +263,7 @@ LteEnbNetDevice::DoStart (void)
 bool
 LteEnbNetDevice::Send (Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
-  NS_LOG_FUNCTION (this << packet   << dest << protocolNumber);
+  NS_LOG_FUNCTION (packet   << dest << protocolNumber);
   NS_ASSERT_MSG (protocolNumber == Ipv4L3Protocol::PROT_NUMBER, "unsupported protocol " << protocolNumber << ", only IPv4 is supported");
   return m_rrc->Send (packet);
 }
@@ -274,7 +274,7 @@ LteEnbNetDevice::Send (Ptr<Packet> packet, const Address& dest, uint16_t protoco
 void
 LteEnbNetDevice::UpdateConfig (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_rrc->ConfigureCell (m_ulBandwidth, m_dlBandwidth);
 

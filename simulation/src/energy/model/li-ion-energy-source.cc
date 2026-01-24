@@ -117,7 +117,7 @@ LiIonEnergySource::~LiIonEnergySource ()
 void
 LiIonEnergySource::SetInitialEnergy (double initialEnergyJ)
 {
-  NS_LOG_FUNCTION (this << initialEnergyJ);
+  NS_LOG_FUNCTION (initialEnergyJ);
   NS_ASSERT (initialEnergyJ >= 0);
   m_initialEnergyJ = initialEnergyJ;
   // set remaining energy to be initial energy
@@ -127,7 +127,7 @@ LiIonEnergySource::SetInitialEnergy (double initialEnergyJ)
 double
 LiIonEnergySource::GetInitialEnergy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_initialEnergyJ;
 }
 
@@ -141,28 +141,28 @@ LiIonEnergySource::SetInitialSupplyVoltage (double supplyVoltageV)
 double
 LiIonEnergySource::GetSupplyVoltage (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_supplyVoltageV;
 }
 
 void
 LiIonEnergySource::SetEnergyUpdateInterval (Time interval)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_energyUpdateInterval = interval;
 }
 
 Time
 LiIonEnergySource::GetEnergyUpdateInterval (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_energyUpdateInterval;
 }
 
 double
 LiIonEnergySource::GetRemainingEnergy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // update energy source to get the latest remaining energy.
   UpdateEnergySource ();
   return m_remainingEnergyJ;
@@ -171,7 +171,7 @@ LiIonEnergySource::GetRemainingEnergy (void)
 double
 LiIonEnergySource::GetEnergyFraction (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // update energy source to get the latest remaining energy.
   UpdateEnergySource ();
   return m_remainingEnergyJ / m_initialEnergyJ;
@@ -180,7 +180,7 @@ LiIonEnergySource::GetEnergyFraction (void)
 void
 LiIonEnergySource::DecreaseRemainingEnergy (double energyJ)
 {
-  NS_LOG_FUNCTION (this << energyJ);
+  NS_LOG_FUNCTION (energyJ);
   NS_ASSERT (energyJ >= 0);
   m_remainingEnergyJ -= energyJ;
 
@@ -194,7 +194,7 @@ LiIonEnergySource::DecreaseRemainingEnergy (double energyJ)
 void
 LiIonEnergySource::IncreaseRemainingEnergy (double energyJ)
 {
-  NS_LOG_FUNCTION (this << energyJ);
+  NS_LOG_FUNCTION (energyJ);
   NS_ASSERT (energyJ >= 0);
   m_remainingEnergyJ += energyJ;
 }
@@ -202,7 +202,7 @@ LiIonEnergySource::IncreaseRemainingEnergy (double energyJ)
 void
 LiIonEnergySource::UpdateEnergySource (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("LiIonEnergySource:Updating remaining energy at node #" <<
                 GetNode ()->GetId ());
 
@@ -235,14 +235,14 @@ LiIonEnergySource::UpdateEnergySource (void)
 void
 LiIonEnergySource::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   UpdateEnergySource ();  // start periodic update
 }
 
 void
 LiIonEnergySource::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // calculate remaining energy at the end of simulation
   CalculateRemainingEnergy ();
   BreakDeviceEnergyModelRefCycle ();  // break reference cycle
@@ -252,7 +252,7 @@ LiIonEnergySource::DoDispose (void)
 void
 LiIonEnergySource::HandleEnergyDrainedEvent (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("LiIonEnergySource:Energy depleted at node #" <<
                 GetNode ()->GetId ());
   NotifyEnergyDrained (); // notify DeviceEnergyModel objects
@@ -263,7 +263,7 @@ LiIonEnergySource::HandleEnergyDrainedEvent (void)
 void
 LiIonEnergySource::CalculateRemainingEnergy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double totalCurrentA = CalculateTotalCurrent ();
   Time duration = Simulator::Now () - m_lastUpdateTime;
   NS_ASSERT (duration.GetSeconds () >= 0);
@@ -279,7 +279,7 @@ LiIonEnergySource::CalculateRemainingEnergy (void)
 double
 LiIonEnergySource::GetVoltage (double i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
 
   // integral of i in dt, drained capacity in Ah
   double it = m_drainedCapacity;

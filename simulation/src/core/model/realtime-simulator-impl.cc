@@ -69,7 +69,7 @@ RealtimeSimulatorImpl::GetTypeId (void)
 
 RealtimeSimulatorImpl::RealtimeSimulatorImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_stop = false;
   m_running = false;
@@ -93,13 +93,13 @@ RealtimeSimulatorImpl::RealtimeSimulatorImpl ()
 
 RealtimeSimulatorImpl::~RealtimeSimulatorImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 RealtimeSimulatorImpl::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while (!m_events->IsEmpty ())
     {
       Scheduler::Event next = m_events->RemoveNext ();
@@ -113,7 +113,7 @@ RealtimeSimulatorImpl::DoDispose (void)
 void
 RealtimeSimulatorImpl::Destroy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   //
   // This function is only called with the private version "disconnected" from
@@ -138,7 +138,7 @@ RealtimeSimulatorImpl::Destroy ()
 void
 RealtimeSimulatorImpl::SetScheduler (ObjectFactory schedulerFactory)
 {
-  NS_LOG_FUNCTION (this << schedulerFactory);
+  NS_LOG_FUNCTION (schedulerFactory);
 
   Ptr<Scheduler> scheduler = schedulerFactory.Create<Scheduler> ();
 
@@ -413,7 +413,7 @@ RealtimeSimulatorImpl::NextTs (void) const
 void
 RealtimeSimulatorImpl::Run (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   NS_ASSERT_MSG (m_running == false, 
                  "RealtimeSimulatorImpl::Run(): Simulator already running");
@@ -487,14 +487,14 @@ RealtimeSimulatorImpl::Realtime (void) const
 void 
 RealtimeSimulatorImpl::Stop (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_stop = true;
 }
 
 void 
 RealtimeSimulatorImpl::Stop (Time const &time)
 {
-  NS_LOG_FUNCTION (this << time);
+  NS_LOG_FUNCTION (time);
   Simulator::Schedule (time, &Simulator::Stop);
 }
 
@@ -504,7 +504,7 @@ RealtimeSimulatorImpl::Stop (Time const &time)
 EventId
 RealtimeSimulatorImpl::Schedule (Time const &time, EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << time << impl);
+  NS_LOG_FUNCTION (time << impl);
 
   Scheduler::Event ev;
   {
@@ -534,7 +534,7 @@ RealtimeSimulatorImpl::Schedule (Time const &time, EventImpl *impl)
 void
 RealtimeSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << context << time << impl);
+  NS_LOG_FUNCTION (context << time << impl);
 
   {
     CriticalSection cs (m_mutex);
@@ -570,7 +570,7 @@ RealtimeSimulatorImpl::ScheduleWithContext (uint32_t context, Time const &time, 
 EventId
 RealtimeSimulatorImpl::ScheduleNow (EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << impl);
+  NS_LOG_FUNCTION (impl);
   Scheduler::Event ev;
   {
     CriticalSection cs (m_mutex);
@@ -600,7 +600,7 @@ RealtimeSimulatorImpl::Now (void) const
 void
 RealtimeSimulatorImpl::ScheduleRealtimeWithContext (uint32_t context, Time const &time, EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << context << time << impl);
+  NS_LOG_FUNCTION (context << time << impl);
 
   {
     CriticalSection cs (m_mutex);
@@ -621,14 +621,14 @@ RealtimeSimulatorImpl::ScheduleRealtimeWithContext (uint32_t context, Time const
 void
 RealtimeSimulatorImpl::ScheduleRealtime (Time const &time, EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << time << impl);
+  NS_LOG_FUNCTION (time << impl);
   ScheduleRealtimeWithContext (GetContext (), time, impl);
 }
 
 void
 RealtimeSimulatorImpl::ScheduleRealtimeNowWithContext (uint32_t context, EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << context << impl);
+  NS_LOG_FUNCTION (context << impl);
   {
     CriticalSection cs (m_mutex);
 
@@ -654,7 +654,7 @@ RealtimeSimulatorImpl::ScheduleRealtimeNowWithContext (uint32_t context, EventIm
 void
 RealtimeSimulatorImpl::ScheduleRealtimeNow (EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << impl);
+  NS_LOG_FUNCTION (impl);
   ScheduleRealtimeNowWithContext (GetContext (), impl);
 }
 
@@ -667,7 +667,7 @@ RealtimeSimulatorImpl::RealtimeNow (void) const
 EventId
 RealtimeSimulatorImpl::ScheduleDestroy (EventImpl *impl)
 {
-  NS_LOG_FUNCTION (this << impl);
+  NS_LOG_FUNCTION (impl);
 
   EventId id;
   {
@@ -816,28 +816,28 @@ RealtimeSimulatorImpl::GetContext (void) const
 void 
 RealtimeSimulatorImpl::SetSynchronizationMode (enum SynchronizationMode mode)
 {
-  NS_LOG_FUNCTION (this << mode);
+  NS_LOG_FUNCTION (mode);
   m_synchronizationMode = mode;
 }
 
 RealtimeSimulatorImpl::SynchronizationMode
 RealtimeSimulatorImpl::GetSynchronizationMode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_synchronizationMode;
 }
 
 void 
 RealtimeSimulatorImpl::SetHardLimit (Time limit)
 {
-  NS_LOG_FUNCTION (this << limit);
+  NS_LOG_FUNCTION (limit);
   m_hardLimit = limit;
 }
 
 Time
 RealtimeSimulatorImpl::GetHardLimit (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_hardLimit;
 }
 
