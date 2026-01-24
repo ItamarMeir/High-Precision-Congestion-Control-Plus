@@ -1,0 +1,17 @@
+{
+  "name": "HPCC Simulator",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "python.pythonPath": "/usr/bin/python" 
+      },
+      "extensions": [
+        "ms-vscode.cpptools"
+      ]
+    }
+  }
+}
