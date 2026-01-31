@@ -287,7 +287,7 @@ LteEnbMac::GetTypeId (void)
 
 LteEnbMac::LteEnbMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_macSapProvider = new EnbMacMemberLteMacSapProvider<LteEnbMac> (this);
   m_cmacSapProvider = new EnbMacMemberLteEnbCmacSapProvider (this);
   m_schedSapUser = new EnbMacMemberFfMacSchedSapUser (this);
@@ -298,13 +298,13 @@ LteEnbMac::LteEnbMac ()
 
 LteEnbMac::~LteEnbMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_macSapProvider;
   delete m_cmacSapProvider;
   delete m_schedSapUser;
@@ -381,7 +381,7 @@ LteEnbMac::GetLteEnbPhySapUser ()
 void
 LteEnbMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
 {
-  NS_LOG_FUNCTION (this << " EnbMac - frame " << frameNo << " subframe " << subframeNo);
+  NS_LOG_FUNCTION (" EnbMac - frame " << frameNo << " subframe " << subframeNo);
 
   // Store current frame / subframe number
   m_frameNo = frameNo;
@@ -509,7 +509,7 @@ LteEnbMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
 void
 LteEnbMac::DoReceiveIdealControlMessage  (Ptr<IdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this << msg);
+  NS_LOG_FUNCTION (msg);
   if (msg->GetMessageType () == IdealControlMessage::DL_CQI)
     {
       Ptr<DlCqiIdealControlMessage> dlcqi = DynamicCast<DlCqiIdealControlMessage> (msg);
@@ -542,7 +542,7 @@ LteEnbMac::DoUlCqiReport (UlCqi_s ulcqi)
 void
 LteEnbMac::ReceiveDlCqiIdealControlMessage  (Ptr<DlCqiIdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this << msg);
+  NS_LOG_FUNCTION (msg);
 
   CqiListElement_s dlcqi = msg->GetDlCqi ();
   NS_LOG_LOGIC (this << "Enb Received DL-CQI rnti" << dlcqi.m_rnti);
@@ -554,7 +554,7 @@ LteEnbMac::ReceiveDlCqiIdealControlMessage  (Ptr<DlCqiIdealControlMessage> msg)
 void
 LteEnbMac::ReceiveBsrMessage  (MacCeListElement_s bsr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_ulCeReceived.push_back (bsr);
 }
@@ -564,7 +564,7 @@ LteEnbMac::ReceiveBsrMessage  (MacCeListElement_s bsr)
 void
 LteEnbMac::DoReceivePhyPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   LteRadioBearerTag tag;
   p->RemovePacketTag (tag);
 
@@ -619,7 +619,7 @@ LteEnbMac::DoReceivePhyPdu (Ptr<Packet> p)
 void
 LteEnbMac::DoConfigureMac (uint8_t ulBandwidth, uint8_t dlBandwidth)
 {
-  NS_LOG_FUNCTION (this << " ulBandwidth=" << (uint16_t) ulBandwidth << " dlBandwidth=" << (uint16_t) dlBandwidth);
+  NS_LOG_FUNCTION (" ulBandwidth=" << (uint16_t) ulBandwidth << " dlBandwidth=" << (uint16_t) dlBandwidth);
   FfMacCschedSapProvider::CschedCellConfigReqParameters params;
   // Configure the subset of parameters used by FfMacScheduler
   params.m_ulBandwidth = ulBandwidth;
@@ -633,7 +633,7 @@ LteEnbMac::DoConfigureMac (uint8_t ulBandwidth, uint8_t dlBandwidth)
 void
 LteEnbMac::DoAddUe (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << " rnti=" << rnti);
+  NS_LOG_FUNCTION (" rnti=" << rnti);
   FfMacCschedSapProvider::CschedUeConfigReqParameters params;
   params.m_rnti = rnti;
   params.m_transmissionMode = 0; // set to default value (SISO) for avoiding random initialization (valgrind error)
@@ -644,7 +644,7 @@ LteEnbMac::DoAddUe (uint16_t rnti)
 void
 LteEnbMac::DoAddLc (LteEnbCmacSapProvider::LcInfo lcinfo, LteMacSapUser* msu)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::map <LteFlowId_t, LteMacSapUser* >::iterator it;
 
   LteFlowId_t flow (lcinfo.rnti, lcinfo.lcId);
@@ -701,7 +701,7 @@ LteEnbMac::DoReleaseLc (uint16_t rnti, uint8_t lcid)
 void
 LteEnbMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   LteRadioBearerTag tag (params.rnti, params.lcid, params.layer);
   params.pdu->AddPacketTag (tag);
 //   Ptr<PacketBurst> pb = CreateObject<PacketBurst> ();
@@ -713,7 +713,7 @@ LteEnbMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 void
 LteEnbMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   FfMacSchedSapProvider::SchedDlRlcBufferReqParameters req;
   req.m_rnti = params.rnti;
   req.m_logicalChannelIdentity = params.lcid;
@@ -736,7 +736,7 @@ LteEnbMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameters
 void
 LteEnbMac::DoSchedDlConfigInd (FfMacSchedSapUser::SchedDlConfigIndParameters ind)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Create DL PHY PDU
   Ptr<PacketBurst> pb = CreateObject<PacketBurst> ();
   std::map <LteFlowId_t, LteMacSapUser* >::iterator it;
@@ -795,7 +795,7 @@ LteEnbMac::DoSchedDlConfigInd (FfMacSchedSapUser::SchedDlConfigIndParameters ind
 void
 LteEnbMac::DoSchedUlConfigInd (FfMacSchedSapUser::SchedUlConfigIndParameters ind)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   for (unsigned int i = 0; i < ind.m_dciList.size (); i++)
     {
@@ -827,19 +827,19 @@ LteEnbMac::DoSchedUlConfigInd (FfMacSchedSapUser::SchedUlConfigIndParameters ind
 void
 LteEnbMac::DoCschedCellConfigCnf (FfMacCschedSapUser::CschedCellConfigCnfParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbMac::DoCschedUeConfigCnf (FfMacCschedSapUser::CschedUeConfigCnfParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbMac::DoCschedLcConfigCnf (FfMacCschedSapUser::CschedLcConfigCnfParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Call the CSCHED primitive
   // m_cschedSap->LcConfigCompleted();
 }
@@ -847,19 +847,19 @@ LteEnbMac::DoCschedLcConfigCnf (FfMacCschedSapUser::CschedLcConfigCnfParameters 
 void
 LteEnbMac::DoCschedLcReleaseCnf (FfMacCschedSapUser::CschedLcReleaseCnfParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbMac::DoCschedUeReleaseCnf (FfMacCschedSapUser::CschedUeReleaseCnfParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteEnbMac::DoCschedUeConfigUpdateInd (FfMacCschedSapUser::CschedUeConfigUpdateIndParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // propagates to RRC
   LteUeConfig_t ueConfigUpdate;
   ueConfigUpdate.m_rnti = params.m_rnti;
@@ -870,7 +870,7 @@ LteEnbMac::DoCschedUeConfigUpdateInd (FfMacCschedSapUser::CschedUeConfigUpdateIn
 void
 LteEnbMac::DoRrcUpdateConfigurationReq (FfMacCschedSapProvider::CschedUeConfigReqParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // propagates to PHY layer
   m_enbPhySapProvider->SetTransmissionMode (params.m_rnti, params.m_transmissionMode);
   // propagates to scheduler
@@ -883,7 +883,7 @@ LteEnbMac::DoRrcUpdateConfigurationReq (FfMacCschedSapProvider::CschedUeConfigRe
 void
 LteEnbMac::DoCschedCellConfigUpdateInd (FfMacCschedSapUser::CschedCellConfigUpdateIndParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 

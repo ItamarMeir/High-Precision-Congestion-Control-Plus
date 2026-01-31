@@ -57,7 +57,7 @@ TcpReno::TcpReno (void)
     m_inFastRec (false),
     m_ssThreshLastChange (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TcpReno::TcpReno (const TcpReno& sock)
@@ -69,7 +69,7 @@ TcpReno::TcpReno (const TcpReno& sock)
     m_inFastRec (false),
     m_ssThreshLastChange (sock.m_ssThreshLastChange)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("Invoked the copy constructor");
 }
 
@@ -81,7 +81,7 @@ TcpReno::~TcpReno (void)
 int
 TcpReno::Listen (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   InitializeCwnd ();
   return TcpSocketBase::Listen ();
 }
@@ -90,7 +90,7 @@ TcpReno::Listen (void)
 int
 TcpReno::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   InitializeCwnd ();
   return TcpSocketBase::Connect (address);
 }
@@ -99,7 +99,7 @@ TcpReno::Connect (const Address & address)
 uint32_t
 TcpReno::Window (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return std::min (m_rWnd.Get (), m_cWnd.Get ());
 }
 
@@ -113,7 +113,7 @@ TcpReno::Fork (void)
 void
 TcpReno::NewAck (const SequenceNumber32& seq)
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   NS_LOG_LOGIC ("TcpReno receieved ACK for seq " << seq <<
                 " cwnd " << m_cWnd <<
                 " ssthresh " << m_ssThresh);
@@ -150,7 +150,7 @@ TcpReno::NewAck (const SequenceNumber32& seq)
 void
 TcpReno::DupAck (const TcpHeader& t, uint32_t count)
 {
-  NS_LOG_FUNCTION (this << "t " << count);
+  NS_LOG_FUNCTION ("t " << count);
   if (count == m_retxThresh && !m_inFastRec)
     { // triple duplicate ack triggers fast retransmit (RFC2581, sec.3.2)
       m_ssThresh = std::max (2 * m_segmentSize, BytesInFlight () / 2);
@@ -171,7 +171,7 @@ TcpReno::DupAck (const TcpHeader& t, uint32_t count)
 // Retransmit timeout
 void TcpReno::Retransmit (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " ReTxTimeout Expired at time " << Simulator::Now ().GetSeconds ());
   m_inFastRec = false;
 

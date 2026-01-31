@@ -101,7 +101,7 @@ ItuR1411NlosOverRooftopPropagationLossModel::GetTypeId (void)
 double
 ItuR1411NlosOverRooftopPropagationLossModel::GetLoss (Ptr<MobilityModel> a, Ptr<MobilityModel> b) const
 {
-  NS_LOG_FUNCTION (this << a << b);
+  NS_LOG_FUNCTION (a << b);
   double Lori = 0.0;
   double fmhz = m_frequency / 1e6;
 

@@ -54,7 +54,7 @@ ItuR1238PropagationLossModel::GetTypeId (void)
 double
 ItuR1238PropagationLossModel::GetLoss (Ptr<MobilityModel> a1, Ptr<MobilityModel> b1) const
 {
-  NS_LOG_FUNCTION (this << a1 << b1);
+  NS_LOG_FUNCTION (a1 << b1);
   Ptr<BuildingsMobilityModel> a = DynamicCast<BuildingsMobilityModel> (a1);
   Ptr<BuildingsMobilityModel> b = DynamicCast<BuildingsMobilityModel> (b1);
   NS_ASSERT_MSG ((a != 0) && (b != 0), "ItuR1238PropagationLossModel only works with BuildingsMobilityModel");

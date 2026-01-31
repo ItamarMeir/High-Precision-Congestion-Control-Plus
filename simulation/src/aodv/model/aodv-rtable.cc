@@ -64,7 +64,7 @@ RoutingTableEntry::~RoutingTableEntry ()
 bool
 RoutingTableEntry::InsertPrecursor (Ipv4Address id)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   if (!LookupPrecursor (id))
     {
       m_precursorList.push_back (id);
@@ -77,7 +77,7 @@ RoutingTableEntry::InsertPrecursor (Ipv4Address id)
 bool
 RoutingTableEntry::LookupPrecursor (Ipv4Address id)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   for (std::vector<Ipv4Address>::const_iterator i = m_precursorList.begin (); i
        != m_precursorList.end (); ++i)
     {
@@ -94,7 +94,7 @@ RoutingTableEntry::LookupPrecursor (Ipv4Address id)
 bool
 RoutingTableEntry::DeletePrecursor (Ipv4Address id)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   std::vector<Ipv4Address>::iterator i = std::remove (m_precursorList.begin (),
                                                       m_precursorList.end (), id);
   if (i == m_precursorList.end ())
@@ -113,7 +113,7 @@ RoutingTableEntry::DeletePrecursor (Ipv4Address id)
 void
 RoutingTableEntry::DeleteAllPrecursors ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_precursorList.clear ();
 }
 
@@ -126,7 +126,7 @@ RoutingTableEntry::IsPrecursorListEmpty () const
 void
 RoutingTableEntry::GetPrecursors (std::vector<Ipv4Address> & prec) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (IsPrecursorListEmpty ())
     return;
   for (std::vector<Ipv4Address>::const_iterator i = m_precursorList.begin (); i
@@ -147,7 +147,7 @@ RoutingTableEntry::GetPrecursors (std::vector<Ipv4Address> & prec) const
 void
 RoutingTableEntry::Invalidate (Time badLinkLifetime)
 {
-  NS_LOG_FUNCTION (this << badLinkLifetime.GetSeconds ());
+  NS_LOG_FUNCTION (badLinkLifetime.GetSeconds ());
   if (m_flag == INVALID)
     return;
   m_flag = INVALID;
@@ -198,7 +198,7 @@ RoutingTable::RoutingTable (Time t) :
 bool
 RoutingTable::LookupRoute (Ipv4Address id, RoutingTableEntry & rt)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   Purge ();
   if (m_ipv4AddressEntry.empty ())
     {
@@ -220,7 +220,7 @@ RoutingTable::LookupRoute (Ipv4Address id, RoutingTableEntry & rt)
 bool
 RoutingTable::LookupValidRoute (Ipv4Address id, RoutingTableEntry & rt)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   if (!LookupRoute (id, rt))
     {
       NS_LOG_LOGIC ("Route to " << id << " not found");
@@ -233,7 +233,7 @@ RoutingTable::LookupValidRoute (Ipv4Address id, RoutingTableEntry & rt)
 bool
 RoutingTable::DeleteRoute (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   Purge ();
   if (m_ipv4AddressEntry.erase (dst) != 0)
     {
@@ -247,7 +247,7 @@ RoutingTable::DeleteRoute (Ipv4Address dst)
 bool
 RoutingTable::AddRoute (RoutingTableEntry & rt)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Purge ();
   if (rt.GetFlag () != IN_SEARCH)
     rt.SetRreqCnt (0);
@@ -259,7 +259,7 @@ RoutingTable::AddRoute (RoutingTableEntry & rt)
 bool
 RoutingTable::Update (RoutingTableEntry & rt)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::map<Ipv4Address, RoutingTableEntry>::iterator i =
     m_ipv4AddressEntry.find (rt.GetDestination ());
   if (i == m_ipv4AddressEntry.end ())
@@ -279,7 +279,7 @@ RoutingTable::Update (RoutingTableEntry & rt)
 bool
 RoutingTable::SetEntryState (Ipv4Address id, RouteFlags state)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::map<Ipv4Address, RoutingTableEntry>::iterator i =
     m_ipv4AddressEntry.find (id);
   if (i == m_ipv4AddressEntry.end ())
@@ -296,7 +296,7 @@ RoutingTable::SetEntryState (Ipv4Address id, RouteFlags state)
 void
 RoutingTable::GetListOfDestinationWithNextHop (Ipv4Address nextHop, std::map<Ipv4Address, uint32_t> & unreachable )
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Purge ();
   unreachable.clear ();
   for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i =
@@ -313,7 +313,7 @@ RoutingTable::GetListOfDestinationWithNextHop (Ipv4Address nextHop, std::map<Ipv
 void
 RoutingTable::InvalidateRoutesWithDst (const std::map<Ipv4Address, uint32_t> & unreachable)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Purge ();
   for (std::map<Ipv4Address, RoutingTableEntry>::iterator i =
          m_ipv4AddressEntry.begin (); i != m_ipv4AddressEntry.end (); ++i)
@@ -333,7 +333,7 @@ RoutingTable::InvalidateRoutesWithDst (const std::map<Ipv4Address, uint32_t> & u
 void
 RoutingTable::DeleteAllRoutesFromInterface (Ipv4InterfaceAddress iface)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_ipv4AddressEntry.empty ())
     return;
   for (std::map<Ipv4Address, RoutingTableEntry>::iterator i =
@@ -353,7 +353,7 @@ RoutingTable::DeleteAllRoutesFromInterface (Ipv4InterfaceAddress iface)
 void
 RoutingTable::Purge ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_ipv4AddressEntry.empty ())
     return;
   for (std::map<Ipv4Address, RoutingTableEntry>::iterator i =
@@ -386,7 +386,7 @@ RoutingTable::Purge ()
 void
 RoutingTable::Purge (std::map<Ipv4Address, RoutingTableEntry> &table) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (table.empty ())
     return;
   for (std::map<Ipv4Address, RoutingTableEntry>::iterator i =
@@ -419,7 +419,7 @@ RoutingTable::Purge (std::map<Ipv4Address, RoutingTableEntry> &table) const
 bool
 RoutingTable::MarkLinkAsUnidirectional (Ipv4Address neighbor, Time blacklistTimeout)
 {
-  NS_LOG_FUNCTION (this << neighbor << blacklistTimeout.GetSeconds ());
+  NS_LOG_FUNCTION (neighbor << blacklistTimeout.GetSeconds ());
   std::map<Ipv4Address, RoutingTableEntry>::iterator i =
     m_ipv4AddressEntry.find (neighbor);
   if (i == m_ipv4AddressEntry.end ())

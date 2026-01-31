@@ -86,7 +86,7 @@ PacketTagList::FreeData (struct TagData *data) const
 bool
 PacketTagList::Remove (Tag &tag)
 {
-  NS_LOG_FUNCTION (this << tag.GetInstanceTypeId ());
+  NS_LOG_FUNCTION (tag.GetInstanceTypeId ());
   TypeId tid = tag.GetInstanceTypeId ();
   bool found = false;
   for (struct TagData *cur = m_next; cur != 0; cur = cur->next) 
@@ -132,7 +132,7 @@ PacketTagList::Remove (Tag &tag)
 void 
 PacketTagList::Add (const Tag &tag) const
 {
-  NS_LOG_FUNCTION (this << tag.GetInstanceTypeId ());
+  NS_LOG_FUNCTION (tag.GetInstanceTypeId ());
   // ensure this id was not yet added
   for (struct TagData *cur = m_next; cur != 0; cur = cur->next) 
     {
@@ -152,7 +152,7 @@ PacketTagList::Add (const Tag &tag) const
 bool
 PacketTagList::Peek (Tag &tag) const
 {
-  NS_LOG_FUNCTION (this << tag.GetInstanceTypeId ());
+  NS_LOG_FUNCTION (tag.GetInstanceTypeId ());
   TypeId tid = tag.GetInstanceTypeId ();
   for (struct TagData *cur = m_next; cur != 0; cur = cur->next) 
     {

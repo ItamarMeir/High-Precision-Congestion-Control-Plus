@@ -74,7 +74,7 @@ BasicEnergySource::~BasicEnergySource ()
 void
 BasicEnergySource::SetInitialEnergy (double initialEnergyJ)
 {
-  NS_LOG_FUNCTION (this << initialEnergyJ);
+  NS_LOG_FUNCTION (initialEnergyJ);
   NS_ASSERT (initialEnergyJ >= 0);
   m_initialEnergyJ = initialEnergyJ;
   m_remainingEnergyJ = m_initialEnergyJ;
@@ -83,14 +83,14 @@ BasicEnergySource::SetInitialEnergy (double initialEnergyJ)
 void
 BasicEnergySource::SetSupplyVoltage (double supplyVoltageV)
 {
-  NS_LOG_FUNCTION (this << supplyVoltageV);
+  NS_LOG_FUNCTION (supplyVoltageV);
   m_supplyVoltageV = supplyVoltageV;
 }
 
 void
 BasicEnergySource::SetEnergyUpdateInterval (Time interval)
 {
-  NS_LOG_FUNCTION (this << interval);
+  NS_LOG_FUNCTION (interval);
   m_energyUpdateInterval = interval;
 }
 
@@ -115,7 +115,7 @@ BasicEnergySource::GetInitialEnergy (void) const
 double
 BasicEnergySource::GetRemainingEnergy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // update energy source to get the latest remaining energy.
   UpdateEnergySource ();
   return m_remainingEnergyJ;
@@ -124,7 +124,7 @@ BasicEnergySource::GetRemainingEnergy (void)
 double
 BasicEnergySource::GetEnergyFraction (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // update energy source to get the latest remaining energy.
   UpdateEnergySource ();
   return m_remainingEnergyJ / m_initialEnergyJ;
@@ -133,7 +133,7 @@ BasicEnergySource::GetEnergyFraction (void)
 void
 BasicEnergySource::UpdateEnergySource (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("BasicEnergySource:Updating remaining energy.");
 
   // do not update if simulation has finished
@@ -166,21 +166,21 @@ BasicEnergySource::UpdateEnergySource (void)
 void
 BasicEnergySource::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   UpdateEnergySource ();  // start periodic update
 }
 
 void
 BasicEnergySource::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   BreakDeviceEnergyModelRefCycle ();  // break reference cycle
 }
 
 void
 BasicEnergySource::HandleEnergyDrainedEvent (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("BasicEnergySource:Energy depleted!");
   NotifyEnergyDrained (); // notify DeviceEnergyModel objects
   m_remainingEnergyJ = 0; // energy never goes below 0
@@ -189,7 +189,7 @@ BasicEnergySource::HandleEnergyDrainedEvent (void)
 void
 BasicEnergySource::CalculateRemainingEnergy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double totalCurrentA = CalculateTotalCurrent ();
   Time duration = Simulator::Now () - m_lastUpdateTime;
   NS_ASSERT (duration.GetSeconds () >= 0);

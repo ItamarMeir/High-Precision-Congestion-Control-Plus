@@ -736,7 +736,7 @@ UanMacRcGw::FindOptA (void)
 int64_t
 UanMacRcGw::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   return 0;
 }
 

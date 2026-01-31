@@ -47,7 +47,7 @@ LteTestRrc::GetTypeId (void)
 
 LteTestRrc::LteTestRrc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_txPdus = 0;
   m_txBytes = 0;
@@ -62,13 +62,13 @@ LteTestRrc::LteTestRrc ()
 
 LteTestRrc::~LteTestRrc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteTestRrc::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_pdcpSapUser;
 }
 
@@ -88,7 +88,7 @@ LteTestRrc::GetLtePdcpSapUser (void)
 std::string
 LteTestRrc::GetDataReceived (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_receivedData;
 }
 
@@ -96,42 +96,42 @@ LteTestRrc::GetDataReceived (void)
 uint32_t
 LteTestRrc::GetTxPdus (void)
 {
-  NS_LOG_FUNCTION (this << m_txPdus);
+  NS_LOG_FUNCTION (m_txPdus);
   return m_txPdus;
 }
 
 uint32_t
 LteTestRrc::GetTxBytes (void)
 {
-  NS_LOG_FUNCTION (this << m_txBytes);
+  NS_LOG_FUNCTION (m_txBytes);
   return m_txBytes;
 }
 
 uint32_t
 LteTestRrc::GetRxPdus (void)
 {
-  NS_LOG_FUNCTION (this << m_rxPdus);
+  NS_LOG_FUNCTION (m_rxPdus);
   return m_rxPdus;
 }
 
 uint32_t
 LteTestRrc::GetRxBytes (void)
 {
-  NS_LOG_FUNCTION (this << m_rxBytes);
+  NS_LOG_FUNCTION (m_rxBytes);
   return m_rxBytes;
 }
 
 Time
 LteTestRrc::GetTxLastTime (void)
 {
-  NS_LOG_FUNCTION (this << m_txLastTime);
+  NS_LOG_FUNCTION (m_txLastTime);
   return m_txLastTime;
 }
 
 Time
 LteTestRrc::GetRxLastTime (void)
 {
-  NS_LOG_FUNCTION (this << m_rxLastTime);
+  NS_LOG_FUNCTION (m_rxLastTime);
   return m_rxLastTime;
 }
 
@@ -139,14 +139,14 @@ LteTestRrc::GetRxLastTime (void)
 void
 LteTestRrc::SetArrivalTime (Time arrivalTime)
 {
-  NS_LOG_FUNCTION (this << arrivalTime);
+  NS_LOG_FUNCTION (arrivalTime);
   m_arrivalTime = arrivalTime;
 }
 
 void
 LteTestRrc::SetPduSize (uint32_t pduSize)
 {
-  NS_LOG_FUNCTION (this << pduSize);
+  NS_LOG_FUNCTION (pduSize);
   m_pduSize = pduSize;
 }
 
@@ -158,7 +158,7 @@ LteTestRrc::SetPduSize (uint32_t pduSize)
 void
 LteTestRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 {
-  NS_LOG_FUNCTION (this << params.rrcPdu->GetSize ());
+  NS_LOG_FUNCTION (params.rrcPdu->GetSize ());
   Ptr<Packet> p = params.rrcPdu;
 //   NS_LOG_LOGIC ("PDU received = " << (*p));
 
@@ -185,7 +185,7 @@ LteTestRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 void
 LteTestRrc::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG (m_arrivalTime != 0, "Arrival time must be different from 0");
 
   // Stats
@@ -206,14 +206,14 @@ LteTestRrc::Start ()
 void
 LteTestRrc::Stop ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_nextPdu.Cancel ();
 }
 
 void
 LteTestRrc::SendData (Time at, std::string dataToSend)
 {
-  NS_LOG_FUNCTION (this << at << dataToSend.length () << dataToSend);
+  NS_LOG_FUNCTION (at << dataToSend.length () << dataToSend);
 
   // Stats
   m_txPdus++;
@@ -245,20 +245,20 @@ LteTestPdcp::GetTypeId (void)
 
 LteTestPdcp::LteTestPdcp ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rlcSapUser = new LteRlcSpecificLteRlcSapUser<LteTestPdcp> (this);
   Simulator::ScheduleNow (&LteTestPdcp::Start, this);
 }
 
 LteTestPdcp::~LteTestPdcp ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteTestPdcp::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_rlcSapUser;
 }
 
@@ -278,7 +278,7 @@ LteTestPdcp::GetLteRlcSapUser (void)
 std::string
 LteTestPdcp::GetDataReceived (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   return m_receivedData;
 }
@@ -291,7 +291,7 @@ LteTestPdcp::GetDataReceived (void)
 void
 LteTestPdcp::DoReceivePdcpPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p->GetSize ());
+  NS_LOG_FUNCTION (p->GetSize ());
   NS_LOG_LOGIC ("Data = " << (*p));
 
   uint32_t dataLen = p->GetSize ();
@@ -311,13 +311,13 @@ LteTestPdcp::DoReceivePdcpPdu (Ptr<Packet> p)
 void
 LteTestPdcp::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteTestPdcp::SendData (Time time, std::string dataToSend)
 {
-  NS_LOG_FUNCTION (this << time << dataToSend.length () << dataToSend);
+  NS_LOG_FUNCTION (time << dataToSend.length () << dataToSend);
 
   LteRlcSapProvider::TransmitPdcpPduParameters p;
   p.rnti = 1111;
@@ -345,7 +345,7 @@ LteTestMac::GetTypeId (void)
 
 LteTestMac::LteTestMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_device = 0;
   m_macSapProvider = new EnbMacMemberLteMacSapProvider<LteTestMac> (this);
   m_macSapUser = 0;
@@ -369,13 +369,13 @@ LteTestMac::LteTestMac ()
 
 LteTestMac::~LteTestMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteTestMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_macSapProvider;
 //   delete m_cmacSapProvider;
 //   delete m_schedSapUser;
@@ -412,7 +412,7 @@ LteTestMac::SetLteMacLoopback (Ptr<LteTestMac> s)
 std::string
 LteTestMac::GetDataReceived (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_receivedData;
 }
 
@@ -420,28 +420,28 @@ LteTestMac::GetDataReceived (void)
 uint32_t
 LteTestMac::GetTxPdus (void)
 {
-  NS_LOG_FUNCTION (this << m_txPdus);
+  NS_LOG_FUNCTION (m_txPdus);
   return m_txPdus;
 }
 
 uint32_t
 LteTestMac::GetTxBytes (void)
 {
-  NS_LOG_FUNCTION (this << m_txBytes);
+  NS_LOG_FUNCTION (m_txBytes);
   return m_txBytes;
 }
 
 uint32_t
 LteTestMac::GetRxPdus (void)
 {
-  NS_LOG_FUNCTION (this << m_rxPdus);
+  NS_LOG_FUNCTION (m_rxPdus);
   return m_rxPdus;
 }
 
 uint32_t
 LteTestMac::GetRxBytes (void)
 {
-  NS_LOG_FUNCTION (this << m_rxBytes);
+  NS_LOG_FUNCTION (m_rxBytes);
   return m_rxBytes;
 }
 
@@ -449,7 +449,7 @@ LteTestMac::GetRxBytes (void)
 void
 LteTestMac::SendTxOpportunity (Time time, uint32_t bytes)
 {
-  NS_LOG_FUNCTION (this << time << bytes);
+  NS_LOG_FUNCTION (time << bytes);
   Simulator::Schedule (time, &LteMacSapUser::NotifyTxOpportunity, m_macSapUser, bytes, 0);
   if (m_txOpportunityMode == RANDOM_MODE)
   {
@@ -463,21 +463,21 @@ LteTestMac::SendTxOpportunity (Time time, uint32_t bytes)
 void
 LteTestMac::SetPdcpHeaderPresent (bool present)
 {
-  NS_LOG_FUNCTION (this << present);
+  NS_LOG_FUNCTION (present);
   m_pdcpHeaderPresent = present;
 }
 
 void
 LteTestMac::SetRlcHeaderType (uint8_t rlcHeaderType)
 {
-  NS_LOG_FUNCTION (this << rlcHeaderType);
+  NS_LOG_FUNCTION (rlcHeaderType);
   m_rlcHeaderType = rlcHeaderType;
 }
 
 void
 LteTestMac::SetTxOpportunityMode (uint8_t mode)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)mode);
+  NS_LOG_FUNCTION ((uint32_t)mode);
   m_txOpportunityMode = mode;
 
   if (m_txOpportunityMode == RANDOM_MODE)
@@ -492,14 +492,14 @@ LteTestMac::SetTxOpportunityMode (uint8_t mode)
 void
 LteTestMac::SetTxOppTime (Time txOppTime)
 {
-  NS_LOG_FUNCTION (this << txOppTime);
+  NS_LOG_FUNCTION (txOppTime);
   m_txOppTime = txOppTime;
 }
 
 void
 LteTestMac::SetTxOppSize (uint32_t txOppSize)
 {
-  NS_LOG_FUNCTION (this << txOppSize);
+  NS_LOG_FUNCTION (txOppSize);
   m_txOppSize = txOppSize;
 }
 
@@ -511,7 +511,7 @@ LteTestMac::SetTxOppSize (uint32_t txOppSize)
 void
 LteTestMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 {
-  NS_LOG_FUNCTION (this << params.pdu->GetSize ());
+  NS_LOG_FUNCTION (params.pdu->GetSize ());
 
   m_txPdus++;
   m_txBytes += params.pdu->GetSize ();
@@ -565,7 +565,7 @@ LteTestMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 void
 LteTestMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameters params)
 {
-  NS_LOG_FUNCTION (this << params.txQueueSize << params.retxQueueSize << params.statusPduSize);
+  NS_LOG_FUNCTION (params.txQueueSize << params.retxQueueSize << params.statusPduSize);
 
   if (m_txOpportunityMode == AUTOMATIC_MODE)
     {
@@ -591,7 +591,7 @@ LteTestMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameter
 bool
 LteTestMac::Receive (Ptr<NetDevice> nd, Ptr<const Packet> p, uint16_t protocol, const Address& addr)
 {
-  NS_LOG_FUNCTION (this << addr << protocol << p->GetSize ());
+  NS_LOG_FUNCTION (addr << protocol << p->GetSize ());
 
   m_rxPdus++;
   m_rxBytes += p->GetSize ();

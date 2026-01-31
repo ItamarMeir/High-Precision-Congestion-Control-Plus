@@ -56,7 +56,7 @@ HalfDuplexIdealPhy::~HalfDuplexIdealPhy ()
 void
 HalfDuplexIdealPhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_mobility = 0;
   m_netDevice = 0;
   m_channel = 0;
@@ -131,7 +131,7 @@ HalfDuplexIdealPhy::GetTypeId (void)
 Ptr<NetDevice>
 HalfDuplexIdealPhy::GetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_netDevice;
 }
 
@@ -139,7 +139,7 @@ HalfDuplexIdealPhy::GetDevice ()
 Ptr<MobilityModel>
 HalfDuplexIdealPhy::GetMobility ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mobility;
 }
 
@@ -147,7 +147,7 @@ HalfDuplexIdealPhy::GetMobility ()
 void
 HalfDuplexIdealPhy::SetDevice (Ptr<NetDevice> d)
 {
-  NS_LOG_FUNCTION (this << d);
+  NS_LOG_FUNCTION (d);
   m_netDevice = d;
 }
 
@@ -155,7 +155,7 @@ HalfDuplexIdealPhy::SetDevice (Ptr<NetDevice> d)
 void
 HalfDuplexIdealPhy::SetMobility (Ptr<MobilityModel> m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   m_mobility = m;
 }
 
@@ -163,7 +163,7 @@ HalfDuplexIdealPhy::SetMobility (Ptr<MobilityModel> m)
 void
 HalfDuplexIdealPhy::SetChannel (Ptr<SpectrumChannel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_channel = c;
 }
 
@@ -183,7 +183,7 @@ HalfDuplexIdealPhy::GetRxSpectrumModel () const
 void
 HalfDuplexIdealPhy::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 {
-  NS_LOG_FUNCTION (this << txPsd);
+  NS_LOG_FUNCTION (txPsd);
   NS_ASSERT (txPsd);
   m_txPsd = txPsd;
   NS_LOG_INFO ( *txPsd << *m_txPsd);
@@ -192,7 +192,7 @@ HalfDuplexIdealPhy::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 void
 HalfDuplexIdealPhy::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd)
 {
-  NS_LOG_FUNCTION (this << noisePsd);
+  NS_LOG_FUNCTION (noisePsd);
   NS_ASSERT (noisePsd);
   m_interference.SetNoisePowerSpectralDensity (noisePsd);
 }
@@ -200,14 +200,14 @@ HalfDuplexIdealPhy::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noise
 void
 HalfDuplexIdealPhy::SetRate (DataRate rate)
 {
-  NS_LOG_FUNCTION (this << rate);
+  NS_LOG_FUNCTION (rate);
   m_rate = rate;
 }
 
 DataRate
 HalfDuplexIdealPhy::GetRate () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rate;
 }
 
@@ -215,14 +215,14 @@ HalfDuplexIdealPhy::GetRate () const
 void
 HalfDuplexIdealPhy::SetGenericPhyTxEndCallback (GenericPhyTxEndCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyMacTxEndCallback = c;
 }
 
 void
 HalfDuplexIdealPhy::SetGenericPhyRxStartCallback (GenericPhyRxStartCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyMacRxStartCallback = c;
 }
 
@@ -230,7 +230,7 @@ HalfDuplexIdealPhy::SetGenericPhyRxStartCallback (GenericPhyRxStartCallback c)
 void
 HalfDuplexIdealPhy::SetGenericPhyRxEndErrorCallback (GenericPhyRxEndErrorCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyMacRxEndErrorCallback = c;
 }
 
@@ -238,21 +238,21 @@ HalfDuplexIdealPhy::SetGenericPhyRxEndErrorCallback (GenericPhyRxEndErrorCallbac
 void
 HalfDuplexIdealPhy::SetGenericPhyRxEndOkCallback (GenericPhyRxEndOkCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyMacRxEndOkCallback = c;
 }
 
 Ptr<AntennaModel>
 HalfDuplexIdealPhy::GetRxAntenna ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_antenna;
 }
 
 void
 HalfDuplexIdealPhy::SetAntenna (Ptr<AntennaModel> a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   m_antenna = a;
 }
 
@@ -266,7 +266,7 @@ HalfDuplexIdealPhy::ChangeState (State newState)
 bool
 HalfDuplexIdealPhy::StartTx (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_LOG_LOGIC (this << "state: " << m_state);
 
   m_phyTxStartTrace (p);
@@ -307,7 +307,7 @@ HalfDuplexIdealPhy::StartTx (Ptr<Packet> p)
 void
 HalfDuplexIdealPhy::EndTx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   NS_ASSERT (m_state == TX);
@@ -327,7 +327,7 @@ HalfDuplexIdealPhy::EndTx ()
 void
 HalfDuplexIdealPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumParams)
 {
-  NS_LOG_FUNCTION (this << spectrumParams);
+  NS_LOG_FUNCTION (spectrumParams);
   NS_LOG_LOGIC (this << " state: " << m_state);
   NS_LOG_LOGIC (this << " rx power: " << 10 * log10 (Integral (*(spectrumParams->psd))) + 30 << " dBm");
 
@@ -392,7 +392,7 @@ HalfDuplexIdealPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumParams)
 void
 HalfDuplexIdealPhy::AbortRx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << "state: " << m_state);
 
   NS_ASSERT (m_state == RX);
@@ -407,7 +407,7 @@ HalfDuplexIdealPhy::AbortRx ()
 void
 HalfDuplexIdealPhy::EndRx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   NS_ASSERT (m_state == RX);

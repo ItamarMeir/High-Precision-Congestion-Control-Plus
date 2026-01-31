@@ -99,7 +99,7 @@ StaWifiMac::StaWifiMac ()
     m_assocRequestEvent (),
     m_beaconWatchdogEnd (Seconds (0.0))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Let the lower layers know that we are acting as a non-AP STA in
   // an infrastructure BSS.
@@ -108,41 +108,41 @@ StaWifiMac::StaWifiMac ()
 
 StaWifiMac::~StaWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 StaWifiMac::SetMaxMissedBeacons (uint32_t missed)
 {
-  NS_LOG_FUNCTION (this << missed);
+  NS_LOG_FUNCTION (missed);
   m_maxMissedBeacons = missed;
 }
 
 void
 StaWifiMac::SetProbeRequestTimeout (Time timeout)
 {
-  NS_LOG_FUNCTION (this << timeout);
+  NS_LOG_FUNCTION (timeout);
   m_probeRequestTimeout = timeout;
 }
 
 void
 StaWifiMac::SetAssocRequestTimeout (Time timeout)
 {
-  NS_LOG_FUNCTION (this << timeout);
+  NS_LOG_FUNCTION (timeout);
   m_assocRequestTimeout = timeout;
 }
 
 void
 StaWifiMac::StartActiveAssociation (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   TryToEnsureAssociated ();
 }
 
 void
 StaWifiMac::SetActiveProbing (bool enable)
 {
-  NS_LOG_FUNCTION (this << enable);
+  NS_LOG_FUNCTION (enable);
   if (enable)
     {
       Simulator::ScheduleNow (&StaWifiMac::TryToEnsureAssociated, this);
@@ -156,7 +156,7 @@ StaWifiMac::SetActiveProbing (bool enable)
 void
 StaWifiMac::SendProbeRequest (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   WifiMacHeader hdr;
   hdr.SetProbeReq ();
   hdr.SetAddr1 (Mac48Address::GetBroadcast ());
@@ -183,7 +183,7 @@ StaWifiMac::SendProbeRequest (void)
 void
 StaWifiMac::SendAssociationRequest (void)
 {
-  NS_LOG_FUNCTION (this << GetBssid ());
+  NS_LOG_FUNCTION (GetBssid ());
   WifiMacHeader hdr;
   hdr.SetAssocReq ();
   hdr.SetAddr1 (GetBssid ());
@@ -210,7 +210,7 @@ StaWifiMac::SendAssociationRequest (void)
 void
 StaWifiMac::TryToEnsureAssociated (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   switch (m_state)
     {
     case ASSOCIATED:
@@ -251,7 +251,7 @@ StaWifiMac::TryToEnsureAssociated (void)
 void
 StaWifiMac::AssocRequestTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetState (WAIT_ASSOC_RESP);
   SendAssociationRequest ();
 }
@@ -259,7 +259,7 @@ StaWifiMac::AssocRequestTimeout (void)
 void
 StaWifiMac::ProbeRequestTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetState (WAIT_PROBE_RESP);
   SendProbeRequest ();
 }
@@ -267,7 +267,7 @@ StaWifiMac::ProbeRequestTimeout (void)
 void
 StaWifiMac::MissedBeacons (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_beaconWatchdogEnd > Simulator::Now ())
     {
       m_beaconWatchdog = Simulator::Schedule (m_beaconWatchdogEnd - Simulator::Now (),
@@ -282,7 +282,7 @@ StaWifiMac::MissedBeacons (void)
 void
 StaWifiMac::RestartBeaconWatchdog (Time delay)
 {
-  NS_LOG_FUNCTION (this << delay);
+  NS_LOG_FUNCTION (delay);
   m_beaconWatchdogEnd = std::max (Simulator::Now () + delay, m_beaconWatchdogEnd);
   if (Simulator::GetDelayLeft (m_beaconWatchdog) < delay
       && m_beaconWatchdog.IsExpired ())
@@ -307,7 +307,7 @@ StaWifiMac::IsWaitAssocResp (void) const
 void
 StaWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
-  NS_LOG_FUNCTION (this << packet << to);
+  NS_LOG_FUNCTION (packet << to);
   if (!IsAssociated ())
     {
       NotifyTxDrop (packet);
@@ -373,7 +373,7 @@ StaWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 void
 StaWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this << packet << hdr);
+  NS_LOG_FUNCTION (packet << hdr);
   NS_ASSERT (!hdr->IsCtl ());
   if (hdr->GetAddr3 () == GetAddress ())
     {

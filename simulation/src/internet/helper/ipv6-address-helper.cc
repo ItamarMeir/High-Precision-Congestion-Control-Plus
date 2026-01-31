@@ -36,21 +36,21 @@ NS_LOG_COMPONENT_DEFINE ("Ipv6AddressHelper");
 
 Ipv6AddressHelper::Ipv6AddressHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv6AddressGenerator::Init (Ipv6Address ("2001:db8::"), Ipv6Prefix (64));
 }
 
 Ipv6AddressHelper::Ipv6AddressHelper (Ipv6Address network, Ipv6Prefix prefix,
                                       Ipv6Address base)
 {
-  NS_LOG_FUNCTION (this << network << prefix << base);
+  NS_LOG_FUNCTION (network << prefix << base);
   Ipv6AddressGenerator::Init (network, prefix, base);
 }
 
 void Ipv6AddressHelper::SetBase (Ipv6Address network, Ipv6Prefix prefix,
                             Ipv6Address base)
 {
-  NS_LOG_FUNCTION (this << network << prefix << base);
+  NS_LOG_FUNCTION (network << prefix << base);
   // XXX for now we do not enforce the prefix because the underlying
   // Ipv6AddressGenerator does not handle prefixes well that are not 64 bits
   Ipv6AddressGenerator::Init (network, Ipv6Prefix (64), base);
@@ -59,7 +59,7 @@ void Ipv6AddressHelper::SetBase (Ipv6Address network, Ipv6Prefix prefix,
 
 Ipv6Address Ipv6AddressHelper::NewAddress (Address addr)
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
   if (Mac48Address::IsMatchingType (addr))
     {
       Ipv6Address network = Ipv6AddressGenerator::GetNetwork (Ipv6Prefix (64));
@@ -77,7 +77,7 @@ Ipv6Address Ipv6AddressHelper::NewAddress (Address addr)
 
 Ipv6Address Ipv6AddressHelper::NewAddress (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 //
 // The way this is expected to be used is that an address and network number
 // are initialized, and then NewAddress() is called repeatedly to allocate and
@@ -90,19 +90,19 @@ Ipv6Address Ipv6AddressHelper::NewAddress (void)
 
 void Ipv6AddressHelper::NewNetwork (Ipv6Address network, Ipv6Prefix prefix)
 {
-  NS_LOG_FUNCTION (this << network << prefix);
+  NS_LOG_FUNCTION (network << prefix);
   SetBase (network, Ipv6Prefix (64));
 }
 
 void Ipv6AddressHelper::NewNetwork (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv6AddressGenerator::NextNetwork (Ipv6Prefix (64));
 }
 
 Ipv6InterfaceContainer Ipv6AddressHelper::Assign (const NetDeviceContainer &c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv6InterfaceContainer retval;
 
   for (uint32_t i = 0; i < c.GetN (); ++i) 
@@ -136,7 +136,7 @@ Ipv6InterfaceContainer Ipv6AddressHelper::Assign (const NetDeviceContainer &c)
 
 Ipv6InterfaceContainer Ipv6AddressHelper::Assign (const NetDeviceContainer &c, std::vector<bool> withConfiguration)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv6InterfaceContainer retval;
   for (uint32_t i = 0; i < c.GetN (); ++i) 
     {
@@ -173,7 +173,7 @@ Ipv6InterfaceContainer Ipv6AddressHelper::Assign (const NetDeviceContainer &c, s
 // Helper API that is redundant with Assign (c, false);
 Ipv6InterfaceContainer Ipv6AddressHelper::AssignWithoutAddress (const NetDeviceContainer &c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::vector<bool> withConfiguration;
   for (uint32_t i = 0; i < c.GetN (); ++i) 
     {

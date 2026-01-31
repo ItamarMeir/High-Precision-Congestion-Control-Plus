@@ -167,7 +167,7 @@ RouteCache::~RouteCache ()
 void
 RouteCache::RemoveLastEntry (std::list<RouteCacheEntry> & rtVector)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // release the last entry of route list
   rtVector.pop_back ();
 }
@@ -175,7 +175,7 @@ RouteCache::RemoveLastEntry (std::list<RouteCacheEntry> & rtVector)
 bool
 RouteCache::UpdateRouteEntry (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   std::map<Ipv4Address, std::list<RouteCacheEntry> >::const_iterator i =
     m_sortedRoutes.find (dst);
   if (i == m_sortedRoutes.end ())
@@ -205,7 +205,7 @@ RouteCache::UpdateRouteEntry (Ipv4Address dst)
 bool
 RouteCache::LookupRoute (Ipv4Address id, RouteCacheEntry & rt)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   if (IsLinkCache ())
     {
       return LookupRoute_Link (id, rt);
@@ -288,7 +288,7 @@ RouteCache::LookupRoute (Ipv4Address id, RouteCacheEntry & rt)
 void
 RouteCache::SetCacheType (std::string type)
 {
-  NS_LOG_FUNCTION (this << type);
+  NS_LOG_FUNCTION (type);
   if (type == std::string ("LinkCache"))
     {
       m_isLinkCache = true;
@@ -307,14 +307,14 @@ RouteCache::SetCacheType (std::string type)
 bool
 RouteCache::IsLinkCache ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_isLinkCache;
 }
 
 void
 RouteCache::RebuildBestRouteTable (Ipv4Address source)
 {
-  NS_LOG_FUNCTION (this << source);
+  NS_LOG_FUNCTION (source);
   /**
    * \brief The followings are initialize-single-source
    */
@@ -432,7 +432,7 @@ RouteCache::RebuildBestRouteTable (Ipv4Address source)
 bool
 RouteCache::LookupRoute_Link (Ipv4Address id, RouteCacheEntry & rt)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   std::map<Ipv4Address, RouteCacheEntry::IP_VECTOR>::const_iterator i = m_bestRoutesTable_link.find (id);
   if (i == m_bestRoutesTable_link.end ())
     {
@@ -462,7 +462,7 @@ RouteCache::LookupRoute_Link (Ipv4Address id, RouteCacheEntry & rt)
 void
 RouteCache::PurgeLinkNode ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("The size of the link cache before " << m_linkCache.size ());
   for (std::map<Link, LinkStab>::iterator i = m_linkCache.begin (); i != m_linkCache.end (); )
     {
@@ -498,7 +498,7 @@ RouteCache::PurgeLinkNode ()
 void
 RouteCache::UpdateNetGraph ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_netGraph.clear ();
   for (std::map<Link, LinkStab>::iterator i = m_linkCache.begin (); i != m_linkCache.end (); ++i)
     {
@@ -512,7 +512,7 @@ RouteCache::UpdateNetGraph ()
 bool
 RouteCache::IncStability (Ipv4Address node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   std::map<Ipv4Address, NodeStab>::const_iterator i = m_nodeCache.find (node);
   if (i == m_nodeCache.end ())
     {
@@ -533,7 +533,7 @@ RouteCache::IncStability (Ipv4Address node)
 bool
 RouteCache::DecStability (Ipv4Address node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   std::map<Ipv4Address, NodeStab>::const_iterator i = m_nodeCache.find (node);
   if (i == m_nodeCache.end ())
     {
@@ -553,7 +553,7 @@ RouteCache::DecStability (Ipv4Address node)
 bool
 RouteCache::AddRoute_Link (RouteCacheEntry::IP_VECTOR nodelist, Ipv4Address source)
 {
-  NS_LOG_FUNCTION (this << source);
+  NS_LOG_FUNCTION (source);
   NS_LOG_DEBUG ("Use Link Cache");
   for (uint32_t i = 0; i < nodelist.size () - 1; i++)
     {
@@ -599,7 +599,7 @@ RouteCache::AddRoute_Link (RouteCacheEntry::IP_VECTOR nodelist, Ipv4Address sour
 void
 RouteCache::UseExtends (RouteCacheEntry::IP_VECTOR rt)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (rt.size () < 2)
     {
       NS_LOG_INFO ("The route is too short");
@@ -641,7 +641,7 @@ RouteCache::UseExtends (RouteCacheEntry::IP_VECTOR rt)
 bool
 RouteCache::AddRoute (RouteCacheEntry & rt)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Purge ();
   std::list<RouteCacheEntry> rtVector;   // Declare the route cache entry vector
   Ipv4Address dst = rt.GetDestination ();
@@ -711,7 +711,7 @@ RouteCache::AddRoute (RouteCacheEntry & rt)
 
 bool RouteCache::FindSameRoute (RouteCacheEntry & rt, std::list<RouteCacheEntry> & rtVector)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (std::list<RouteCacheEntry>::iterator i = rtVector.begin (); i != rtVector.end (); ++i)
     {
       // return the first route in the route vector
@@ -744,7 +744,7 @@ bool RouteCache::FindSameRoute (RouteCacheEntry & rt, std::list<RouteCacheEntry>
 bool
 RouteCache::DeleteRoute (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   Purge (); // purge the route cache first to remove timeout entries
   if (m_sortedRoutes.erase (dst) != 0)
     {
@@ -758,7 +758,7 @@ RouteCache::DeleteRoute (Ipv4Address dst)
 void
 RouteCache::DeleteAllRoutesIncludeLink (Ipv4Address errorSrc, Ipv4Address unreachNode, Ipv4Address node)
 {
-  NS_LOG_FUNCTION (this << errorSrc << unreachNode << node);
+  NS_LOG_FUNCTION (errorSrc << unreachNode << node);
   if (IsLinkCache ())
     {
       /*
@@ -912,7 +912,7 @@ RouteCache::DeleteAllRoutesIncludeLink (Ipv4Address errorSrc, Ipv4Address unreac
 void
 RouteCache::PrintVector (std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /*
    * Check elements in a route vector, used when one wants to check the IP addresses saved in
    */
@@ -933,7 +933,7 @@ RouteCache::PrintVector (std::vector<Ipv4Address>& vec)
 void
 RouteCache::PrintRouteVector (std::list<RouteCacheEntry> route)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (std::list<RouteCacheEntry>::iterator i = route.begin (); i != route.end (); i++)
     {
       std::vector<Ipv4Address> path = i->GetVector ();
@@ -945,7 +945,7 @@ RouteCache::PrintRouteVector (std::list<RouteCacheEntry> route)
 void
 RouteCache::Purge ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   //Trying to purge the route cache
   if (m_sortedRoutes.empty ())
     {
@@ -1012,7 +1012,7 @@ RouteCache::Purge ()
 void
 RouteCache::Print (std::ostream &os)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Purge ();
   os << "\nDSR Route Cache\n"
      << "Destination\tGateway\t\tInterface\tFlag\tExpire\tHops\n";
@@ -1031,7 +1031,7 @@ RouteCache::Print (std::ostream &os)
 uint16_t
 RouteCache::CheckUniqueAckId (Ipv4Address nextHop)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::map<Ipv4Address, uint16_t>::const_iterator i =
     m_ackIdCache.find (nextHop);
   if (i == m_ackIdCache.end ())
@@ -1063,7 +1063,7 @@ RouteCache::GetAckSize ()
 bool
 RouteCache::IsNeighbor (Ipv4Address addr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PurgeMac ();  // purge the mac cache
   for (std::vector<Neighbor>::const_iterator i = m_nb.begin ();
        i != m_nb.end (); ++i)
@@ -1079,7 +1079,7 @@ RouteCache::IsNeighbor (Ipv4Address addr)
 Time
 RouteCache::GetExpireTime (Ipv4Address addr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PurgeMac ();
   for (std::vector<Neighbor>::const_iterator i = m_nb.begin (); i
        != m_nb.end (); ++i)
@@ -1095,7 +1095,7 @@ RouteCache::GetExpireTime (Ipv4Address addr)
 void
 RouteCache::UpdateNeighbor (std::vector<Ipv4Address> nodeList, Time expire)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (std::vector<Neighbor>::iterator i = m_nb.begin (); i != m_nb.end (); ++i)
     {
       for (std::vector<Ipv4Address>::iterator j = nodeList.begin (); j != nodeList.end (); ++j)

@@ -1,0 +1,34 @@
+# Build artifacts
+simulation/build/
+**/*.o
+**/*.a
+**/*.so
+**/*.pyc
+**/__pycache__/
+
+# NetAnim build/output
+netanim/
+
+# Plots and generated images
+results/plots/
+results/data/*.png
+results/data/*.xml
+**/*.png
+
+# Simulation outputs
+simulation/mix/*.tr
+simulation/mix/*.png
+simulation/mix/qlen*.txt
+simulation/mix/fct*.txt
+simulation/mix/pfc*.txt
+simulation/mix/*_fat_k4.txt
+simulation/mix/outputs/
+results/data/*.tr
+results/data/qlen*.txt
+results/data/fct*.txt
+results/data/pfc*.txt
+# Third-party dependencies
+pybindgen/
+# Misc
+*.log
+.DS_Store

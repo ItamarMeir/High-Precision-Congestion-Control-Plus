@@ -60,7 +60,7 @@ EnergySource::GetNode (void) const
 void
 EnergySource::AppendDeviceEnergyModel (Ptr<DeviceEnergyModel> deviceEnergyModelPtr)
 {
-  NS_LOG_FUNCTION (this << deviceEnergyModelPtr);
+  NS_LOG_FUNCTION (deviceEnergyModelPtr);
   NS_ASSERT (deviceEnergyModelPtr != NULL); // model must exist
   m_models.Add (deviceEnergyModelPtr);
 }
@@ -68,7 +68,7 @@ EnergySource::AppendDeviceEnergyModel (Ptr<DeviceEnergyModel> deviceEnergyModelP
 DeviceEnergyModelContainer
 EnergySource::FindDeviceEnergyModels (TypeId tid)
 {
-  NS_LOG_FUNCTION (this << tid);
+  NS_LOG_FUNCTION (tid);
   DeviceEnergyModelContainer container;
   DeviceEnergyModelContainer::Iterator i;
   for (i = m_models.Begin (); i != m_models.End (); i++)
@@ -84,7 +84,7 @@ EnergySource::FindDeviceEnergyModels (TypeId tid)
 DeviceEnergyModelContainer
 EnergySource::FindDeviceEnergyModels (std::string name)
 {
-  NS_LOG_FUNCTION (this << name);
+  NS_LOG_FUNCTION (name);
   DeviceEnergyModelContainer container;
   DeviceEnergyModelContainer::Iterator i;
   for (i = m_models.Begin (); i != m_models.End (); i++)
@@ -132,7 +132,7 @@ EnergySource::DisposeDeviceModels (void)
 void
 EnergySource::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   BreakDeviceEnergyModelRefCycle ();
 }
 
@@ -143,7 +143,7 @@ EnergySource::DoDispose (void)
 double
 EnergySource::CalculateTotalCurrent (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double totalCurrentA = 0.0;
   DeviceEnergyModelContainer::Iterator i;
   for (i = m_models.Begin (); i != m_models.End (); i++)
@@ -156,7 +156,7 @@ EnergySource::CalculateTotalCurrent (void)
 void
 EnergySource::NotifyEnergyDrained (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // notify all device energy models installed on node
   DeviceEnergyModelContainer::Iterator i;
   for (i = m_models.Begin (); i != m_models.End (); i++)
@@ -168,7 +168,7 @@ EnergySource::NotifyEnergyDrained (void)
 void
 EnergySource::BreakDeviceEnergyModelRefCycle (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_models.Clear ();
   m_node = NULL;
 }

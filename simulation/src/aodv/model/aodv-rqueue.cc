@@ -70,7 +70,7 @@ RequestQueue::Enqueue (QueueEntry & entry)
 void
 RequestQueue::DropPacketWithDst (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   Purge ();
   for (std::vector<QueueEntry>::iterator i = m_queue.begin (); i
        != m_queue.end (); ++i)

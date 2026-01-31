@@ -85,7 +85,7 @@ CandidateQueue::Clear (void)
 void
 CandidateQueue::Push (SPFVertex *vNew)
 {
-  NS_LOG_FUNCTION (this << vNew);
+  NS_LOG_FUNCTION (vNew);
 
   CandidateList_t::iterator i = std::upper_bound (
       m_candidates.begin (), m_candidates.end (), vNew,

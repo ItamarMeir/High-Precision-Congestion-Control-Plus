@@ -93,7 +93,7 @@ DsrOptions::~DsrOptions ()
 
 void DsrOptions::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
 }
 
@@ -105,7 +105,7 @@ Ptr<Node> DsrOptions::GetNode () const
 
 bool DsrOptions::ContainAddressAfter (Ipv4Address ipv4Address, Ipv4Address destAddress, std::vector<Ipv4Address> &nodeList)
 {
-  NS_LOG_FUNCTION (this << ipv4Address << destAddress);
+  NS_LOG_FUNCTION (ipv4Address << destAddress);
   std::vector<Ipv4Address>::iterator it = find (nodeList.begin (), nodeList.end (), destAddress);
 
   for (std::vector<Ipv4Address>::iterator i = it; i != nodeList.end (); ++i)
@@ -121,7 +121,7 @@ bool DsrOptions::ContainAddressAfter (Ipv4Address ipv4Address, Ipv4Address destA
 std::vector<Ipv4Address>
 DsrOptions::CutRoute (Ipv4Address ipv4Address, std::vector<Ipv4Address> &nodeList)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   std::vector<Ipv4Address>::iterator it = find (nodeList.begin (), nodeList.end (), ipv4Address);
   std::vector<Ipv4Address> cutRoute;
   for (std::vector<Ipv4Address>::iterator i = it; i != nodeList.end (); ++i)
@@ -133,7 +133,7 @@ DsrOptions::CutRoute (Ipv4Address ipv4Address, std::vector<Ipv4Address> &nodeLis
 
 Ptr<Ipv4Route> DsrOptions::SetRoute (Ipv4Address nextHop, Ipv4Address srcAddress)
 {
-  NS_LOG_FUNCTION (this << nextHop << srcAddress);
+  NS_LOG_FUNCTION (nextHop << srcAddress);
   m_ipv4Route = Create<Ipv4Route> ();
   m_ipv4Route->SetDestination (nextHop);
   m_ipv4Route->SetGateway (nextHop);
@@ -143,7 +143,7 @@ Ptr<Ipv4Route> DsrOptions::SetRoute (Ipv4Address nextHop, Ipv4Address srcAddress
 
 bool DsrOptions::ReverseRoutes (std::vector<Ipv4Address> & vec)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   std::vector<Ipv4Address> vec2 (vec);
   vec.clear ();    // To ensure vec is empty before start
   for (std::vector<Ipv4Address>::reverse_iterator ri = vec2.rbegin (); ri
@@ -161,7 +161,7 @@ bool DsrOptions::ReverseRoutes (std::vector<Ipv4Address> & vec)
 
 Ipv4Address DsrOptions::SearchNextHop (Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   Ipv4Address nextHop;
   NS_LOG_DEBUG ("the vector size " << vec.size ());
   if (vec.size () == 2)
@@ -193,7 +193,7 @@ Ipv4Address DsrOptions::SearchNextHop (Ipv4Address ipv4Address, std::vector<Ipv4
 
 Ipv4Address DsrOptions::ReverseSearchNextHop (Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   Ipv4Address nextHop;
   if (vec.size () == 2)
     {
@@ -219,7 +219,7 @@ Ipv4Address DsrOptions::ReverseSearchNextHop (Ipv4Address ipv4Address, std::vect
 
 void DsrOptions::PrintVector (std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /*
    * Check elements in a route vector
    */
@@ -239,7 +239,7 @@ void DsrOptions::PrintVector (std::vector<Ipv4Address>& vec)
 
 bool DsrOptions::IfDuplicates (std::vector<Ipv4Address>& vec, std::vector<Ipv4Address>& vec2)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG ("The first vector ");
   PrintVector (vec);
   NS_LOG_DEBUG ("The second vector ");
@@ -263,7 +263,7 @@ bool DsrOptions::IfDuplicates (std::vector<Ipv4Address>& vec, std::vector<Ipv4Ad
 
 bool DsrOptions::CheckDuplicates (Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   for (std::vector<Ipv4Address>::const_iterator i = vec.begin (); i != vec.end (); ++i)
     {
       if ((*i) == ipv4Address)
@@ -280,7 +280,7 @@ bool DsrOptions::CheckDuplicates (Ipv4Address ipv4Address, std::vector<Ipv4Addre
 
 void DsrOptions::RemoveDuplicates (std::vector<Ipv4Address>& vec)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   //Remove duplicate ip address from the route if any, should not happen with normal behavior nodes
   std::vector<Ipv4Address> vec2 (vec); // declare vec2 as a copy of the vec
   PrintVector (vec2); // Print all the ip address in the route
@@ -325,7 +325,7 @@ void DsrOptions::RemoveDuplicates (std::vector<Ipv4Address>& vec)
 uint32_t
 DsrOptions::GetIDfromIP (Ipv4Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   int32_t nNodes = NodeList::GetNNodes ();
   for (int32_t i = 0; i < nNodes; ++i)
     {
@@ -341,7 +341,7 @@ DsrOptions::GetIDfromIP (Ipv4Address address)
 
 Ptr<Node> DsrOptions::GetNodeWithAddress (Ipv4Address ipv4Address)
 {
-  NS_LOG_FUNCTION (this << ipv4Address);
+  NS_LOG_FUNCTION (ipv4Address);
   int32_t nNodes = NodeList::GetNNodes ();
   for (int32_t i = 0; i < nNodes; ++i)
     {
@@ -386,7 +386,7 @@ uint8_t DsrOptionPad1::GetOptionNumber () const
 
 uint8_t DsrOptionPad1::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
   Ptr<Packet> p = packet->Copy ();
   DsrOptionPad1Header pad1Header;
   p->RemoveHeader (pad1Header);
@@ -425,7 +425,7 @@ uint8_t DsrOptionPadn::GetOptionNumber () const
 
 uint8_t DsrOptionPadn::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
 
   Ptr<Packet> p = packet->Copy ();
   DsrOptionPadnHeader padnHeader;
@@ -471,7 +471,7 @@ uint8_t DsrOptionRreq::GetOptionNumber () const
 
 uint8_t DsrOptionRreq::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
   // Fields from IP header
   Ipv4Address srcAddress = ipv4Header.GetSource ();
   /*
@@ -937,7 +937,7 @@ uint8_t DsrOptionRrep::GetOptionNumber () const
 
 uint8_t DsrOptionRrep::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
 
   Ptr<Packet> p = packet->Copy ();
 
@@ -1136,7 +1136,7 @@ uint8_t DsrOptionSR::GetOptionNumber () const
 
 uint8_t DsrOptionSR::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Address << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Address << ipv4Header << (uint32_t)protocol << isPromisc);
   Ptr<Packet> p = packet->Copy ();
   // Get the number of routers' address field
   uint8_t buf[2];
@@ -1327,7 +1327,7 @@ uint8_t DsrOptionRerr::GetOptionNumber () const
 
 uint8_t DsrOptionRerr::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
   Ptr<Packet> p = packet->Copy ();
   uint32_t size = p->GetSize ();
   uint8_t *data = new uint8_t[size];
@@ -1506,7 +1506,7 @@ uint8_t DsrOptionAckReq::GetOptionNumber () const
 
 uint8_t DsrOptionAckReq::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
   /*
    * Current implementation of the ack request header processing is coded in source route header processing
    */
@@ -1564,7 +1564,7 @@ uint8_t DsrOptionAck::GetOptionNumber () const
 
 uint8_t DsrOptionAck::Process (Ptr<Packet> packet, Ptr<Packet> dsrP, Ipv4Address ipv4Address, Ipv4Address source, Ipv4Header const& ipv4Header, uint8_t protocol, bool& isPromisc)
 {
-  NS_LOG_FUNCTION (this << packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
+  NS_LOG_FUNCTION (packet << dsrP << ipv4Address << source << ipv4Header << (uint32_t)protocol << isPromisc);
   /*
    * Remove the ACK header
    */

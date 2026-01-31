@@ -62,7 +62,7 @@ PointToPointChannel::PointToPointChannel()
 void
 PointToPointChannel::Attach (Ptr<PointToPointNetDevice> device)
 {
-  NS_LOG_FUNCTION (this << device);
+  NS_LOG_FUNCTION (device);
   NS_ASSERT_MSG (m_nDevices < N_DEVICES, "Only two devices permitted");
   NS_ASSERT (device != 0);
 
@@ -86,7 +86,7 @@ PointToPointChannel::TransmitStart (
   Ptr<PointToPointNetDevice> src,
   Time txTime)
 {
-  NS_LOG_FUNCTION (this << p << src);
+  NS_LOG_FUNCTION (p << src);
   NS_LOG_LOGIC ("UID is " << p->GetUid () << ")");
 
   NS_ASSERT (m_link[0].m_state != INITIALIZING);

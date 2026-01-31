@@ -86,14 +86,14 @@ TypeId LteUeNetDevice::GetTypeId (void)
 
 LteUeNetDevice::LteUeNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_FATAL_ERROR ("This constructor should not be called");
 }
 
 
 LteUeNetDevice::LteUeNetDevice (Ptr<Node> node, Ptr<LteUePhy> phy, Ptr<LteUeMac> mac, Ptr<LteUeRrc> rrc)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phy = phy;
   m_mac = mac;
   m_rrc = rrc;
@@ -103,13 +103,13 @@ LteUeNetDevice::LteUeNetDevice (Ptr<Node> node, Ptr<LteUePhy> phy, Ptr<LteUeMac>
 
 LteUeNetDevice::~LteUeNetDevice (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteUeNetDevice::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_targetEnb = 0;
   m_mac->Dispose ();
   m_mac = 0;
@@ -123,7 +123,7 @@ LteUeNetDevice::DoDispose (void)
 void
 LteUeNetDevice::UpdateConfig (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -131,7 +131,7 @@ LteUeNetDevice::UpdateConfig (void)
 Ptr<LteUeMac>
 LteUeNetDevice::GetMac (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mac;
 }
 
@@ -139,7 +139,7 @@ LteUeNetDevice::GetMac (void)
 Ptr<LteUeRrc>
 LteUeNetDevice::GetRrc (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rrc;
 }
 
@@ -147,14 +147,14 @@ LteUeNetDevice::GetRrc (void)
 Ptr<LteUePhy>
 LteUeNetDevice::GetPhy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_phy;
 }
 
 void
 LteUeNetDevice::SetTargetEnb (Ptr<LteEnbNetDevice> enb)
 {
-  NS_LOG_FUNCTION (this << enb);
+  NS_LOG_FUNCTION (enb);
   m_targetEnb = enb;
 
   // should go through RRC and then through PHY SAP
@@ -165,14 +165,14 @@ LteUeNetDevice::SetTargetEnb (Ptr<LteEnbNetDevice> enb)
 Ptr<LteEnbNetDevice>
 LteUeNetDevice::GetTargetEnb (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_targetEnb;
 }
 
 uint64_t
 LteUeNetDevice::GetImsi ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_imsi;
 }
 
@@ -180,7 +180,7 @@ LteUeNetDevice::GetImsi ()
 void 
 LteUeNetDevice::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   UpdateConfig ();
   m_phy->Start ();
   m_mac->Start ();
@@ -190,7 +190,7 @@ LteUeNetDevice::DoStart (void)
 bool
 LteUeNetDevice::Send (Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
-  NS_LOG_FUNCTION (this << dest << protocolNumber);
+  NS_LOG_FUNCTION (dest << protocolNumber);
   NS_ASSERT_MSG (protocolNumber == Ipv4L3Protocol::PROT_NUMBER, "unsupported protocol " << protocolNumber << ", only IPv4 is supported");
   
   return m_rrc->Send (packet);

@@ -190,7 +190,7 @@ LteUeMac::LteUeMac ()
   m_freshUlBsr (false)
   
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_macSapProvider = new UeMemberLteMacSapProvider (this);
   m_cmacSapProvider = new UeMemberLteUeCmacSapProvider (this);
   m_uePhySapUser = new UeMemberLteUePhySapUser (this);
@@ -199,13 +199,13 @@ LteUeMac::LteUeMac ()
 
 LteUeMac::~LteUeMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteUeMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_macSapProvider;
   delete m_cmacSapProvider;
   delete m_uePhySapUser;
@@ -248,7 +248,7 @@ LteUeMac::GetLteUeCmacSapProvider (void)
 void
 LteUeMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT_MSG (m_rnti == params.rnti, "RNTI mismatch between RLC and MAC");
   LteRadioBearerTag tag (params.rnti, params.lcid, 0 /* UE works in SISO mode*/);
   params.pdu->AddPacketTag (tag);
@@ -262,7 +262,7 @@ LteUeMac::DoTransmitPdu (LteMacSapProvider::TransmitPduParameters params)
 void
 LteUeMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   
   std::map <uint8_t, uint64_t>::iterator it;
   
@@ -284,7 +284,7 @@ LteUeMac::DoReportBufferStatus (LteMacSapProvider::ReportBufferStatusParameters 
 void
 LteUeMac::SendReportBufferStatus (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_ulBsrReceived.size () == 0)
     {
       return;  // No BSR report to transmit
@@ -319,14 +319,14 @@ LteUeMac::SendReportBufferStatus (void)
 void
 LteUeMac::DoConfigureUe (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << " rnti" << rnti);
+  NS_LOG_FUNCTION (" rnti" << rnti);
   m_rnti = rnti;
 }
 
 void
 LteUeMac::DoAddLc (uint8_t lcId, LteMacSapUser* msu)
 {
-  NS_LOG_FUNCTION (this << " lcId" << (uint16_t) lcId);
+  NS_LOG_FUNCTION (" lcId" << (uint16_t) lcId);
   NS_ASSERT_MSG (m_macSapUserMap.find (lcId) == m_macSapUserMap.end (), "cannot add channel because LCID " << lcId << " is already present");
   m_macSapUserMap[lcId] = msu;
 }
@@ -334,7 +334,7 @@ LteUeMac::DoAddLc (uint8_t lcId, LteMacSapUser* msu)
 void
 LteUeMac::DoRemoveLc (uint8_t lcId)
 {
-  NS_LOG_FUNCTION (this << " lcId" << lcId);
+  NS_LOG_FUNCTION (" lcId" << lcId);
   NS_ASSERT_MSG (m_macSapUserMap.find (lcId) == m_macSapUserMap.end (), "could not find LCID " << lcId);
   m_macSapUserMap.erase (lcId);
 }
@@ -342,7 +342,7 @@ LteUeMac::DoRemoveLc (uint8_t lcId)
 void
 LteUeMac::DoRrcUpdateConfigurationReq (LteUeConfig_t params)
 {
-  NS_LOG_FUNCTION (this << " txMode " << (uint8_t) params.m_transmissionMode);
+  NS_LOG_FUNCTION (" txMode " << (uint8_t) params.m_transmissionMode);
   // forward info to PHY layer
   m_uePhySapProvider->SetTransmissionMode (params.m_transmissionMode);
 }
@@ -366,7 +366,7 @@ LteUeMac::DoReceivePhyPdu (Ptr<Packet> p)
 void
 LteUeMac::DoReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (msg->GetMessageType () == IdealControlMessage::UL_DCI)
     {
       Ptr<UlDciIdealControlMessage> msg2 = DynamicCast<UlDciIdealControlMessage> (msg);
@@ -387,13 +387,13 @@ LteUeMac::DoReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
           return;
         }
       std::map <uint8_t, LteMacSapUser*>::iterator it;
-      NS_LOG_FUNCTION (this << " UE: UL-CQI notified TxOpportunity of " << dci.m_tbSize);
+      NS_LOG_FUNCTION (" UE: UL-CQI notified TxOpportunity of " << dci.m_tbSize);
       for (it = m_macSapUserMap.begin (); it!=m_macSapUserMap.end (); it++)
         {
           itBsr = m_ulBsrReceived.find ((*it).first);
           if (itBsr!=m_ulBsrReceived.end ())
             {
-              NS_LOG_FUNCTION (this << "\t" << dci.m_tbSize / m_macSapUserMap.size () << " bytes to LC " << (uint16_t)(*it).first << " queue " << (*itBsr).second);
+              NS_LOG_FUNCTION ("\t" << dci.m_tbSize / m_macSapUserMap.size () << " bytes to LC " << (uint16_t)(*it).first << " queue " << (*itBsr).second);
               (*it).second->NotifyTxOpportunity (dci.m_tbSize / activeLcs, 0);
               if ((*itBsr).second >=  static_cast<uint64_t> (dci.m_tbSize / activeLcs))
                 {
@@ -409,7 +409,7 @@ LteUeMac::DoReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
     }
   else
     {
-      NS_LOG_FUNCTION (this << " IdealControlMessage not recognized");
+      NS_LOG_FUNCTION (" IdealControlMessage not recognized");
     }
 }
 
@@ -417,7 +417,7 @@ LteUeMac::DoReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
 void
 LteUeMac::DoSubframeIndication (uint32_t frameNo, uint32_t subframeNo)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if ((Simulator::Now () >= m_bsrLast + m_bsrPeriodicity) && (m_freshUlBsr==true))
     {
       SendReportBufferStatus ();

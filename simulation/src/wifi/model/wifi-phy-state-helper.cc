@@ -61,7 +61,7 @@ WifiPhyStateHelper::WifiPhyStateHelper ()
     m_startSwitching (Seconds (0)),
     m_previousStateChangeTime (Seconds (0))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void

@@ -100,7 +100,7 @@ LeakyBucket::GetCbrRate(void)
 bool 
 LeakyBucket::DoEnqueue (Ptr<Packet> p)
 {
-  //NS_LOG_FUNCTION (this << p);
+  //NS_LOG_FUNCTION (p);
 
   if (m_mode == PACKETS && (m_packets.size () >= m_maxPackets))
     {
@@ -128,7 +128,7 @@ LeakyBucket::DoEnqueue (Ptr<Packet> p)
 Ptr<Packet>
 LeakyBucket::DoDequeue (void)
 {
-  //NS_LOG_FUNCTION (this);
+  //// NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_packets.empty()) 
     {
@@ -153,7 +153,7 @@ return p;
 Ptr<const Packet>
 LeakyBucket::DoPeek (void) const
 {
-  //NS_LOG_FUNCTION (this);
+  //// NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_packets.empty()) 
     {

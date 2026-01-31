@@ -280,7 +280,7 @@ OpenFlowSwitchNetDevice::IsMulticast (void) const
 Address
 OpenFlowSwitchNetDevice::GetMulticast (Ipv4Address multicastGroup) const
 {
-  NS_LOG_FUNCTION (this << multicastGroup);
+  NS_LOG_FUNCTION (multicastGroup);
   Mac48Address multicast = Mac48Address::GetMulticast (multicastGroup);
   return multicast;
 }
@@ -387,7 +387,7 @@ OpenFlowSwitchNetDevice::SupportsSendFrom () const
 Address
 OpenFlowSwitchNetDevice::GetMulticast (Ipv6Address addr) const
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
   return Mac48Address::GetMulticast (addr);
 }
 

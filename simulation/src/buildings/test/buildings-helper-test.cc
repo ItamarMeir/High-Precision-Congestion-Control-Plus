@@ -131,7 +131,7 @@ BuildingsHelperOneTestCase::BuildingsHelperOneTestCase (PositionInBuilding pib, 
 void
 BuildingsHelperOneTestCase::DoRun ()
 {
-  NS_LOG_FUNCTION (this << BuildNameString (m_pib, m_bd));
+  NS_LOG_FUNCTION (BuildNameString (m_pib, m_bd));
   MobilityHelper mobility;
   mobility.SetMobilityModel ("ns3::BuildingsMobilityModel");
 
@@ -182,7 +182,7 @@ public:
 BuildingsHelperTestSuite::BuildingsHelperTestSuite ()
   : TestSuite ("buildings-helper", UNIT)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   BuildingData b1;
   b1.xmin = 1;

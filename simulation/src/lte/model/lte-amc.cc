@@ -297,7 +297,7 @@ LteAmc::GetSpectralEfficiencyFromCqi (int cqi)
 std::vector<int>
 LteAmc::CreateCqiFeedbacks (const SpectrumValue& sinr, uint8_t rbgSize)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   std::vector<int> cqi;
   Values::const_iterator it;

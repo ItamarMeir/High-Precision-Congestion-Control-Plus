@@ -61,14 +61,14 @@ PacketSink::GetTypeId (void)
 
 PacketSink::PacketSink ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_socket = 0;
   m_totalRx = 0;
 }
 
 PacketSink::~PacketSink()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t PacketSink::GetTotalRx () const
@@ -79,20 +79,20 @@ uint32_t PacketSink::GetTotalRx () const
 Ptr<Socket>
 PacketSink::GetListeningSocket (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_socket;
 }
 
 std::list<Ptr<Socket> >
 PacketSink::GetAcceptedSockets (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_socketList;
 }
 
 void PacketSink::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_socket = 0;
   m_socketList.clear ();
 
@@ -104,7 +104,7 @@ void PacketSink::DoDispose (void)
 // Application Methods
 void PacketSink::StartApplication ()    // Called at time specified by Start
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Create the socket if not already
   if (!m_socket)
     {
@@ -138,7 +138,7 @@ void PacketSink::StartApplication ()    // Called at time specified by Start
 
 void PacketSink::StopApplication ()     // Called at time specified by Stop
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while(!m_socketList.empty ()) //these are accepted sockets, close them
     {
       Ptr<Socket> acceptedSocket = m_socketList.front ();
@@ -154,7 +154,7 @@ void PacketSink::StopApplication ()     // Called at time specified by Stop
 
 void PacketSink::HandleRead (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   Ptr<Packet> packet;
   Address from;
   while ((packet = socket->RecvFrom (from)))
@@ -189,18 +189,18 @@ void PacketSink::HandleRead (Ptr<Socket> socket)
 
 void PacketSink::HandlePeerClose (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
 }
  
 void PacketSink::HandlePeerError (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
 }
  
 
 void PacketSink::HandleAccept (Ptr<Socket> s, const Address& from)
 {
-  NS_LOG_FUNCTION (this << s << from);
+  NS_LOG_FUNCTION (s << from);
   s->SetRecvCallback (MakeCallback (&PacketSink::HandleRead, this));
   m_socketList.push_back (s);
 }

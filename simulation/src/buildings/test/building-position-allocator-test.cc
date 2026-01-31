@@ -80,7 +80,7 @@ RandomRoomPositionAllocatorTestCase::RandomRoomPositionAllocatorTestCase ()
 void
 RandomRoomPositionAllocatorTestCase::DoRun ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
  
 
@@ -161,7 +161,7 @@ SameRoomPositionAllocatorTestCase::SameRoomPositionAllocatorTestCase ()
 void
 SameRoomPositionAllocatorTestCase::DoRun ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
  
 
@@ -229,7 +229,7 @@ public:
 BuildingPositionAllocatorTestSuite::BuildingPositionAllocatorTestSuite ()
   : TestSuite ("building-position-allocator", UNIT)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   AddTestCase (new RandomRoomPositionAllocatorTestCase);
   AddTestCase (new SameRoomPositionAllocatorTestCase);

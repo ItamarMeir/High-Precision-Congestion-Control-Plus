@@ -37,12 +37,12 @@ Ipv6InterfaceAddress::Ipv6InterfaceAddress ()
     m_scope (HOST),
     m_nsDadUid (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Ipv6InterfaceAddress::Ipv6InterfaceAddress (Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   m_prefix = Ipv6Prefix (64);
   SetAddress (address);
   SetState (TENTATIVE_OPTIMISTIC);
@@ -51,7 +51,7 @@ Ipv6InterfaceAddress::Ipv6InterfaceAddress (Ipv6Address address)
 
 Ipv6InterfaceAddress::Ipv6InterfaceAddress (Ipv6Address address, Ipv6Prefix prefix)
 {
-  NS_LOG_FUNCTION (this << address << prefix);
+  NS_LOG_FUNCTION (address << prefix);
   m_prefix = prefix;
   SetAddress (address);
   SetState (TENTATIVE_OPTIMISTIC);
@@ -80,7 +80,7 @@ Ipv6Address Ipv6InterfaceAddress::GetAddress () const
 
 void Ipv6InterfaceAddress::SetAddress (Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   m_address = address;
 
   if (address.IsLocalhost ())
@@ -109,7 +109,7 @@ Ipv6Prefix Ipv6InterfaceAddress::GetPrefix () const
 
 void Ipv6InterfaceAddress::SetState (Ipv6InterfaceAddress::State_e state)
 {
-  NS_LOG_FUNCTION (this << state);
+  NS_LOG_FUNCTION (state);
   m_state = state;
 }
 
@@ -121,7 +121,7 @@ Ipv6InterfaceAddress::State_e Ipv6InterfaceAddress::GetState () const
 
 void Ipv6InterfaceAddress::SetScope (Ipv6InterfaceAddress::Scope_e scope)
 {
-  NS_LOG_FUNCTION (this << scope);
+  NS_LOG_FUNCTION (scope);
   m_scope = scope;
 }
 
@@ -146,14 +146,14 @@ uint32_t Ipv6InterfaceAddress::GetNsDadUid () const
 
 void Ipv6InterfaceAddress::SetNsDadUid (uint32_t nsDadUid)
 {
-  NS_LOG_FUNCTION (this << nsDadUid);
+  NS_LOG_FUNCTION (nsDadUid);
   m_nsDadUid = nsDadUid;
 }
 
 #if 0
 void Ipv6InterfaceAddress::StartDadTimer (Ptr<Ipv6Interface> interface)
 {
-  NS_LOG_FUNCTION (this << interface);
+  NS_LOG_FUNCTION (interface);
   m_dadTimer.SetFunction (&Icmpv6L4Protocol::FunctionDadTimeout);
   m_dadTimer.SetArguments (interface, m_address);
   m_dadTimer.Schedule (Seconds (1));

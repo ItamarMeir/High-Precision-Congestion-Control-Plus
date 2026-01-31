@@ -161,7 +161,7 @@ UeInfo::GetImsi (void)
 uint8_t
 UeInfo::AddRadioBearer (Ptr<LteRadioBearerInfo> rbi)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (uint8_t lcid = m_lastAllocatedId; lcid != m_lastAllocatedId - 1; ++lcid)
     {
       if (lcid != 0)
@@ -181,7 +181,7 @@ UeInfo::AddRadioBearer (Ptr<LteRadioBearerInfo> rbi)
 Ptr<LteRadioBearerInfo>
 UeInfo::GetRadioBearer (uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) lcid);
+  NS_LOG_FUNCTION ((uint32_t) lcid);
   NS_ASSERT (0 != lcid);
   std::map<uint8_t, Ptr<LteRadioBearerInfo> >::iterator it = m_rbMap.find (lcid);  
   NS_ABORT_IF (it == m_rbMap.end ());
@@ -192,7 +192,7 @@ UeInfo::GetRadioBearer (uint8_t lcid)
 void
 UeInfo::RemoveRadioBearer (uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) lcid);
+  NS_LOG_FUNCTION ((uint32_t) lcid);
   std::map <uint8_t, Ptr<LteRadioBearerInfo> >::iterator it = m_rbMap.find (lcid);
   NS_ASSERT_MSG (it != m_rbMap.end (), "request to remove radio bearer with unknown lcid " << lcid);
   m_rbMap.erase (it);
@@ -215,7 +215,7 @@ LteEnbRrc::LteEnbRrc ()
     m_configured (false),
     m_lastAllocatedRnti (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_cmacSapUser = new EnbRrcMemberLteEnbCmacSapUser (this);
   m_pdcpSapUser = new LtePdcpSpecificLtePdcpSapUser<LteEnbRrc> (this);
 }
@@ -223,14 +223,14 @@ LteEnbRrc::LteEnbRrc ()
 
 LteEnbRrc::~LteEnbRrc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 void
 LteEnbRrc::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_cmacSapUser;
   delete m_pdcpSapUser;
 }
@@ -259,7 +259,7 @@ LteEnbRrc::GetTypeId (void)
 uint16_t
 LteEnbRrc::GetLastAllocatedRnti () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_lastAllocatedRnti;
 }
 std::map<uint16_t,Ptr<UeInfo> > LteEnbRrc::GetUeMap (void) const
@@ -276,7 +276,7 @@ void LteEnbRrc::SetUeMap (std::map<uint16_t,Ptr<UeInfo> > ueMap)
 void
 LteEnbRrc::SetLastAllocatedRnti (uint16_t lastAllocatedRnti)
 {
-  NS_LOG_FUNCTION (this << lastAllocatedRnti);
+  NS_LOG_FUNCTION (lastAllocatedRnti);
   m_lastAllocatedRnti = lastAllocatedRnti;
 }
 
@@ -285,21 +285,21 @@ LteEnbRrc::SetLastAllocatedRnti (uint16_t lastAllocatedRnti)
 void
 LteEnbRrc::SetLteEnbCmacSapProvider (LteEnbCmacSapProvider * s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   m_cmacSapProvider = s;
 }
 
 LteEnbCmacSapUser*
 LteEnbRrc::GetLteEnbCmacSapUser ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_cmacSapUser;
 }
 
 void
 LteEnbRrc::SetFfMacSchedSapProvider (FfMacSchedSapProvider * s)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ffMacSchedSapProvider = s;
 }
 
@@ -307,7 +307,7 @@ LteEnbRrc::SetFfMacSchedSapProvider (FfMacSchedSapProvider * s)
 void
 LteEnbRrc::SetLteMacSapProvider (LteMacSapProvider * s)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_macSapProvider = s;
 }
 
@@ -320,7 +320,7 @@ LteEnbRrc::GetLtePdcpSapProvider (uint16_t rnti, uint8_t lcid)
 void
 LteEnbRrc::ConfigureCell (uint8_t ulBandwidth, uint8_t dlBandwidth)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (!m_configured);
   m_cmacSapProvider->ConfigureMac (ulBandwidth, dlBandwidth);
   m_configured = true;
@@ -329,7 +329,7 @@ LteEnbRrc::ConfigureCell (uint8_t ulBandwidth, uint8_t dlBandwidth)
 uint16_t
 LteEnbRrc::AddUe (uint64_t imsi)
 {
-  NS_LOG_FUNCTION (this << imsi);
+  NS_LOG_FUNCTION (imsi);
   // no Call Admission Control for now
   uint16_t rnti = CreateUeInfo (imsi); // side effect: create UeInfo for this UE
   NS_ASSERT_MSG (rnti != 0, "CreateUeInfo returned RNTI==0");
@@ -340,7 +340,7 @@ LteEnbRrc::AddUe (uint64_t imsi)
 void
 LteEnbRrc::RemoveUe (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   RemoveUeInfo (rnti);
   NS_FATAL_ERROR ("missing RemoveUe method in CMAC SAP");
 }
@@ -348,7 +348,7 @@ LteEnbRrc::RemoveUe (uint16_t rnti)
 uint8_t
 LteEnbRrc::SetupRadioBearer (uint16_t rnti, EpsBearer bearer, TypeId rlcTypeId)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   Ptr<UeInfo> ueInfo = GetUeInfo (rnti);
 
   // create RLC instance
@@ -401,7 +401,7 @@ LteEnbRrc::SetupRadioBearer (uint16_t rnti, EpsBearer bearer, TypeId rlcTypeId)
 void
 LteEnbRrc::ReleaseRadioBearer (uint16_t rnti, uint8_t lcId)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   Ptr<UeInfo> ueInfo = GetUeInfo (rnti);
   ueInfo->RemoveRadioBearer (lcId);
 }
@@ -411,7 +411,7 @@ LteEnbRrc::ReleaseRadioBearer (uint16_t rnti, uint8_t lcId)
 bool
 LteEnbRrc::Send (Ptr<Packet> packet)
 {
-  NS_LOG_FUNCTION (this << packet);
+  NS_LOG_FUNCTION (packet);
 
   LteRadioBearerTag tag;
   bool found = packet->RemovePacketTag (tag);
@@ -437,7 +437,7 @@ LteEnbRrc::SetForwardUpCallback (Callback <void, Ptr<Packet> > cb)
 void
 LteEnbRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // this tag is needed by the EpcEnbApplication to determine the S1 bearer that corresponds to this radio bearer
   LteRadioBearerTag tag;
   tag.SetRnti (params.rnti);
@@ -451,7 +451,7 @@ LteEnbRrc::DoReceiveRrcPdu (LtePdcpSapUser::ReceiveRrcPduParameters params)
 void
 LteEnbRrc::DoNotifyLcConfigResult (uint16_t rnti, uint8_t lcid, bool success)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   NS_FATAL_ERROR ("not implemented");
 }
 
@@ -465,7 +465,7 @@ LteEnbRrc::DoNotifyLcConfigResult (uint16_t rnti, uint8_t lcid, bool success)
 uint16_t
 LteEnbRrc::CreateUeInfo (uint64_t imsi)
 {
-  NS_LOG_FUNCTION (this << imsi);
+  NS_LOG_FUNCTION (imsi);
   for (uint16_t rnti = m_lastAllocatedRnti; rnti != m_lastAllocatedRnti - 1; ++rnti)
     {
       if (rnti != 0)
@@ -484,7 +484,7 @@ LteEnbRrc::CreateUeInfo (uint64_t imsi)
 Ptr<UeInfo>
 LteEnbRrc::GetUeInfo (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   NS_ASSERT (0 != rnti);
   std::map<uint16_t, Ptr<UeInfo> >::iterator it = m_ueMap.find (rnti);  
   NS_ABORT_IF (it == m_ueMap.end ());
@@ -494,7 +494,7 @@ LteEnbRrc::GetUeInfo (uint16_t rnti)
 void
 LteEnbRrc::RemoveUeInfo (uint16_t rnti)
 {
-  NS_LOG_FUNCTION (this << (uint32_t) rnti);
+  NS_LOG_FUNCTION ((uint32_t) rnti);
   std::map <uint16_t, Ptr<UeInfo> >::iterator it = m_ueMap.find (rnti);
   NS_ASSERT_MSG (it != m_ueMap.end (), "request to remove UE info with unknown rnti " << rnti);
   m_ueMap.erase (it);
@@ -504,7 +504,7 @@ LteEnbRrc::RemoveUeInfo (uint16_t rnti)
 void
 LteEnbRrc::DoRrcConfigurationUpdateInd (LteUeConfig_t params)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // up tp now only for TxMode change
   // update the peer UE-RRC on the change
   NodeList::Iterator listEnd = NodeList::End ();

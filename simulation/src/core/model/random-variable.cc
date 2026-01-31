@@ -71,13 +71,13 @@ private:
 RandomVariableBase::RandomVariableBase ()
   : m_generator (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RandomVariableBase::RandomVariableBase (const RandomVariableBase& r)
   : m_generator (0)
 {
-  NS_LOG_FUNCTION (this << &r);
+  NS_LOG_FUNCTION (&r);
   if (r.m_generator != 0)
     {
       m_generator = new RngStream (RngSeedManager::GetSeed (),
@@ -88,20 +88,20 @@ RandomVariableBase::RandomVariableBase (const RandomVariableBase& r)
 
 RandomVariableBase::~RandomVariableBase ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_generator;
 }
 
 uint32_t RandomVariableBase::GetInteger ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue ();
 }
 
 RngStream *
 RandomVariableBase::GetStream (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_generator == 0)
     {
       m_generator = new RngStream (RngSeedManager::GetSeed (),
@@ -116,7 +116,7 @@ RandomVariableBase::GetStream (void)
 RandomVariable::RandomVariable ()
   : m_variable (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 RandomVariable::RandomVariable (const RandomVariable&o)
   : m_variable (o.m_variable->Copy ())
@@ -139,27 +139,27 @@ RandomVariable::operator = (const RandomVariable &o)
 }
 RandomVariable::~RandomVariable ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_variable;
 }
 double
 RandomVariable::GetValue (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_variable->GetValue ();
 }
 
 uint32_t
 RandomVariable::GetInteger (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_variable->GetInteger ();
 }
 
 RandomVariableBase *
 RandomVariable::Peek (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_variable;
 }
 
@@ -214,14 +214,14 @@ UniformVariableImpl::UniformVariableImpl ()
   : m_min (0),
     m_max (1.0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 UniformVariableImpl::UniformVariableImpl (double s, double l)
   : m_min (s),
     m_max (l)
 {
-  NS_LOG_FUNCTION (this << s << l);
+  NS_LOG_FUNCTION (s << l);
 }
 
 UniformVariableImpl::UniformVariableImpl (const UniformVariableImpl& c)
@@ -229,69 +229,69 @@ UniformVariableImpl::UniformVariableImpl (const UniformVariableImpl& c)
     m_min (c.m_min),
     m_max (c.m_max)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double
 UniformVariableImpl::GetMin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_min;
 }
 double
 UniformVariableImpl::GetMax (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_max;
 }
 
 
 double UniformVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   return m_min + generator->RandU01 () * (m_max - m_min);
 }
 
 double UniformVariableImpl::GetValue (double s, double l)
 {
-  NS_LOG_FUNCTION (this << s << l);
+  NS_LOG_FUNCTION (s << l);
   RngStream *generator = GetStream ();
   return s + generator->RandU01 () * (l - s);
 }
 
 RandomVariableBase* UniformVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new UniformVariableImpl (*this);
 }
 
 UniformVariable::UniformVariable ()
   : RandomVariable (UniformVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 UniformVariable::UniformVariable (double s, double l)
   : RandomVariable (UniformVariableImpl (s, l))
 {
-  NS_LOG_FUNCTION (this << s << l);
+  NS_LOG_FUNCTION (s << l);
 }
 
 double UniformVariable::GetValue (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return this->RandomVariable::GetValue ();
 }
 
 double UniformVariable::GetValue (double s, double l)
 {
-  NS_LOG_FUNCTION (this << s << l);
+  NS_LOG_FUNCTION (s << l);
   return ((UniformVariableImpl*)Peek ())->GetValue (s,l);
 }
 
 uint32_t UniformVariable::GetInteger (uint32_t s, uint32_t l)
 {
-  NS_LOG_FUNCTION (this << s << l);
+  NS_LOG_FUNCTION (s << l);
   NS_ASSERT (s <= l);
   return static_cast<uint32_t> ( GetValue (s, l + 1) );
 }
@@ -339,60 +339,60 @@ private:
 ConstantVariableImpl::ConstantVariableImpl ()
   : m_const (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ConstantVariableImpl::ConstantVariableImpl (double c)
   : m_const (c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
 }
 
 ConstantVariableImpl::ConstantVariableImpl (const ConstantVariableImpl& c)
   : RandomVariableBase (c),
     m_const (c.m_const)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 void ConstantVariableImpl::NewConstant (double c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_const = c;
 }
 
 double ConstantVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_const;
 }
 
 uint32_t ConstantVariableImpl::GetInteger ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)m_const;
 }
 
 RandomVariableBase* ConstantVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ConstantVariableImpl (*this);
 }
 
 ConstantVariable::ConstantVariable ()
   : RandomVariable (ConstantVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 ConstantVariable::ConstantVariable (double c)
   : RandomVariable (ConstantVariableImpl (c))
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
 }
 void
 ConstantVariable::SetConstant (double c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   *this = ConstantVariable (c);
 }
 
@@ -456,7 +456,7 @@ SequentialVariableImpl::SequentialVariableImpl (double f, double l, double i, ui
     m_current (f),
     m_currentConsecutive (0)
 {
-  NS_LOG_FUNCTION (this << f << l << i << c);
+  NS_LOG_FUNCTION (f << l << i << c);
 }
 
 SequentialVariableImpl::SequentialVariableImpl (double f, double l, const RandomVariable& i, uint32_t c)
@@ -467,7 +467,7 @@ SequentialVariableImpl::SequentialVariableImpl (double f, double l, const Random
     m_current (f),
     m_currentConsecutive (0)
 {
-  NS_LOG_FUNCTION (this << f << l << i << c);
+  NS_LOG_FUNCTION (f << l << i << c);
 }
 
 SequentialVariableImpl::SequentialVariableImpl (const SequentialVariableImpl& c)
@@ -479,17 +479,17 @@ SequentialVariableImpl::SequentialVariableImpl (const SequentialVariableImpl& c)
     m_current (c.m_current),
     m_currentConsecutive (c.m_currentConsecutive)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 SequentialVariableImpl::~SequentialVariableImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double SequentialVariableImpl::GetValue ()
 { // Return a sequential series of values
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double r = m_current;
   if (++m_currentConsecutive == m_consecutive)
     { // Time to advance to next
@@ -505,19 +505,19 @@ double SequentialVariableImpl::GetValue ()
 
 RandomVariableBase* SequentialVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new SequentialVariableImpl (*this);
 }
 
 SequentialVariable::SequentialVariable (double f, double l, double i, uint32_t c)
   : RandomVariable (SequentialVariableImpl (f, l, i, c))
 {
-  NS_LOG_FUNCTION (this << f << l << i << c);
+  NS_LOG_FUNCTION (f << l << i << c);
 }
 SequentialVariable::SequentialVariable (double f, double l, const RandomVariable& i, uint32_t c)
   : RandomVariable (SequentialVariableImpl (f, l, i, c))
 {
-  NS_LOG_FUNCTION (this << f << l << i << c);
+  NS_LOG_FUNCTION (f << l << i << c);
 }
 
 // -----------------------------------------------------------------------------
@@ -571,21 +571,21 @@ ExponentialVariableImpl::ExponentialVariableImpl ()
   : m_mean (1.0),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ExponentialVariableImpl::ExponentialVariableImpl (double m)
   : m_mean (m),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 
 ExponentialVariableImpl::ExponentialVariableImpl (double m, double b)
   : m_mean (m),
     m_bound (b)
 {
-  NS_LOG_FUNCTION (this << m << b);
+  NS_LOG_FUNCTION (m << b);
 }
 
 ExponentialVariableImpl::ExponentialVariableImpl (const ExponentialVariableImpl& c)
@@ -593,12 +593,12 @@ ExponentialVariableImpl::ExponentialVariableImpl (const ExponentialVariableImpl&
     m_mean (c.m_mean),
     m_bound (c.m_bound)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double ExponentialVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   while (1)
     {
@@ -613,24 +613,24 @@ double ExponentialVariableImpl::GetValue ()
 
 RandomVariableBase* ExponentialVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ExponentialVariableImpl (*this);
 }
 
 ExponentialVariable::ExponentialVariable ()
   : RandomVariable (ExponentialVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 ExponentialVariable::ExponentialVariable (double m)
   : RandomVariable (ExponentialVariableImpl (m))
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 ExponentialVariable::ExponentialVariable (double m, double b)
   : RandomVariable (ExponentialVariableImpl (m, b))
 {
-  NS_LOG_FUNCTION (this << m << b);
+  NS_LOG_FUNCTION (m << b);
 }
 
 // -----------------------------------------------------------------------------
@@ -718,7 +718,7 @@ ParetoVariableImpl::ParetoVariableImpl ()
     m_shape (1.5),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ParetoVariableImpl::ParetoVariableImpl (double m)
@@ -726,7 +726,7 @@ ParetoVariableImpl::ParetoVariableImpl (double m)
     m_shape (1.5),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 
 ParetoVariableImpl::ParetoVariableImpl (double m, double s)
@@ -734,7 +734,7 @@ ParetoVariableImpl::ParetoVariableImpl (double m, double s)
     m_shape (s),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << m << s);
+  NS_LOG_FUNCTION (m << s);
 }
 
 ParetoVariableImpl::ParetoVariableImpl (double m, double s, double b)
@@ -742,7 +742,7 @@ ParetoVariableImpl::ParetoVariableImpl (double m, double s, double b)
     m_shape (s),
     m_bound (b)
 {
-  NS_LOG_FUNCTION (this << m << s << b);
+  NS_LOG_FUNCTION (m << s << b);
 }
 
 ParetoVariableImpl::ParetoVariableImpl (std::pair<double, double> params)
@@ -750,7 +750,7 @@ ParetoVariableImpl::ParetoVariableImpl (std::pair<double, double> params)
     m_shape (params.second),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << &params);
+  NS_LOG_FUNCTION (&params);
 }
 
 ParetoVariableImpl::ParetoVariableImpl (std::pair<double, double> params, double b)
@@ -758,7 +758,7 @@ ParetoVariableImpl::ParetoVariableImpl (std::pair<double, double> params, double
     m_shape (params.second),
     m_bound (b)
 {
-  NS_LOG_FUNCTION (this << &params << b);
+  NS_LOG_FUNCTION (&params << b);
 }
 
 ParetoVariableImpl::ParetoVariableImpl (const ParetoVariableImpl& c)
@@ -767,12 +767,12 @@ ParetoVariableImpl::ParetoVariableImpl (const ParetoVariableImpl& c)
     m_shape (c.m_shape),
     m_bound (c.m_bound)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double ParetoVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   while (1)
     {
@@ -787,39 +787,39 @@ double ParetoVariableImpl::GetValue ()
 
 RandomVariableBase* ParetoVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ParetoVariableImpl (*this);
 }
 
 ParetoVariable::ParetoVariable ()
   : RandomVariable (ParetoVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 ParetoVariable::ParetoVariable (double m)
   : RandomVariable (ParetoVariableImpl (m))
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 ParetoVariable::ParetoVariable (double m, double s)
   : RandomVariable (ParetoVariableImpl (m, s))
 {
-  NS_LOG_FUNCTION (this << m << s);
+  NS_LOG_FUNCTION (m << s);
 }
 ParetoVariable::ParetoVariable (double m, double s, double b)
   : RandomVariable (ParetoVariableImpl (m, s, b))
 {
-  NS_LOG_FUNCTION (this << m << s << b);
+  NS_LOG_FUNCTION (m << s << b);
 }
 ParetoVariable::ParetoVariable (std::pair<double, double> params)
   : RandomVariable (ParetoVariableImpl (params))
 {
-  NS_LOG_FUNCTION (this << &params);
+  NS_LOG_FUNCTION (&params);
 }
 ParetoVariable::ParetoVariable (std::pair<double, double> params, double b)
   : RandomVariable (ParetoVariableImpl (params, b))
 {
-  NS_LOG_FUNCTION (this << &params << b);
+  NS_LOG_FUNCTION (&params << b);
 }
 
 // -----------------------------------------------------------------------------
@@ -883,28 +883,28 @@ WeibullVariableImpl::WeibullVariableImpl () : m_mean (1.0),
                                               m_alpha (1),
                                               m_bound (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 WeibullVariableImpl::WeibullVariableImpl (double m)
   : m_mean (m),
     m_alpha (1),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 WeibullVariableImpl::WeibullVariableImpl (double m, double s)
   : m_mean (m),
     m_alpha (s),
     m_bound (0)
 {
-  NS_LOG_FUNCTION (this << m << s);
+  NS_LOG_FUNCTION (m << s);
 }
 WeibullVariableImpl::WeibullVariableImpl (double m, double s, double b)
   : m_mean (m),
     m_alpha (s),
     m_bound (b)
 {
-  NS_LOG_FUNCTION (this << m << s << b);
+  NS_LOG_FUNCTION (m << s << b);
 }
 WeibullVariableImpl::WeibullVariableImpl (const WeibullVariableImpl& c)
   : RandomVariableBase (c),
@@ -912,12 +912,12 @@ WeibullVariableImpl::WeibullVariableImpl (const WeibullVariableImpl& c)
     m_alpha (c.m_alpha),
     m_bound (c.m_bound)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double WeibullVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   double exponent = 1.0 / m_alpha;
   while (1)
@@ -933,29 +933,29 @@ double WeibullVariableImpl::GetValue ()
 
 RandomVariableBase* WeibullVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new WeibullVariableImpl (*this);
 }
 
 WeibullVariable::WeibullVariable ()
   : RandomVariable (WeibullVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 WeibullVariable::WeibullVariable (double m)
   : RandomVariable (WeibullVariableImpl (m))
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
 }
 WeibullVariable::WeibullVariable (double m, double s)
   : RandomVariable (WeibullVariableImpl (m, s))
 {
-  NS_LOG_FUNCTION (this << m << s);
+  NS_LOG_FUNCTION (m << s);
 }
 WeibullVariable::WeibullVariable (double m, double s, double b)
   : RandomVariable (WeibullVariableImpl (m, s, b))
 {
-  NS_LOG_FUNCTION (this << m << s << b);
+  NS_LOG_FUNCTION (m << s << b);
 }
 
 // -----------------------------------------------------------------------------
@@ -1010,7 +1010,7 @@ NormalVariableImpl::NormalVariableImpl ()
     m_bound (INFINITE_VALUE),
     m_nextValid (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 NormalVariableImpl::NormalVariableImpl (double m, double v, double b)
@@ -1019,7 +1019,7 @@ NormalVariableImpl::NormalVariableImpl (double m, double v, double b)
     m_bound (b),
     m_nextValid (false)
 {
-  NS_LOG_FUNCTION (this << m << v << b);
+  NS_LOG_FUNCTION (m << v << b);
 }
 
 NormalVariableImpl::NormalVariableImpl (const NormalVariableImpl& c)
@@ -1029,12 +1029,12 @@ NormalVariableImpl::NormalVariableImpl (const NormalVariableImpl& c)
     m_bound (c.m_bound),
     m_nextValid (false)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double NormalVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   if (m_nextValid)
     { // use previously generated
@@ -1075,45 +1075,45 @@ double NormalVariableImpl::GetValue ()
 
 RandomVariableBase* NormalVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new NormalVariableImpl (*this);
 }
 
 double
 NormalVariableImpl::GetMean (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mean;
 }
 
 double
 NormalVariableImpl::GetVariance (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_variance;
 }
 
 double
 NormalVariableImpl::GetBound (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_bound;
 }
 
 NormalVariable::NormalVariable ()
   : RandomVariable (NormalVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 NormalVariable::NormalVariable (double m, double v)
   : RandomVariable (NormalVariableImpl (m, v))
 {
-  NS_LOG_FUNCTION (this << m << v);
+  NS_LOG_FUNCTION (m << v);
 }
 NormalVariable::NormalVariable (double m, double v, double b)
   : RandomVariable (NormalVariableImpl (m, v, b))
 {
-  NS_LOG_FUNCTION (this << m << v << b);
+  NS_LOG_FUNCTION (m << v << b);
 }
 
 // -----------------------------------------------------------------------------
@@ -1163,19 +1163,19 @@ EmpiricalVariableImpl::ValueCDF::ValueCDF ()
   : value (0.0),
     cdf (0.0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 EmpiricalVariableImpl::ValueCDF::ValueCDF (double v, double c)
   : value (v),
     cdf (c)
 {
-  NS_LOG_FUNCTION (this << v << c);
+  NS_LOG_FUNCTION (v << c);
 }
 EmpiricalVariableImpl::ValueCDF::ValueCDF (const ValueCDF& c)
   : value (c.value),
     cdf (c.cdf)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 // -----------------------------------------------------------------------------
@@ -1184,7 +1184,7 @@ EmpiricalVariableImpl::ValueCDF::ValueCDF (const ValueCDF& c)
 EmpiricalVariableImpl::EmpiricalVariableImpl ()
   : validated (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 EmpiricalVariableImpl::EmpiricalVariableImpl (const EmpiricalVariableImpl& c)
@@ -1192,18 +1192,18 @@ EmpiricalVariableImpl::EmpiricalVariableImpl (const EmpiricalVariableImpl& c)
     validated (c.validated),
     emp (c.emp)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 EmpiricalVariableImpl::~EmpiricalVariableImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double EmpiricalVariableImpl::GetValue ()
 { // Return a value from the empirical distribution
   // This code based (loosely) on code by Bruce Mah (Thanks Bruce!)
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   if (emp.size () == 0)
     {
@@ -1248,20 +1248,20 @@ double EmpiricalVariableImpl::GetValue ()
 
 RandomVariableBase* EmpiricalVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new EmpiricalVariableImpl (*this);
 }
 
 void EmpiricalVariableImpl::CDF (double v, double c)
 { // Add a new empirical datapoint to the empirical cdf
   // NOTE.   These MUST be inserted in non-decreasing order
-  NS_LOG_FUNCTION (this << v << c);
+  NS_LOG_FUNCTION (v << c);
   emp.push_back (ValueCDF (v, c));
 }
 
 void EmpiricalVariableImpl::Validate ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   ValueCDF prior;
   for (std::vector<ValueCDF>::size_type i = 0; i < emp.size (); ++i)
     {
@@ -1283,24 +1283,24 @@ void EmpiricalVariableImpl::Validate ()
 double EmpiricalVariableImpl::Interpolate (double c1, double c2,
                                            double v1, double v2, double r)
 { // Interpolate random value in range [v1..v2) based on [c1 .. r .. c2)
-  NS_LOG_FUNCTION (this << c1 << c2 << v1 << v2 << r);
+  NS_LOG_FUNCTION (c1 << c2 << v1 << v2 << r);
   return (v1 + ((v2 - v1) / (c2 - c1)) * (r - c1));
 }
 
 EmpiricalVariable::EmpiricalVariable ()
   : RandomVariable (EmpiricalVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 EmpiricalVariable::EmpiricalVariable (const RandomVariableBase &variable)
   : RandomVariable (variable)
 {
-  NS_LOG_FUNCTION (this << &variable);
+  NS_LOG_FUNCTION (&variable);
 }
 void
 EmpiricalVariable::CDF (double v, double c)
 {
-  NS_LOG_FUNCTION (this << v << c);
+  NS_LOG_FUNCTION (v << c);
   EmpiricalVariableImpl *impl = dynamic_cast<EmpiricalVariableImpl *> (Peek ());
   NS_ASSERT (impl);
   impl->CDF (v, c);
@@ -1328,32 +1328,32 @@ private:
 
 IntEmpiricalVariableImpl::IntEmpiricalVariableImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t IntEmpiricalVariableImpl::GetInteger ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (uint32_t)GetValue ();
 }
 
 RandomVariableBase* IntEmpiricalVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new IntEmpiricalVariableImpl (*this);
 }
 
 double IntEmpiricalVariableImpl::Interpolate (double c1, double c2,
                                               double v1, double v2, double r)
 { // Interpolate random value in range [v1..v2) based on [c1 .. r .. c2)
-  NS_LOG_FUNCTION (this << c1 << c2 << v1 << v2 << r);
+  NS_LOG_FUNCTION (c1 << c2 << v1 << v2 << r);
   return std::ceil (v1 + ((v2 - v1) / (c2 - c1)) * (r - c1));
 }
 
 IntEmpiricalVariable::IntEmpiricalVariable ()
   : EmpiricalVariable (IntEmpiricalVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 // -----------------------------------------------------------------------------
@@ -1394,17 +1394,17 @@ DeterministicVariableImpl::DeterministicVariableImpl (double* d, uint32_t c)
     next (c),
     data (d)
 { // Nothing else needed
-  NS_LOG_FUNCTION (this << d << c);
+  NS_LOG_FUNCTION (d << c);
 }
 
 DeterministicVariableImpl::~DeterministicVariableImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double DeterministicVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (next == count)
     {
       next = 0;
@@ -1414,14 +1414,14 @@ double DeterministicVariableImpl::GetValue ()
 
 RandomVariableBase* DeterministicVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new DeterministicVariableImpl (*this);
 }
 
 DeterministicVariable::DeterministicVariable (double* d, uint32_t c)
   : RandomVariable (DeterministicVariableImpl (d, c))
 {
-  NS_LOG_FUNCTION (this << d << c);
+  NS_LOG_FUNCTION (d << c);
 }
 
 // -----------------------------------------------------------------------------
@@ -1451,7 +1451,7 @@ private:
 
 RandomVariableBase* LogNormalVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new LogNormalVariableImpl (*this);
 }
 
@@ -1459,7 +1459,7 @@ LogNormalVariableImpl::LogNormalVariableImpl (double mu, double sigma)
   : m_mu (mu),
     m_sigma (sigma)
 {
-  NS_LOG_FUNCTION (this << mu << sigma);
+  NS_LOG_FUNCTION (mu << sigma);
 }
 
 // The code from this function was adapted from the GNU Scientific
@@ -1491,7 +1491,7 @@ LogNormalVariableImpl::LogNormalVariableImpl (double mu, double sigma)
 double
 LogNormalVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   double u, v, r2, normal, z;
 
@@ -1517,7 +1517,7 @@ LogNormalVariableImpl::GetValue ()
 LogNormalVariable::LogNormalVariable (double mu, double sigma)
   : RandomVariable (LogNormalVariableImpl (mu, sigma))
 {
-  NS_LOG_FUNCTION (this << mu << sigma);
+  NS_LOG_FUNCTION (mu << sigma);
 }
 
 // -----------------------------------------------------------------------------
@@ -1555,7 +1555,7 @@ private:
 
 RandomVariableBase* GammaVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new GammaVariableImpl (m_alpha, m_beta);
 }
 
@@ -1563,13 +1563,13 @@ GammaVariableImpl::GammaVariableImpl (double alpha, double beta)
   : m_alpha (alpha),
     m_beta (beta)
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
 }
 
 double
 GammaVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_alpha, m_beta);
 }
 
@@ -1592,7 +1592,7 @@ GammaVariableImpl::GetValue ()
 double
 GammaVariableImpl::GetValue (double alpha, double beta)
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
   RngStream *generator = GetStream ();
 
   if (alpha < 1)
@@ -1632,24 +1632,24 @@ GammaVariableImpl::GetValue (double alpha, double beta)
 GammaVariable::GammaVariable ()
   : RandomVariable (GammaVariableImpl (1.0, 1.0))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 GammaVariable::GammaVariable (double alpha, double beta)
   : RandomVariable (GammaVariableImpl (alpha, beta))
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
 }
 
 double GammaVariable::GetValue (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return this->RandomVariable::GetValue ();
 }
 
 double GammaVariable::GetValue (double alpha, double beta) const
 {
-  NS_LOG_FUNCTION (this << alpha << beta);
+  NS_LOG_FUNCTION (alpha << beta);
   return ((GammaVariableImpl*)Peek ())->GetValue (alpha, beta);
 }
 
@@ -1688,7 +1688,7 @@ private:
 
 RandomVariableBase* ErlangVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ErlangVariableImpl (m_k, m_lambda);
 }
 
@@ -1696,13 +1696,13 @@ ErlangVariableImpl::ErlangVariableImpl (unsigned int k, double lambda)
   : m_k (k),
     m_lambda (lambda)
 {
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
 }
 
 double
 ErlangVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetValue (m_k, m_lambda);
 }
 
@@ -1723,7 +1723,7 @@ ErlangVariableImpl::GetValue (unsigned int k, double lambda)
 {
   /// \todo do not create a new 
   /// RNG stream every time the function is called !
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
   ExponentialVariable exponential (lambda);
 
   double result = 0;
@@ -1738,24 +1738,24 @@ ErlangVariableImpl::GetValue (unsigned int k, double lambda)
 ErlangVariable::ErlangVariable ()
   : RandomVariable (ErlangVariableImpl (1, 1.0))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ErlangVariable::ErlangVariable (unsigned int k, double lambda)
   : RandomVariable (ErlangVariableImpl (k, lambda))
 {
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
 }
 
 double ErlangVariable::GetValue (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return this->RandomVariable::GetValue ();
 }
 
 double ErlangVariable::GetValue (unsigned int k, double lambda) const
 {
-  NS_LOG_FUNCTION (this << k << lambda);
+  NS_LOG_FUNCTION (k << lambda);
   return ((ErlangVariableImpl*)Peek ())->GetValue (k, lambda);
 }
 
@@ -1801,7 +1801,7 @@ TriangularVariableImpl::TriangularVariableImpl ()
     m_max (1),
     m_mode (0.5)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TriangularVariableImpl::TriangularVariableImpl (double s, double l, double mean)
@@ -1809,7 +1809,7 @@ TriangularVariableImpl::TriangularVariableImpl (double s, double l, double mean)
     m_max (l),
     m_mode (3.0 * mean - s - l)
 {
-  NS_LOG_FUNCTION (this << s << l << mean);
+  NS_LOG_FUNCTION (s << l << mean);
 }
 
 TriangularVariableImpl::TriangularVariableImpl (const TriangularVariableImpl& c)
@@ -1818,12 +1818,12 @@ TriangularVariableImpl::TriangularVariableImpl (const TriangularVariableImpl& c)
     m_max (c.m_max),
     m_mode (c.m_mode)
 {
-  NS_LOG_FUNCTION (this << &c);
+  NS_LOG_FUNCTION (&c);
 }
 
 double TriangularVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
   double u = generator->RandU01 ();
   if (u <= (m_mode - m_min) / (m_max - m_min) )
@@ -1838,19 +1838,19 @@ double TriangularVariableImpl::GetValue ()
 
 RandomVariableBase* TriangularVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new TriangularVariableImpl (*this);
 }
 
 TriangularVariable::TriangularVariable ()
   : RandomVariable (TriangularVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 TriangularVariable::TriangularVariable (double s, double l, double mean)
   : RandomVariable (TriangularVariableImpl (s,l,mean))
 {
-  NS_LOG_FUNCTION (this << s << l << mean);
+  NS_LOG_FUNCTION (s << l << mean);
 }
 
 // -----------------------------------------------------------------------------
@@ -1886,7 +1886,7 @@ private:
 
 RandomVariableBase* ZipfVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ZipfVariableImpl (m_n, m_alpha);
 }
 
@@ -1895,7 +1895,7 @@ ZipfVariableImpl::ZipfVariableImpl ()
     m_alpha (0),
     m_c (1)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -1905,7 +1905,7 @@ ZipfVariableImpl::ZipfVariableImpl (long n, double alpha)
     m_c (0)
 {
   // calculate the normalization constant c
-  NS_LOG_FUNCTION (this << n << alpha);
+  NS_LOG_FUNCTION (n << alpha);
   for (int i = 1; i <= n; i++)
     {
       m_c += (1.0 / std::pow ((double)i, alpha));
@@ -1916,7 +1916,7 @@ ZipfVariableImpl::ZipfVariableImpl (long n, double alpha)
 double
 ZipfVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
 
   double u = generator->RandU01 ();
@@ -1936,13 +1936,13 @@ ZipfVariableImpl::GetValue ()
 ZipfVariable::ZipfVariable ()
   : RandomVariable (ZipfVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ZipfVariable::ZipfVariable (long n, double alpha)
   : RandomVariable (ZipfVariableImpl (n, alpha))
 {
-  NS_LOG_FUNCTION (this << n << alpha);
+  NS_LOG_FUNCTION (n << alpha);
 }
 
 
@@ -1977,7 +1977,7 @@ private:
 
 RandomVariableBase* ZetaVariableImpl::Copy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return new ZetaVariableImpl (m_alpha);
 }
 
@@ -1985,7 +1985,7 @@ ZetaVariableImpl::ZetaVariableImpl ()
   : m_alpha (3.14),
     m_b (std::pow (2.0, 2.14))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
@@ -1993,7 +1993,7 @@ ZetaVariableImpl::ZetaVariableImpl (double alpha)
   : m_alpha (alpha),
     m_b (std::pow (2.0, alpha - 1.0))
 {
-  NS_LOG_FUNCTION (this << alpha);
+  NS_LOG_FUNCTION (alpha);
 }
 
 /*
@@ -2004,7 +2004,7 @@ ZetaVariableImpl::ZetaVariableImpl (double alpha)
 double
 ZetaVariableImpl::GetValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RngStream *generator = GetStream ();
 
   double u, v;
@@ -2027,13 +2027,13 @@ ZetaVariableImpl::GetValue ()
 ZetaVariable::ZetaVariable ()
   : RandomVariable (ZetaVariableImpl ())
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ZetaVariable::ZetaVariable (double alpha)
   : RandomVariable (ZetaVariableImpl (alpha))
 {
-  NS_LOG_FUNCTION (this << alpha);
+  NS_LOG_FUNCTION (alpha);
 }
 
 

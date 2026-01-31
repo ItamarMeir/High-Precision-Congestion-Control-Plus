@@ -47,7 +47,7 @@ Ipv6EndPointDemux::~Ipv6EndPointDemux ()
 
 bool Ipv6EndPointDemux::LookupPortLocal (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   for (EndPointsI i = m_endPoints.begin (); i != m_endPoints.end (); i++)
     {
       if ((*i)->GetLocalPort  () == port)
@@ -60,7 +60,7 @@ bool Ipv6EndPointDemux::LookupPortLocal (uint16_t port)
 
 bool Ipv6EndPointDemux::LookupLocal (Ipv6Address addr, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << addr << port);
+  NS_LOG_FUNCTION (addr << port);
   for (EndPointsI i = m_endPoints.begin (); i != m_endPoints.end (); i++)
     {
       if ((*i)->GetLocalPort () == port
@@ -89,7 +89,7 @@ Ipv6EndPoint* Ipv6EndPointDemux::Allocate ()
 
 Ipv6EndPoint* Ipv6EndPointDemux::Allocate (Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   uint16_t port = AllocateEphemeralPort ();
   if (port == 0)
     {
@@ -104,14 +104,14 @@ Ipv6EndPoint* Ipv6EndPointDemux::Allocate (Ipv6Address address)
 
 Ipv6EndPoint* Ipv6EndPointDemux::Allocate (uint16_t port)
 {
-  NS_LOG_FUNCTION (this <<  port);
+  NS_LOG_FUNCTION ( port);
 
   return Allocate (Ipv6Address::GetAny (), port);
 }
 
 Ipv6EndPoint* Ipv6EndPointDemux::Allocate (Ipv6Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   if (LookupLocal (address, port))
     {
       NS_LOG_WARN ("Duplicate address/port; failing.");
@@ -126,7 +126,7 @@ Ipv6EndPoint* Ipv6EndPointDemux::Allocate (Ipv6Address address, uint16_t port)
 Ipv6EndPoint* Ipv6EndPointDemux::Allocate (Ipv6Address localAddress, uint16_t localPort,
                                            Ipv6Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   for (EndPointsI i = m_endPoints.begin (); i != m_endPoints.end (); i++)
     {
       if ((*i)->GetLocalPort () == localPort
@@ -171,7 +171,7 @@ Ipv6EndPointDemux::EndPoints Ipv6EndPointDemux::Lookup (Ipv6Address daddr, uint1
                                                         Ipv6Address saddr, uint16_t sport,
                                                         Ptr<Ipv6Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << daddr << dport << saddr << sport << incomingInterface);
+  NS_LOG_FUNCTION (daddr << dport << saddr << sport << incomingInterface);
 
   EndPoints retval1; /* Matches exact on local port, wildcards on others */
   EndPoints retval2; /* Matches exact on local port/adder, wildcards on others */

@@ -26,7 +26,7 @@ NS_LOG_COMPONENT_DEFINE("AttributeConstructionList");
 
 AttributeConstructionList::AttributeConstructionList ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 
@@ -34,7 +34,7 @@ AttributeConstructionList::Add (std::string name, Ptr<const AttributeChecker> ch
 {
   // get rid of any previous value stored in this
   // vector of values.
-  NS_LOG_FUNCTION (this << name << checker << value);
+  NS_LOG_FUNCTION (name << checker << value);
 
   for (std::list<struct Item>::iterator k = m_list.begin (); k != m_list.end (); k++)
     {
@@ -55,7 +55,7 @@ AttributeConstructionList::Add (std::string name, Ptr<const AttributeChecker> ch
 Ptr<AttributeValue> 
 AttributeConstructionList::Find (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
   for (CIterator k = m_list.begin (); k != m_list.end (); k++)
     {
       NS_LOG_DEBUG ("Found " << k->name << " " << k->checker << " " << k->value);
@@ -70,13 +70,13 @@ AttributeConstructionList::Find (Ptr<const AttributeChecker> checker) const
 AttributeConstructionList::CIterator 
 AttributeConstructionList::Begin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_list.begin();
 }
 AttributeConstructionList::CIterator
 AttributeConstructionList::End (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_list.end();
 }
 

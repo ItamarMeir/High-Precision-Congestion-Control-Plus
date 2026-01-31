@@ -153,7 +153,7 @@ Ipv4FlowProbe::Ipv4FlowProbe (Ptr<FlowMonitor> monitor,
   : FlowProbe (monitor),
     m_classifier (classifier)
 {
-  NS_LOG_FUNCTION (this << node->GetId ());
+  NS_LOG_FUNCTION (node->GetId ());
 
   Ptr<Ipv4L3Protocol> ipv4 = node->GetObject<Ipv4L3Protocol> ();
 

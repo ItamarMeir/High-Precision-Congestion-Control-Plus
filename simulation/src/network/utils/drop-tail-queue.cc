@@ -83,7 +83,7 @@ DropTailQueue::GetMode (void)
 bool 
 DropTailQueue::DoEnqueue (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   if (m_mode == QUEUE_MODE_PACKETS && (m_packets.size () >= m_maxPackets))
     {
@@ -113,7 +113,7 @@ DropTailQueue::DoEnqueue (Ptr<Packet> p)
 Ptr<Packet>
 DropTailQueue::DoDequeue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   
   if (m_packets.empty ())
     {
@@ -138,7 +138,7 @@ DropTailQueue::DoDequeue (void)
 Ptr<const Packet>
 DropTailQueue::DoPeek (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_packets.empty ())
     {

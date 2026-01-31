@@ -65,7 +65,7 @@ WaveformGeneratorHelper::SetChannel (std::string channelName)
 void
 WaveformGeneratorHelper::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 {
-  NS_LOG_FUNCTION (this << txPsd);
+  NS_LOG_FUNCTION (txPsd);
   m_txPsd = txPsd;
 }
 

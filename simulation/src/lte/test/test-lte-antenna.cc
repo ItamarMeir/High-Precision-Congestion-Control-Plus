@@ -80,7 +80,7 @@ LteEnbAntennaTestCase::LteEnbAntennaTestCase (double orientationDegrees, double 
     m_y (y),
     m_antennaGainDb (antennaGainDb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteEnbAntennaTestCase::~LteEnbAntennaTestCase ()
@@ -187,7 +187,7 @@ public:
 LteAntennaTestSuite::LteAntennaTestSuite ()
   : TestSuite ("lte-antenna", SYSTEM)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   //                                      orientation beamwidth     x            y         gain 
   AddTestCase (new LteEnbAntennaTestCase (       0.0,     90.0,    1.0,          0.0,       0.0));

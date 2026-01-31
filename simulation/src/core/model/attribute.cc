@@ -52,7 +52,7 @@ AttributeChecker::~AttributeChecker ()
 Ptr<AttributeValue> 
 AttributeChecker::CreateValidValue (const AttributeValue &value) const
 {
-  NS_LOG_FUNCTION (this << &value);
+  NS_LOG_FUNCTION (&value);
   if (Check (value))
     {
       return value.Copy ();
@@ -80,24 +80,24 @@ AttributeChecker::CreateValidValue (const AttributeValue &value) const
 
 EmptyAttributeValue::EmptyAttributeValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 Ptr<AttributeValue>
 EmptyAttributeValue::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Create<EmptyAttributeValue> ();
 }
 std::string
 EmptyAttributeValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
   return "";
 }
 bool
 EmptyAttributeValue::DeserializeFromString (std::string value, Ptr<const AttributeChecker> checker)
 {
-  NS_LOG_FUNCTION (this << value << checker);
+  NS_LOG_FUNCTION (value << checker);
   return true;
 }
 

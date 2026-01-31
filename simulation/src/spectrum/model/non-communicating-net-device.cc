@@ -55,18 +55,18 @@ NonCommunicatingNetDevice::GetTypeId (void)
 
 NonCommunicatingNetDevice::NonCommunicatingNetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 NonCommunicatingNetDevice::~NonCommunicatingNetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 NonCommunicatingNetDevice::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   m_channel = 0;
   m_phy = 0;
@@ -84,7 +84,7 @@ NonCommunicatingNetDevice::SetIfIndex (const uint32_t index)
 uint32_t
 NonCommunicatingNetDevice::GetIfIndex (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_ifIndex;
 }
 
@@ -98,41 +98,41 @@ NonCommunicatingNetDevice::SetMtu (uint16_t mtu)
 uint16_t
 NonCommunicatingNetDevice::GetMtu (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return 0;
 }
 
 void
 NonCommunicatingNetDevice::SetAddress (Address address)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Address
 NonCommunicatingNetDevice::GetAddress (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Address ();
 }
 
 bool
 NonCommunicatingNetDevice::IsBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
 Address
 NonCommunicatingNetDevice::GetBroadcast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Address ();
 }
 
 bool
 NonCommunicatingNetDevice::IsMulticast (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -153,14 +153,14 @@ NonCommunicatingNetDevice::GetMulticast (Ipv6Address addr) const
 bool
 NonCommunicatingNetDevice::IsPointToPoint (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
 bool
 NonCommunicatingNetDevice::IsBridge (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -168,7 +168,7 @@ NonCommunicatingNetDevice::IsBridge (void) const
 Ptr<Node>
 NonCommunicatingNetDevice::GetNode (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_node;
 }
 
@@ -183,7 +183,7 @@ NonCommunicatingNetDevice::SetNode (Ptr<Node> node)
 void
 NonCommunicatingNetDevice::SetPhy (Ptr<Object> phy)
 {
-  NS_LOG_FUNCTION (this << phy);
+  NS_LOG_FUNCTION (phy);
   m_phy = phy;
 }
 
@@ -191,7 +191,7 @@ NonCommunicatingNetDevice::SetPhy (Ptr<Object> phy)
 Ptr<Object>
 NonCommunicatingNetDevice::GetPhy () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_phy;
 }
 
@@ -199,14 +199,14 @@ NonCommunicatingNetDevice::GetPhy () const
 void
 NonCommunicatingNetDevice::SetChannel (Ptr<Channel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_channel = c;
 }
 
 Ptr<Channel>
 NonCommunicatingNetDevice::GetChannel (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_channel;
 }
 
@@ -214,14 +214,14 @@ NonCommunicatingNetDevice::GetChannel (void) const
 bool
 NonCommunicatingNetDevice::NeedsArp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
 bool
 NonCommunicatingNetDevice::IsLinkUp (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 
@@ -246,7 +246,7 @@ NonCommunicatingNetDevice::SetPromiscReceiveCallback (NetDevice::PromiscReceiveC
 bool
 NonCommunicatingNetDevice::SupportsSendFrom () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 

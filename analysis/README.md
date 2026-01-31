@@ -1,8 +1,10 @@
 # Analysis
-This folder includes code and scripts for analysis.
+This folder includes post-processing tools (C++ and Python) for analyzing simulation outputs.
+
+For plotting/visualization, use the scripts in results/scripts/.
 
 ## FCT analysis
-`fct_analysis.py` is used to analyze fct. It reads multiple fct files (simulation's output), and prints data that can produce figures like Figure 11 (a) and (c) in [HPCC paper](https://liyuliang001.github.io/publications/hpcc.pdf).
+`fct_analysis.py` is used to analyze FCT. It reads multiple FCT files (simulation output), and prints data that can produce figures like Figure 11 (a) and (c) in [HPCC paper](https://liyuliang001.github.io/publications/hpcc.pdf).
 
 Usage: please check `python fct_analysis.py -h` and read line 20-26 in `fct_analysis.py`
 

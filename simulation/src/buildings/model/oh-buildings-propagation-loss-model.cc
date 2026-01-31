@@ -64,7 +64,7 @@ OhBuildingsPropagationLossModel::GetTypeId (void)
 double
 OhBuildingsPropagationLossModel::GetLoss (Ptr<MobilityModel> a, Ptr<MobilityModel> b) const
 {
-  NS_LOG_FUNCTION (this << a << b);
+  NS_LOG_FUNCTION (a << b);
 
   // get the BuildingsMobilityModel pointers
   Ptr<BuildingsMobilityModel> a1 = DynamicCast<BuildingsMobilityModel> (a);

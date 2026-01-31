@@ -91,7 +91,7 @@ Ipv4EndPointDemux::Allocate (void)
 Ipv4EndPoint *
 Ipv4EndPointDemux::Allocate (Ipv4Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   uint16_t port = AllocateEphemeralPort ();
   if (port == 0) 
     {
@@ -107,7 +107,7 @@ Ipv4EndPointDemux::Allocate (Ipv4Address address)
 Ipv4EndPoint *
 Ipv4EndPointDemux::Allocate (uint16_t port)
 {
-  NS_LOG_FUNCTION (this <<  port);
+  NS_LOG_FUNCTION ( port);
 
   return Allocate (Ipv4Address::GetAny (), port);
 }
@@ -115,7 +115,7 @@ Ipv4EndPointDemux::Allocate (uint16_t port)
 Ipv4EndPoint *
 Ipv4EndPointDemux::Allocate (Ipv4Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   if (LookupLocal (address, port)) 
     {
       NS_LOG_WARN ("Duplicate address/port; failing.");
@@ -131,7 +131,7 @@ Ipv4EndPoint *
 Ipv4EndPointDemux::Allocate (Ipv4Address localAddress, uint16_t localPort,
                              Ipv4Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   for (EndPointsI i = m_endPoints.begin (); i != m_endPoints.end (); i++) 
     {
       if ((*i)->GetLocalPort () == localPort &&
@@ -202,7 +202,7 @@ Ipv4EndPointDemux::Lookup (Ipv4Address daddr, uint16_t dport,
   EndPoints retval3; // Matches all but local address
   EndPoints retval4; // Exact match on all 4
 
-  NS_LOG_FUNCTION (this << daddr << dport << saddr << sport << incomingInterface);
+  NS_LOG_FUNCTION (daddr << dport << saddr << sport << incomingInterface);
   NS_LOG_DEBUG ("Looking up endpoint for destination address " << daddr);
   for (EndPointsI i = m_endPoints.begin (); i != m_endPoints.end (); i++) 
     {

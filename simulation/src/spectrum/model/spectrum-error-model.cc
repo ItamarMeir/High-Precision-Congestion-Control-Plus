@@ -34,14 +34,14 @@ SpectrumErrorModel::~SpectrumErrorModel ()
 void
 ShannonSpectrumErrorModel::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SpectrumErrorModel::DoDispose ();
 }
 
 void
 ShannonSpectrumErrorModel::StartRx (Ptr<const Packet> p)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_bytes = p->GetSize ();
   NS_LOG_LOGIC ("bytes to deliver: " << m_bytes);
   m_deliverableBytes = 0;
@@ -50,7 +50,7 @@ ShannonSpectrumErrorModel::StartRx (Ptr<const Packet> p)
 void
 ShannonSpectrumErrorModel::EvaluateChunk (const SpectrumValue& sinr, Time duration)
 {
-  NS_LOG_FUNCTION (this << sinr << duration);
+  NS_LOG_FUNCTION (sinr << duration);
   SpectrumValue CapacityPerHertz = Log2 (1 + sinr);
   double capacity = 0;
 
@@ -74,7 +74,7 @@ ShannonSpectrumErrorModel::EvaluateChunk (const SpectrumValue& sinr, Time durati
 bool
 ShannonSpectrumErrorModel::IsRxCorrect ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_deliverableBytes > m_bytes);
 }
 

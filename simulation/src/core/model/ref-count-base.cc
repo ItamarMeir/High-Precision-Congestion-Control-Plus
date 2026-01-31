@@ -7,7 +7,7 @@ namespace ns3 {
 
 RefCountBase::~RefCountBase ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 } // namespace ns3

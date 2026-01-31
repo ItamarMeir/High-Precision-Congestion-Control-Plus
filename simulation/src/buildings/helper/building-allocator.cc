@@ -95,14 +95,14 @@ GridBuildingAllocator::GetTypeId (void)
 void
 GridBuildingAllocator::SetBuildingAttribute (std::string n, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_buildingFactory.Set (n, v);
 }
 
 BuildingContainer
 GridBuildingAllocator::Create (uint32_t n) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   PushAttributes ();
   BuildingContainer bc;
   uint32_t limit = n + m_current;
@@ -123,7 +123,7 @@ GridBuildingAllocator::Create (uint32_t n) const
 void
 GridBuildingAllocator::PushAttributes () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_lowerLeftPositionAllocator->SetMinX (m_xMin);
   m_upperRightPositionAllocator->SetMinX (m_xMin + m_lengthX);
   m_lowerLeftPositionAllocator->SetDeltaX (m_lengthX + m_deltaX);

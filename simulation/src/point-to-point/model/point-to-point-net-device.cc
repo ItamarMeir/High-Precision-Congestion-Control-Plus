@@ -151,7 +151,7 @@ PointToPointNetDevice::PointToPointNetDevice ()
     m_linkUp (false),
     m_currentPkt (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 PointToPointNetDevice::~PointToPointNetDevice ()
@@ -210,7 +210,7 @@ PointToPointNetDevice::SetInterframeGap (Time t)
 bool
 PointToPointNetDevice::TransmitStart (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_LOG_LOGIC ("UID is " << p->GetUid () << ")");
 
   //
@@ -276,7 +276,7 @@ PointToPointNetDevice::TransmitComplete (void)
 bool
 PointToPointNetDevice::Attach (Ptr<PointToPointChannel> ch)
 {
-  NS_LOG_FUNCTION (this << &ch);
+  NS_LOG_FUNCTION (&ch);
 
   m_channel = ch;
 
@@ -294,21 +294,21 @@ PointToPointNetDevice::Attach (Ptr<PointToPointChannel> ch)
 void
 PointToPointNetDevice::SetQueue (Ptr<Queue> q)
 {
-  NS_LOG_FUNCTION (this << q);
+  NS_LOG_FUNCTION (q);
   m_queue = q;
 }
 
 void
 PointToPointNetDevice::SetReceiveErrorModel (Ptr<ErrorModel> em)
 {
-  NS_LOG_FUNCTION (this << em);
+  NS_LOG_FUNCTION (em);
   m_receiveErrorModel = em;
 }
 
 void
 PointToPointNetDevice::Receive (Ptr<Packet> packet)
 {
-  NS_LOG_FUNCTION (this << packet);
+  NS_LOG_FUNCTION (packet);
   uint16_t protocol = 0;
 
   if (m_receiveErrorModel && m_receiveErrorModel->IsCorrupt (packet) ) 
@@ -448,7 +448,7 @@ PointToPointNetDevice::GetMulticast (Ipv4Address multicastGroup) const
 Address
 PointToPointNetDevice::GetMulticast (Ipv6Address addr) const
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
   return Mac48Address ("33:33:00:00:00:00");
 }
 
@@ -593,7 +593,7 @@ PointToPointNetDevice::GetRemote (void) const
 bool
 PointToPointNetDevice::SetMtu (uint16_t mtu)
 {
-  NS_LOG_FUNCTION (this << mtu);
+  NS_LOG_FUNCTION (mtu);
   m_mtu = mtu;
   return true;
 }

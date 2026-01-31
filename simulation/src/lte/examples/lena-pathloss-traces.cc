@@ -73,7 +73,7 @@ protected:
 void 
 GlobalPathlossDatabase::Print ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (std::map<uint16_t, std::map<uint64_t, double> >::const_iterator cellIdIt = m_pathlossMap.begin ();
        cellIdIt != m_pathlossMap.end ();
        ++cellIdIt)
@@ -100,7 +100,7 @@ DownlinkGlobalPathlossDatabase::UpdatePathloss (std::string context,
                                         Ptr<SpectrumPhy> rxPhy, 
                                         double lossDb)
 {
-  NS_LOG_FUNCTION (this << lossDb);
+  NS_LOG_FUNCTION (lossDb);
   uint16_t cellId = txPhy->GetDevice ()->GetObject<LteEnbNetDevice> ()->GetCellId ();
   uint16_t imsi = rxPhy->GetDevice ()->GetObject<LteUeNetDevice> ()->GetImsi ();
   m_pathlossMap[cellId][imsi] = lossDb;
@@ -120,7 +120,7 @@ UplinkGlobalPathlossDatabase::UpdatePathloss (std::string context,
                                         Ptr<SpectrumPhy> rxPhy, 
                                         double lossDb)
 {
-  NS_LOG_FUNCTION (this << lossDb);
+  NS_LOG_FUNCTION (lossDb);
   uint16_t imsi = txPhy->GetDevice ()->GetObject<LteUeNetDevice> ()->GetImsi ();
   uint16_t cellId = rxPhy->GetDevice ()->GetObject<LteEnbNetDevice> ()->GetCellId ();
   m_pathlossMap[cellId][imsi] = lossDb;

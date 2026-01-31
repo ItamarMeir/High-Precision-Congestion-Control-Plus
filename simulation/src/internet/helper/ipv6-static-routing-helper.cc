@@ -58,7 +58,7 @@ Ipv6StaticRoutingHelper::Create (Ptr<Node> node) const
 Ptr<Ipv6StaticRouting>
 Ipv6StaticRoutingHelper::GetStaticRouting (Ptr<Ipv6> ipv6) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv6RoutingProtocol> ipv6rp = ipv6->GetRoutingProtocol ();
   NS_ASSERT_MSG (ipv6rp, "No routing protocol associated with Ipv6");
   if (DynamicCast<Ipv6StaticRouting> (ipv6rp))

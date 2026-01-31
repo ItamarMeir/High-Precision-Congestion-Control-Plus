@@ -190,7 +190,7 @@ RoutingProtocol::GetEnableRAFlag () const
 int64_t
 RoutingProtocol::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }
@@ -248,7 +248,7 @@ RoutingProtocol::RouteOutput (Ptr<Packet> p,
                               Ptr<NetDevice> oif,
                               Socket::SocketErrno &sockerr)
 {
-  NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
+  NS_LOG_FUNCTION (header << (oif ? oif->GetIfIndex () : 0));
 
   if (!p)
     {
@@ -340,7 +340,7 @@ RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p,
                                       UnicastForwardCallback ucb,
                                       ErrorCallback ecb)
 {
-  NS_LOG_FUNCTION (this << p << header);
+  NS_LOG_FUNCTION (p << header);
   NS_ASSERT (p != 0 && p != Ptr<Packet> ());
   QueueEntry newEntry (p,header,ucb,ecb);
   bool result = m_queue.Enqueue (newEntry);
@@ -943,7 +943,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 void
 RoutingProtocol::NotifyInterfaceUp (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ()
+  NS_LOG_FUNCTION (m_ipv4->GetAddress (i, 0).GetLocal ()
                         << " interface is up");
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   Ipv4InterfaceAddress iface = l3->GetAddress (i,0);
@@ -995,7 +995,7 @@ void
 RoutingProtocol::NotifyAddAddress (uint32_t i,
                                    Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << " interface " << i << " address " << address);
+  NS_LOG_FUNCTION (" interface " << i << " address " << address);
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   if (!l3->IsUp (i))
     {
@@ -1088,7 +1088,7 @@ RoutingProtocol::Drop (Ptr<const Packet> packet,
 void
 RoutingProtocol::LookForQueuedPackets ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv4Route> route;
   std::map<Ipv4Address, RoutingTableEntry> allRoutes;
   m_routingTable.GetListOfAllRoutes (allRoutes);

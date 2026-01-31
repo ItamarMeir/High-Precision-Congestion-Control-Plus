@@ -1215,7 +1215,7 @@ void AnimationInterface::CsmaMacRxTrace (std::string context,
 {
   if (!m_started || !IsInTimeWindow ())
     return;
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr <NetDevice> ndev = GetNetDeviceFromContext (context);
   NS_ASSERT (ndev);
   Ptr <Node> n = ndev->GetNode ();
@@ -1320,7 +1320,7 @@ uint64_t AnimationInterface::GetTracePktCount ()
 int64_t
 AnimationInterface::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }

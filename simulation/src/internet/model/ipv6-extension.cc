@@ -74,7 +74,7 @@ Ipv6Extension::~Ipv6Extension ()
 
 void Ipv6Extension::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
 
   m_node = node;
 }
@@ -88,7 +88,7 @@ Ptr<Node> Ipv6Extension::GetNode () const
 
 uint8_t Ipv6Extension::ProcessOptions (Ptr<Packet>& packet, uint8_t offset, uint8_t length, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << length << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << length << ipv6Header << dst << nextHeader << isDropped);
 
   // For ICMPv6 Error packets
   Ptr<Packet> malformedPacket = packet->Copy ();
@@ -177,7 +177,7 @@ uint8_t Ipv6Extension::ProcessOptions (Ptr<Packet>& packet, uint8_t offset, uint
 int64_t
 Ipv6Extension::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uvar->SetStream (stream);
   return 1;
 }
@@ -212,7 +212,7 @@ uint8_t Ipv6ExtensionHopByHop::GetExtensionNumber () const
 
 uint8_t Ipv6ExtensionHopByHop::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   Ptr<Packet> p = packet->Copy ();
   p->RemoveAtStart (offset);
@@ -264,7 +264,7 @@ uint8_t Ipv6ExtensionDestination::GetExtensionNumber () const
 
 uint8_t Ipv6ExtensionDestination::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   Ptr<Packet> p = packet->Copy ();
   p->RemoveAtStart (offset);
@@ -329,7 +329,7 @@ uint8_t Ipv6ExtensionFragment::GetExtensionNumber () const
 
 uint8_t Ipv6ExtensionFragment::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   Ptr<Packet> p = packet->Copy ();
   p->RemoveAtStart (offset);
@@ -731,7 +731,7 @@ uint8_t Ipv6ExtensionRouting::GetTypeRouting () const
 
 uint8_t Ipv6ExtensionRouting::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   // For ICMPv6 Error Packets
   Ptr<Packet> malformedPacket = packet->Copy ();
@@ -872,7 +872,7 @@ uint8_t Ipv6ExtensionLooseRouting::GetTypeRouting () const
 
 uint8_t Ipv6ExtensionLooseRouting::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   // For ICMPv6 Error packets
   Ptr<Packet> malformedPacket = packet->Copy ();
@@ -1025,7 +1025,7 @@ uint8_t Ipv6ExtensionESP::GetExtensionNumber () const
 
 uint8_t Ipv6ExtensionESP::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   /* TODO */
 
@@ -1063,7 +1063,7 @@ uint8_t Ipv6ExtensionAH::GetExtensionNumber () const
 
 uint8_t Ipv6ExtensionAH::Process (Ptr<Packet>& packet, uint8_t offset, Ipv6Header const& ipv6Header, Ipv6Address dst, uint8_t *nextHeader, bool& isDropped)
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << dst << nextHeader << isDropped);
+  NS_LOG_FUNCTION (packet << offset << ipv6Header << dst << nextHeader << isDropped);
 
   /* TODO */
 

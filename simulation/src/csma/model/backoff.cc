@@ -95,7 +95,7 @@ Backoff::IncrNumRetries (void)
 int64_t
 Backoff::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_rng->SetStream (stream);
   return 1;
 }

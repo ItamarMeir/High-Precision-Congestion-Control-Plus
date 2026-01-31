@@ -42,7 +42,7 @@ Vector3D::Vector3D (double _x, double _y, double _z)
     y (_y),
     z (_z)
 {
-  NS_LOG_FUNCTION (this << _x << _y << _z);
+  NS_LOG_FUNCTION (_x << _y << _z);
 }
 
 Vector3D::Vector3D ()
@@ -50,21 +50,21 @@ Vector3D::Vector3D ()
     y (0.0),
     z (0.0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Vector2D::Vector2D (double _x, double _y)
   : x (_x),
     y (_y)
 {
-  NS_LOG_FUNCTION (this << _x << _y);
+  NS_LOG_FUNCTION (_x << _y);
 }
 
 Vector2D::Vector2D ()
   : x (0.0),
     y (0.0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 double

@@ -86,7 +86,7 @@ UdpTraceClient::GetTypeId (void)
 
 UdpTraceClient::UdpTraceClient ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sent = 0;
   m_socket = 0;
   m_sendEvent = EventId ();
@@ -96,7 +96,7 @@ UdpTraceClient::UdpTraceClient ()
 UdpTraceClient::UdpTraceClient (Ipv4Address ip, uint16_t port,
                                 char *traceFile)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sent = 0;
   m_socket = 0;
   m_sendEvent = EventId ();
@@ -112,7 +112,7 @@ UdpTraceClient::UdpTraceClient (Ipv4Address ip, uint16_t port,
 
 UdpTraceClient::~UdpTraceClient ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_entries.clear ();
 }
 
@@ -176,7 +176,7 @@ UdpTraceClient::DoDispose (void)
 void
 UdpTraceClient::LoadTrace (std::string filename)
 {
-  NS_LOG_FUNCTION (this << filename);
+  NS_LOG_FUNCTION (filename);
   uint32_t time, index, prevTime = 0;
   uint16_t size;
   char frameType;
@@ -211,7 +211,7 @@ UdpTraceClient::LoadTrace (std::string filename)
 void
 UdpTraceClient::LoadDefaultTrace (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t prevTime = 0;
   for (uint32_t i = 0; i < (sizeof (g_defaultEntries) / sizeof (struct TraceEntry)); i++)
     {
@@ -234,7 +234,7 @@ UdpTraceClient::LoadDefaultTrace (void)
 void
 UdpTraceClient::StartApplication (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_socket == 0)
     {
@@ -258,14 +258,14 @@ UdpTraceClient::StartApplication (void)
 void
 UdpTraceClient::StopApplication ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Simulator::Cancel (m_sendEvent);
 }
 
 void
 UdpTraceClient::SendPacket (uint32_t size)
 {
-  NS_LOG_FUNCTION (this << size);
+  NS_LOG_FUNCTION (size);
   Ptr<Packet> p;
   uint32_t packetSize;
   if (size>12)
@@ -311,7 +311,7 @@ UdpTraceClient::SendPacket (uint32_t size)
 void
 UdpTraceClient::Send (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   NS_ASSERT (m_sendEvent.IsExpired ());
   Ptr<Packet> p;

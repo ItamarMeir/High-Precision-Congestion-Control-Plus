@@ -30,14 +30,14 @@ Ipv4InterfaceAddress::Ipv4InterfaceAddress ()
   : m_scope (GLOBAL), 
     m_secondary (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Ipv4InterfaceAddress::Ipv4InterfaceAddress (Ipv4Address local, Ipv4Mask mask)
   : m_scope (GLOBAL), 
     m_secondary (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_local = local;
   m_mask = mask;
   m_broadcast = Ipv4Address (local.Get () | (~mask.Get ()));
@@ -50,7 +50,7 @@ Ipv4InterfaceAddress::Ipv4InterfaceAddress (const Ipv4InterfaceAddress &o)
     m_scope (o.m_scope),
     m_secondary (o.m_secondary)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 

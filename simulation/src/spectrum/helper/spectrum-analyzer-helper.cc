@@ -68,7 +68,7 @@ WriteAveragePowerSpectralDensityReport (Ptr<OutputStreamWrapper> streamWrapper,
 
 SpectrumAnalyzerHelper::SpectrumAnalyzerHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phy.SetTypeId ("ns3::SpectrumAnalyzer");
   m_device.SetTypeId ("ns3::NonCommunicatingNetDevice");
   m_antenna.SetTypeId ("ns3::IsotropicAntennaModel");
@@ -76,20 +76,20 @@ SpectrumAnalyzerHelper::SpectrumAnalyzerHelper ()
 
 SpectrumAnalyzerHelper::~SpectrumAnalyzerHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 SpectrumAnalyzerHelper::SetChannel (Ptr<SpectrumChannel> channel)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channel = channel;
 }
 
 void
 SpectrumAnalyzerHelper::SetChannel (std::string channelName)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<SpectrumChannel> channel = Names::Find<SpectrumChannel> (channelName);
   m_channel = channel;
 }
@@ -98,7 +98,7 @@ SpectrumAnalyzerHelper::SetChannel (std::string channelName)
 void
 SpectrumAnalyzerHelper::SetPhyAttribute (std::string name, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phy.Set (name, v);
 }
 
@@ -106,7 +106,7 @@ SpectrumAnalyzerHelper::SetPhyAttribute (std::string name, const AttributeValue 
 void
 SpectrumAnalyzerHelper::SetDeviceAttribute (std::string name, const AttributeValue &v)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_device.Set (name, v);
 }
 
@@ -138,14 +138,14 @@ SpectrumAnalyzerHelper::SetAntenna (std::string type,
 void
 SpectrumAnalyzerHelper::SetRxSpectrumModel (Ptr<SpectrumModel> m)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rxSpectrumModel = m;
 }
 
 void
 SpectrumAnalyzerHelper::EnableAsciiAll (std::string prefix)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_prefix = prefix;
 }
 
@@ -154,7 +154,7 @@ SpectrumAnalyzerHelper::EnableAsciiAll (std::string prefix)
 NetDeviceContainer
 SpectrumAnalyzerHelper::Install (NodeContainer c) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NetDeviceContainer devices;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
     {
@@ -214,14 +214,14 @@ SpectrumAnalyzerHelper::Install (NodeContainer c) const
 NetDeviceContainer
 SpectrumAnalyzerHelper::Install (Ptr<Node> node) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return Install (NodeContainer (node));
 }
 
 NetDeviceContainer
 SpectrumAnalyzerHelper::Install (std::string nodeName) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Node> node = Names::Find<Node> (nodeName);
   return Install (node);
 }

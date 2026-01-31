@@ -79,13 +79,13 @@ RxSpectrumModelInfo::RxSpectrumModelInfo (Ptr<const SpectrumModel> rxSpectrumMod
 
 MultiModelSpectrumChannel::MultiModelSpectrumChannel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 MultiModelSpectrumChannel::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_propagationDelay = 0;
   m_propagationLoss = 0;
   m_spectrumPropagationLoss = 0;
@@ -132,7 +132,7 @@ MultiModelSpectrumChannel::GetTypeId (void)
 void
 MultiModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
 {
-  NS_LOG_FUNCTION (this << phy);
+  NS_LOG_FUNCTION (phy);
 
   Ptr<const SpectrumModel> rxSpectrumModel = phy->GetRxSpectrumModel ();
 
@@ -185,7 +185,7 @@ MultiModelSpectrumChannel::AddRx (Ptr<SpectrumPhy> phy)
 TxSpectrumModelInfoMap_t::const_iterator
 MultiModelSpectrumChannel::FindAndEventuallyAddTxSpectrumModel (Ptr<const SpectrumModel> txSpectrumModel)
 {
-  NS_LOG_FUNCTION (this << txSpectrumModel);
+  NS_LOG_FUNCTION (txSpectrumModel);
   SpectrumModelUid_t txSpectrumModelUid = txSpectrumModel->GetUid ();
   TxSpectrumModelInfoMap_t::iterator txInfoIterator = m_txSpectrumModelInfoMap.find (txSpectrumModelUid);
 
@@ -228,7 +228,7 @@ MultiModelSpectrumChannel::FindAndEventuallyAddTxSpectrumModel (Ptr<const Spectr
 void
 MultiModelSpectrumChannel::StartTx (Ptr<SpectrumSignalParameters> txParams)
 {
-  NS_LOG_FUNCTION (this << txParams);
+  NS_LOG_FUNCTION (txParams);
 
   NS_ASSERT (txParams->txPhy);
   NS_ASSERT (txParams->psd);
@@ -355,7 +355,7 @@ MultiModelSpectrumChannel::StartTx (Ptr<SpectrumSignalParameters> txParams)
 void
 MultiModelSpectrumChannel::StartRx (Ptr<SpectrumSignalParameters> params, Ptr<SpectrumPhy> receiver)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   receiver->StartRx (params);
 }
 
@@ -380,7 +380,7 @@ MultiModelSpectrumChannel::GetDevice (uint32_t i) const
 void
 MultiModelSpectrumChannel::AddPropagationLossModel (Ptr<PropagationLossModel> loss)
 {
-  NS_LOG_FUNCTION (this << loss);
+  NS_LOG_FUNCTION (loss);
   NS_ASSERT (m_propagationLoss == 0);
   m_propagationLoss = loss;
 }
@@ -402,7 +402,7 @@ MultiModelSpectrumChannel::SetPropagationDelayModel (Ptr<PropagationDelayModel> 
 Ptr<SpectrumPropagationLossModel>
 MultiModelSpectrumChannel::GetSpectrumPropagationLossModel (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_spectrumPropagationLoss;
 }
 

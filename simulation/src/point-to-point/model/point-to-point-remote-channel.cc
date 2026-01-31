@@ -59,7 +59,7 @@ PointToPointRemoteChannel::TransmitStart (
   Ptr<PointToPointNetDevice> src,
   Time txTime)
 {
-  NS_LOG_FUNCTION (this << p << src);
+  NS_LOG_FUNCTION (p << src);
   NS_LOG_LOGIC ("UID is " << p->GetUid () << ")");
 
   IsInitialized ();

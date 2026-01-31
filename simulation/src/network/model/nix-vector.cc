@@ -221,7 +221,7 @@ NixVector::GetSerializedSize (void) const
 uint32_t
 NixVector::Serialize (uint32_t* buffer, uint32_t maxSize) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t* p = buffer;
   uint32_t size = 0;
 
@@ -278,7 +278,7 @@ NixVector::Serialize (uint32_t* buffer, uint32_t maxSize) const
 uint32_t
 NixVector::Deserialize (const uint32_t* buffer, uint32_t size)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   const uint32_t* p = buffer;
   uint32_t sizeCheck = size - 4;
 

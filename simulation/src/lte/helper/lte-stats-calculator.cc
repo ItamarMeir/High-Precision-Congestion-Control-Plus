@@ -91,7 +91,7 @@ LteStatsCalculator::ExistsImsiPath (std::string path)
 void
 LteStatsCalculator::SetImsiPath (std::string path, uint64_t imsi)
 {
-  NS_LOG_FUNCTION (this << path << imsi);
+  NS_LOG_FUNCTION (path << imsi);
   m_pathImsiMap[path] = imsi;
 }
 
@@ -117,7 +117,7 @@ LteStatsCalculator::ExistsCellIdPath (std::string path)
 void
 LteStatsCalculator::SetCellIdPath (std::string path, uint16_t cellId)
 {
-  NS_LOG_FUNCTION (this << path << cellId);
+  NS_LOG_FUNCTION (path << cellId);
   m_pathCellIdMap[path] = cellId;
 }
 

@@ -71,7 +71,7 @@ namespace ns3 {
 	bool
 		BEgressQueue::DoEnqueue(Ptr<Packet> p, uint32_t qIndex)
 	{
-		NS_LOG_FUNCTION(this << p);
+		NS_LOG_FUNCTION(p);
 
 		if (m_bytesInQueueTotal + p->GetSize() < m_maxBytes)  //infinite queue
 		{
@@ -89,7 +89,7 @@ namespace ns3 {
 	Ptr<Packet>
 		BEgressQueue::DoDequeueRR(bool paused[]) //this is for switch only
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 
 		if (m_bytesInQueueTotal == 0)
 		{
@@ -141,7 +141,7 @@ namespace ns3 {
 	bool
 		BEgressQueue::Enqueue(Ptr<Packet> p, uint32_t qIndex)
 	{
-		NS_LOG_FUNCTION(this << p);
+		NS_LOG_FUNCTION(p);
 		//
 		// If DoEnqueue fails, Queue::Drop is called by the subclass
 		//
@@ -165,7 +165,7 @@ namespace ns3 {
 	Ptr<Packet>
 		BEgressQueue::DequeueRR(bool paused[])
 	{
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 		Ptr<Packet> packet = DoDequeueRR(paused);
 		if (packet != 0)
 		{
@@ -184,7 +184,7 @@ namespace ns3 {
 	{
 		std::cout << "Warning: Call Broadcom queues without priority\n";
 		uint32_t qIndex = 0;
-		NS_LOG_FUNCTION(this << p);
+		NS_LOG_FUNCTION(p);
 		if (m_bytesInQueueTotal + p->GetSize() < m_maxBytes)
 		{
 			m_queues[qIndex]->Enqueue(p);
@@ -212,7 +212,7 @@ namespace ns3 {
 		BEgressQueue::DoPeek(void) const	//DoPeek doesn't work for multiple queues!!
 	{
 		std::cout << "Warning: Call Broadcom queues without priority\n";
-		NS_LOG_FUNCTION(this);
+		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
 		if (m_bytesInQueueTotal == 0)
 		{
 			NS_LOG_LOGIC("Queue empty");

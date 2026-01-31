@@ -567,7 +567,7 @@ CoverTwoHopNeighbors (Ipv4Address neighborMainAddr, TwoHopNeighborSet & N2)
 void
 RoutingProtocol::MprComputation ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // MPR computation should be done for each interface. See section 8.3.1
   // (RFC 3626) for details.
@@ -1661,7 +1661,7 @@ RoutingProtocol::SendQueuedMessages ()
 void
 RoutingProtocol::SendHello ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   olsr::MessageHeader msg;
   Time now = Simulator::Now ();
@@ -1772,7 +1772,7 @@ RoutingProtocol::SendHello ()
 void
 RoutingProtocol::SendTc ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   olsr::MessageHeader msg;
 
@@ -2259,7 +2259,7 @@ void
 RoutingProtocol::PopulateMprSelectorSet (const olsr::MessageHeader &msg,
                                          const olsr::MessageHeader::Hello &hello)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   Time now = Simulator::Now ();
 
@@ -3055,7 +3055,7 @@ RoutingProtocol::FindSendEntry (RoutingTableEntry const &entry,
 Ptr<Ipv4Route>
 RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
 {
-  NS_LOG_FUNCTION (this << " " << m_ipv4->GetObject<Node> ()->GetId () << " " << header.GetDestination () << " " << oif);
+  NS_LOG_FUNCTION (" " << m_ipv4->GetObject<Node> ()->GetId () << " " << header.GetDestination () << " " << oif);
   Ptr<Ipv4Route> rtentry;
   RoutingTableEntry entry1, entry2;
   bool found = false;
@@ -3132,7 +3132,7 @@ bool RoutingProtocol::RouteInput  (Ptr<const Packet> p,
                                    UnicastForwardCallback ucb, MulticastForwardCallback mcb,
                                    LocalDeliverCallback lcb, ErrorCallback ecb)
 {
-  NS_LOG_FUNCTION (this << " " << m_ipv4->GetObject<Node> ()->GetId () << " " << header.GetDestination ());
+  NS_LOG_FUNCTION (" " << m_ipv4->GetObject<Node> ()->GetId () << " " << header.GetDestination ());
 
   Ipv4Address dst = header.GetDestination ();
   Ipv4Address origin = header.GetSource ();
@@ -3258,7 +3258,7 @@ RoutingProtocol::AddEntry (Ipv4Address const &dest,
                            uint32_t interface,
                            uint32_t distance)
 {
-  NS_LOG_FUNCTION (this << dest << next << interface << distance << m_mainAddress);
+  NS_LOG_FUNCTION (dest << next << interface << distance << m_mainAddress);
 
   NS_ASSERT (distance > 0);
 
@@ -3277,7 +3277,7 @@ RoutingProtocol::AddEntry (Ipv4Address const &dest,
                            Ipv4Address const &interfaceAddress,
                            uint32_t distance)
 {
-  NS_LOG_FUNCTION (this << dest << next << interfaceAddress << distance << m_mainAddress);
+  NS_LOG_FUNCTION (dest << next << interfaceAddress << distance << m_mainAddress);
 
   NS_ASSERT (distance > 0);
   NS_ASSERT (m_ipv4);
@@ -3314,7 +3314,7 @@ RoutingProtocol::GetRoutingTableEntries () const
 int64_t
 RoutingProtocol::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }

@@ -63,7 +63,7 @@ RreqTable::~RreqTable ()
 void
 RreqTable::RemoveLeastExpire (std::map<Ipv4Address, RreqTableEntry > & rreqDstMap)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv4Address firstExpire;
   Time max = Seconds (0.0);
   for (std::map<Ipv4Address, RreqTableEntry >::const_iterator i =
@@ -83,7 +83,7 @@ RreqTable::RemoveLeastExpire (std::map<Ipv4Address, RreqTableEntry > & rreqDstMa
 void
 RreqTable::FindAndUpdate (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   std::map<Ipv4Address, RreqTableEntry >::const_iterator i =
     m_rreqDstMap.find (dst);
   if (i == m_rreqDstMap.end ())
@@ -117,7 +117,7 @@ RreqTable::FindAndUpdate (Ipv4Address dst)
 void
 RreqTable::RemoveRreqEntry (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   NS_LOG_DEBUG ("Remove rreq entry with index dst");
   std::map<Ipv4Address, RreqTableEntry >::const_iterator i =
     m_rreqDstMap.find (dst);
@@ -135,7 +135,7 @@ RreqTable::RemoveRreqEntry (Ipv4Address dst)
 uint32_t
 RreqTable::GetRreqCnt (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   std::map<Ipv4Address, RreqTableEntry >::const_iterator i =
     m_rreqDstMap.find (dst);
   if (i == m_rreqDstMap.end ())

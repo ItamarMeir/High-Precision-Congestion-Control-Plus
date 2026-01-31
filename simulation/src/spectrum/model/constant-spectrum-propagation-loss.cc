@@ -35,12 +35,12 @@ NS_OBJECT_ENSURE_REGISTERED (ConstantSpectrumPropagationLossModel);
 
 ConstantSpectrumPropagationLossModel::ConstantSpectrumPropagationLossModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ConstantSpectrumPropagationLossModel::~ConstantSpectrumPropagationLossModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId
@@ -63,7 +63,7 @@ ConstantSpectrumPropagationLossModel::GetTypeId (void)
 void
 ConstantSpectrumPropagationLossModel::SetLossDb (double lossDb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_lossDb = lossDb;
   m_lossLinear = pow (10, m_lossDb / 10);
 }
@@ -72,7 +72,7 @@ ConstantSpectrumPropagationLossModel::SetLossDb (double lossDb)
 double
 ConstantSpectrumPropagationLossModel::GetLossDb () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_lossDb;
 }
 
@@ -82,7 +82,7 @@ ConstantSpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity (Ptr<const Sp
                                                                     Ptr<const MobilityModel> a,
                                                                     Ptr<const MobilityModel> b) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   Ptr<SpectrumValue> rxPsd = Copy<SpectrumValue> (txPsd);
   Values::iterator vit = rxPsd->ValuesBegin ();

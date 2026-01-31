@@ -40,20 +40,20 @@ RemSpectrumPhy::RemSpectrumPhy ()
     m_sumPower (0),
     m_active (true)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 
 
 RemSpectrumPhy::~RemSpectrumPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 RemSpectrumPhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_mobility = 0;
   SpectrumPhy::DoDispose ();
 }
@@ -79,14 +79,14 @@ RemSpectrumPhy::SetChannel (Ptr<SpectrumChannel> c)
 void
 RemSpectrumPhy::SetMobility (Ptr<MobilityModel> m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   m_mobility = m;
 }
 
 void
 RemSpectrumPhy::SetDevice (Ptr<NetDevice> d)
 {
-  NS_LOG_FUNCTION (this << d);
+  NS_LOG_FUNCTION (d);
   // this is a no-op, RemSpectrumPhy does not handle any data hence it does not support the use of a NetDevice
 }
 
@@ -135,7 +135,7 @@ RemSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> params)
 void
 RemSpectrumPhy::SetRxSpectrumModel (Ptr<const SpectrumModel> m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   m_rxSpectrumModel = m;
 }
 

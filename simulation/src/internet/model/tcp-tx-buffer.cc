@@ -100,7 +100,7 @@ TcpTxBuffer::Available (void) const
 bool
 TcpTxBuffer::Add (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_LOG_LOGIC ("Packet of size " << p->GetSize () << " appending to window starting at "
                                   << m_firstByteSeq << ", availSize="<< Available ());
   if (p->GetSize () <= Available ())
@@ -120,7 +120,7 @@ TcpTxBuffer::Add (Ptr<Packet> p)
 uint32_t
 TcpTxBuffer::SizeFromSequence (const SequenceNumber32& seq) const
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   // Sequence of last byte in buffer
   SequenceNumber32 lastSeq = m_firstByteSeq + SequenceNumber32 (m_size);
   // Non-negative size
@@ -132,7 +132,7 @@ TcpTxBuffer::SizeFromSequence (const SequenceNumber32& seq) const
 Ptr<Packet>
 TcpTxBuffer::CopyFromSequence (uint32_t numBytes, const SequenceNumber32& seq)
 {
-  NS_LOG_FUNCTION (this << numBytes << seq);
+  NS_LOG_FUNCTION (numBytes << seq);
   uint32_t s = std::min (numBytes, SizeFromSequence (seq)); // Real size to extract. Insure not beyond end of data
   if (s == 0)
     {
@@ -200,14 +200,14 @@ TcpTxBuffer::CopyFromSequence (uint32_t numBytes, const SequenceNumber32& seq)
 void
 TcpTxBuffer::SetHeadSequence (const SequenceNumber32& seq)
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   m_firstByteSeq = seq;
 }
 
 void
 TcpTxBuffer::DiscardUpTo (const SequenceNumber32& seq)
 {
-  NS_LOG_FUNCTION (this << seq);
+  NS_LOG_FUNCTION (seq);
   NS_LOG_LOGIC ("current data size=" << m_size << ", headSeq=" << m_firstByteSeq << ", maxBuffer=" << m_maxBuffer
                                      << ", numPkts=" << m_data.size ());
   // Cases do not need to scan the buffer

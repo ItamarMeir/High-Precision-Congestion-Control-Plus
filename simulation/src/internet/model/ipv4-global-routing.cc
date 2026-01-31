@@ -440,7 +440,7 @@ Ipv4GlobalRouting::RemoveRoute (uint32_t index)
 int64_t
 Ipv4GlobalRouting::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_rand->SetStream (stream);
   return 1;
 }
@@ -554,7 +554,7 @@ Ipv4GlobalRouting::RouteInput  (Ptr<const Packet> p, const Ipv4Header &header, P
                                 LocalDeliverCallback lcb, ErrorCallback ecb)
 { 
 
-  NS_LOG_FUNCTION (this << p << header << header.GetSource () << header.GetDestination () << idev);
+  NS_LOG_FUNCTION (p << header << header.GetSource () << header.GetDestination () << idev);
   // Check if input device supports IP
   NS_ASSERT (m_ipv4->GetInterfaceForDevice (idev) >= 0);
   uint32_t iif = m_ipv4->GetInterfaceForDevice (idev);
@@ -633,7 +633,7 @@ Ipv4GlobalRouting::RouteInput  (Ptr<const Packet> p, const Ipv4Header &header, P
 void 
 Ipv4GlobalRouting::NotifyInterfaceUp (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   if (m_respondToInterfaceEvents && Simulator::Now ().GetSeconds () > 0)  // avoid startup events
     {
       GlobalRouteManager::DeleteGlobalRoutes ();
@@ -645,7 +645,7 @@ Ipv4GlobalRouting::NotifyInterfaceUp (uint32_t i)
 void 
 Ipv4GlobalRouting::NotifyInterfaceDown (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   if (m_respondToInterfaceEvents && Simulator::Now ().GetSeconds () > 0)  // avoid startup events
     {
       GlobalRouteManager::DeleteGlobalRoutes ();
@@ -657,7 +657,7 @@ Ipv4GlobalRouting::NotifyInterfaceDown (uint32_t i)
 void 
 Ipv4GlobalRouting::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   if (m_respondToInterfaceEvents && Simulator::Now ().GetSeconds () > 0)  // avoid startup events
     {
       GlobalRouteManager::DeleteGlobalRoutes ();
@@ -669,7 +669,7 @@ Ipv4GlobalRouting::NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress ad
 void 
 Ipv4GlobalRouting::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << interface << address);
+  NS_LOG_FUNCTION (interface << address);
   if (m_respondToInterfaceEvents && Simulator::Now ().GetSeconds () > 0)  // avoid startup events
     {
       GlobalRouteManager::DeleteGlobalRoutes ();
@@ -681,7 +681,7 @@ Ipv4GlobalRouting::NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress
 void 
 Ipv4GlobalRouting::SetIpv4 (Ptr<Ipv4> ipv4)
 {
-  NS_LOG_FUNCTION (this << ipv4);
+  NS_LOG_FUNCTION (ipv4);
   NS_ASSERT (m_ipv4 == 0 && ipv4 != 0);
   m_ipv4 = ipv4;
 }

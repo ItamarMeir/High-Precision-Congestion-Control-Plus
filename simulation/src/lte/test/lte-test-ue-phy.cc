@@ -30,14 +30,14 @@ NS_OBJECT_ENSURE_REGISTERED (LteTestUePhy);
 
 LteTestUePhy::LteTestUePhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_FATAL_ERROR ("This constructor should not be called");
 }
 
 LteTestUePhy::LteTestUePhy (Ptr<LteSpectrumPhy> dlPhy, Ptr<LteSpectrumPhy> ulPhy)
   : LtePhy (dlPhy, ulPhy)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 LteTestUePhy::~LteTestUePhy ()
@@ -47,7 +47,7 @@ LteTestUePhy::~LteTestUePhy ()
 void
 LteTestUePhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   LtePhy::DoDispose ();
 }
@@ -65,13 +65,13 @@ LteTestUePhy::GetTypeId (void)
 void
 LteTestUePhy::DoSendMacPdu (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Ptr<SpectrumValue>
 LteTestUePhy::CreateTxPowerSpectralDensity ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<SpectrumValue> psd;
 
   return psd;
@@ -80,7 +80,7 @@ LteTestUePhy::CreateTxPowerSpectralDensity ()
 void
 LteTestUePhy::GenerateCqiReport (const SpectrumValue& sinr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Store calculated SINR, it will be retrieved at the end of the test
   m_sinr = sinr;
@@ -89,13 +89,13 @@ LteTestUePhy::GenerateCqiReport (const SpectrumValue& sinr)
 void
 LteTestUePhy::ReceiveIdealControlMessage (Ptr<IdealControlMessage> msg)
 {
-  NS_LOG_FUNCTION (this << msg);
+  NS_LOG_FUNCTION (msg);
 }
 
 SpectrumValue
 LteTestUePhy::GetSinr ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   return m_sinr;
 }

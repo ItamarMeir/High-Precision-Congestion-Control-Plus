@@ -40,7 +40,7 @@ NS_OBJECT_ENSURE_REGISTERED (TraceFadingLossModel);
 
 TraceFadingLossModel::TraceFadingLossModel ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SetNext (NULL);
 }
 
@@ -91,7 +91,7 @@ TraceFadingLossModel::GetTypeId (void)
 void
 TraceFadingLossModel::SetTraceFileName (std::string fileName)
 {
-  NS_LOG_FUNCTION (this << "Set Fading Trace " << fileName);
+  NS_LOG_FUNCTION ("Set Fading Trace " << fileName);
   
   m_traceFile = fileName;
 }
@@ -112,7 +112,7 @@ TraceFadingLossModel::DoStart ()
 void
 TraceFadingLossModel::LoadTrace ()
 {
-  NS_LOG_FUNCTION (this << "Loading Fading Trace " << m_traceFile);
+  NS_LOG_FUNCTION ("Loading Fading Trace " << m_traceFile);
   std::ifstream ifTraceFile;
   ifTraceFile.open (m_traceFile.c_str (), std::ifstream::in);
   m_fadingTrace.clear ();
@@ -146,7 +146,7 @@ TraceFadingLossModel::DoCalcRxPowerSpectralDensity (
   Ptr<const MobilityModel> a,
   Ptr<const MobilityModel> b) const
 {
-  NS_LOG_FUNCTION (this << *txPsd << a << b);
+  NS_LOG_FUNCTION (*txPsd << a << b);
   
   std::map <ChannelRealizationId_t, int >::iterator itOff;
   ChannelRealizationId_t mobilityPair = std::make_pair (a,b);
@@ -220,7 +220,7 @@ TraceFadingLossModel::DoCalcRxPowerSpectralDensity (
 int64_t
 TraceFadingLossModel::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   int64_t currentStream = stream;
   std::map <ChannelRealizationId_t, Ptr<UniformRandomVariable> >::iterator itVar;
   itVar = m_startVariableMap.begin ();

@@ -304,7 +304,7 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream) const
 int64_t
 RoutingProtocol::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }
@@ -312,7 +312,7 @@ RoutingProtocol::AssignStreams (int64_t stream)
 void
 RoutingProtocol::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (EnableHello)
     {
       m_nb.ScheduleTimer ();
@@ -331,7 +331,7 @@ Ptr<Ipv4Route>
 RoutingProtocol::RouteOutput (Ptr<Packet> p, const Ipv4Header &header,
                               Ptr<NetDevice> oif, Socket::SocketErrno &sockerr)
 {
-  NS_LOG_FUNCTION (this << header << (oif ? oif->GetIfIndex () : 0));
+  NS_LOG_FUNCTION (header << (oif ? oif->GetIfIndex () : 0));
   if (!p)
     {
       return LoopbackRoute (header, oif); // later
@@ -379,7 +379,7 @@ void
 RoutingProtocol::DeferredRouteOutput (Ptr<const Packet> p, const Ipv4Header & header, 
                                       UnicastForwardCallback ucb, ErrorCallback ecb)
 {
-  NS_LOG_FUNCTION (this << p << header);
+  NS_LOG_FUNCTION (p << header);
   NS_ASSERT (p != 0 && p != Ptr<Packet> ());
 
   QueueEntry newEntry (p, header, ucb, ecb);
@@ -402,7 +402,7 @@ RoutingProtocol::RouteInput (Ptr<const Packet> p, const Ipv4Header &header,
                              Ptr<const NetDevice> idev, UnicastForwardCallback ucb,
                              MulticastForwardCallback mcb, LocalDeliverCallback lcb, ErrorCallback ecb)
 {
-  NS_LOG_FUNCTION (this << p->GetUid () << header.GetDestination () << idev->GetAddress ());
+  NS_LOG_FUNCTION (p->GetUid () << header.GetDestination () << idev->GetAddress ());
   if (m_socketAddresses.empty ())
     {
       NS_LOG_LOGIC ("No aodv interfaces");
@@ -521,7 +521,7 @@ bool
 RoutingProtocol::Forwarding (Ptr<const Packet> p, const Ipv4Header & header,
                              UnicastForwardCallback ucb, ErrorCallback ecb)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ipv4Address dst = header.GetDestination ();
   Ipv4Address origin = header.GetSource ();
   m_routingTable.Purge ();
@@ -604,7 +604,7 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
 void
 RoutingProtocol::NotifyInterfaceUp (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ());
+  NS_LOG_FUNCTION (m_ipv4->GetAddress (i, 0).GetLocal ());
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   if (l3->GetNAddresses (i) > 1)
     {
@@ -646,7 +646,7 @@ RoutingProtocol::NotifyInterfaceUp (uint32_t i)
 void
 RoutingProtocol::NotifyInterfaceDown (uint32_t i)
 {
-  NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ());
+  NS_LOG_FUNCTION (m_ipv4->GetAddress (i, 0).GetLocal ());
 
   // Disable layer 2 link state monitoring (if possible)
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
@@ -682,7 +682,7 @@ RoutingProtocol::NotifyInterfaceDown (uint32_t i)
 void
 RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this << " interface " << i << " address " << address);
+  NS_LOG_FUNCTION (" interface " << i << " address " << address);
   Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
   if (!l3->IsUp (i))
     return;
@@ -723,7 +723,7 @@ RoutingProtocol::NotifyAddAddress (uint32_t i, Ipv4InterfaceAddress address)
 void
 RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Socket> socket = FindSocketWithInterfaceAddress (address);
   if (socket)
     {
@@ -767,7 +767,7 @@ RoutingProtocol::NotifyRemoveAddress (uint32_t i, Ipv4InterfaceAddress address)
 bool
 RoutingProtocol::IsMyOwnAddress (Ipv4Address src)
 {
-  NS_LOG_FUNCTION (this << src);
+  NS_LOG_FUNCTION (src);
   for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j =
          m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
     {
@@ -783,7 +783,7 @@ RoutingProtocol::IsMyOwnAddress (Ipv4Address src)
 Ptr<Ipv4Route> 
 RoutingProtocol::LoopbackRoute (const Ipv4Header & hdr, Ptr<NetDevice> oif) const
 {
-  NS_LOG_FUNCTION (this << hdr);
+  NS_LOG_FUNCTION (hdr);
   NS_ASSERT (m_lo != 0);
   Ptr<Ipv4Route> rt = Create<Ipv4Route> ();
   rt->SetDestination (hdr.GetDestination ());
@@ -919,7 +919,7 @@ RoutingProtocol::SendRequest (Ipv4Address dst)
 void
 RoutingProtocol::ScheduleRreqRetry (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   if (m_addressReqTimer.find (dst) == m_addressReqTimer.end ())
     {
       Timer timer (Timer::CANCEL_ON_DESTROY);
@@ -939,7 +939,7 @@ RoutingProtocol::ScheduleRreqRetry (Ipv4Address dst)
 void
 RoutingProtocol::RecvAodv (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);
+  NS_LOG_FUNCTION (socket);
   Address sourceAddress;
   Ptr<Packet> packet = socket->RecvFrom (sourceAddress);
   InetSocketAddress inetSourceAddr = InetSocketAddress::ConvertFrom (sourceAddress);
@@ -983,7 +983,7 @@ RoutingProtocol::RecvAodv (Ptr<Socket> socket)
 bool
 RoutingProtocol::UpdateRouteLifeTime (Ipv4Address addr, Time lifetime)
 {
-  NS_LOG_FUNCTION (this << addr << lifetime);
+  NS_LOG_FUNCTION (addr << lifetime);
   RoutingTableEntry rt;
   if (m_routingTable.LookupRoute (addr, rt))
     {
@@ -1002,7 +1002,7 @@ RoutingProtocol::UpdateRouteLifeTime (Ipv4Address addr, Time lifetime)
 void
 RoutingProtocol::UpdateRouteToNeighbor (Ipv4Address sender, Ipv4Address receiver)
 {
-  NS_LOG_FUNCTION (this << "sender " << sender << " receiver " << receiver);
+  NS_LOG_FUNCTION ("sender " << sender << " receiver " << receiver);
   RoutingTableEntry toNeighbor;
   if (!m_routingTable.LookupRoute (sender, toNeighbor))
     {
@@ -1033,7 +1033,7 @@ RoutingProtocol::UpdateRouteToNeighbor (Ipv4Address sender, Ipv4Address receiver
 void
 RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address src)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RreqHeader rreqHeader;
   p->RemoveHeader (rreqHeader);
 
@@ -1186,7 +1186,7 @@ RoutingProtocol::RecvRequest (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address s
 void
 RoutingProtocol::SendReply (RreqHeader const & rreqHeader, RoutingTableEntry const & toOrigin)
 {
-  NS_LOG_FUNCTION (this << toOrigin.GetDestination ());
+  NS_LOG_FUNCTION (toOrigin.GetDestination ());
   /*
    * Destination node MUST increment its own sequence number by one if the sequence number in the RREQ packet is equal to that
    * incremented value. Otherwise, the destination does not change its sequence number before generating the  RREP message.
@@ -1207,7 +1207,7 @@ RoutingProtocol::SendReply (RreqHeader const & rreqHeader, RoutingTableEntry con
 void
 RoutingProtocol::SendReplyByIntermediateNode (RoutingTableEntry & toDst, RoutingTableEntry & toOrigin, bool gratRep)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RrepHeader rrepHeader (/*prefix size=*/ 0, /*hops=*/ toDst.GetHop (), /*dst=*/ toDst.GetDestination (), /*dst seqno=*/ toDst.GetSeqNo (),
                                           /*origin=*/ toOrigin.GetDestination (), /*lifetime=*/ toDst.GetLifeTime ());
   /* If the node we received a RREQ for is a neighbor we are
@@ -1255,7 +1255,7 @@ RoutingProtocol::SendReplyByIntermediateNode (RoutingTableEntry & toDst, Routing
 void
 RoutingProtocol::SendReplyAck (Ipv4Address neighbor)
 {
-  NS_LOG_FUNCTION (this << " to " << neighbor);
+  NS_LOG_FUNCTION (" to " << neighbor);
   RrepAckHeader h;
   TypeHeader typeHeader (AODVTYPE_RREP_ACK);
   Ptr<Packet> packet = Create<Packet> ();
@@ -1271,7 +1271,7 @@ RoutingProtocol::SendReplyAck (Ipv4Address neighbor)
 void
 RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sender)
 {
-  NS_LOG_FUNCTION (this << " src " << sender);
+  NS_LOG_FUNCTION (" src " << sender);
   RrepHeader rrepHeader;
   p->RemoveHeader (rrepHeader);
   Ipv4Address dst = rrepHeader.GetDst ();
@@ -1397,7 +1397,7 @@ RoutingProtocol::RecvReply (Ptr<Packet> p, Ipv4Address receiver, Ipv4Address sen
 void
 RoutingProtocol::RecvReplyAck (Ipv4Address neighbor)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RoutingTableEntry rt;
   if(m_routingTable.LookupRoute (neighbor, rt))
     {
@@ -1410,7 +1410,7 @@ RoutingProtocol::RecvReplyAck (Ipv4Address neighbor)
 void
 RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiver )
 {
-  NS_LOG_FUNCTION (this << "from " << rrepHeader.GetDst ());
+  NS_LOG_FUNCTION ("from " << rrepHeader.GetDst ());
   /*
    *  Whenever a node receives a Hello message from a neighbor, the node
    * SHOULD make sure that it has an active route to the neighbor, and
@@ -1444,7 +1444,7 @@ RoutingProtocol::ProcessHello (RrepHeader const & rrepHeader, Ipv4Address receiv
 void
 RoutingProtocol::RecvError (Ptr<Packet> p, Ipv4Address src )
 {
-  NS_LOG_FUNCTION (this << " from " << src);
+  NS_LOG_FUNCTION (" from " << src);
   RerrHeader rerrHeader;
   p->RemoveHeader (rerrHeader);
   std::map<Ipv4Address, uint32_t> dstWithNextHopSrc;
@@ -1538,7 +1538,7 @@ RoutingProtocol::RouteRequestTimerExpire (Ipv4Address dst)
 void
 RoutingProtocol::HelloTimerExpire ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SendHello ();
   m_htimer.Cancel ();
   Time t = Time (0.01 * MilliSeconds (m_uniformRandomVariable->GetInteger (0, 100)));
@@ -1548,7 +1548,7 @@ RoutingProtocol::HelloTimerExpire ()
 void
 RoutingProtocol::RreqRateLimitTimerExpire ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rreqCount = 0;
   m_rreqRateLimitTimer.Schedule (Seconds (1));
 }
@@ -1556,7 +1556,7 @@ RoutingProtocol::RreqRateLimitTimerExpire ()
 void
 RoutingProtocol::RerrRateLimitTimerExpire ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_rerrCount = 0;
   m_rerrRateLimitTimer.Schedule (Seconds (1));
 }
@@ -1564,14 +1564,14 @@ RoutingProtocol::RerrRateLimitTimerExpire ()
 void
 RoutingProtocol::AckTimerExpire (Ipv4Address neighbor, Time blacklistTimeout)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_routingTable.MarkLinkAsUnidirectional (neighbor, blacklistTimeout);
 }
 
 void
 RoutingProtocol::SendHello ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   /* Broadcast a RREP with TTL = 1 with the RREP message fields set as follows:
    *   Destination IP Address         The node's IP address.
    *   Destination Sequence Number    The node's latest sequence number.
@@ -1605,7 +1605,7 @@ RoutingProtocol::SendHello ()
 void
 RoutingProtocol::SendPacketFromQueue (Ipv4Address dst, Ptr<Ipv4Route> route)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   QueueEntry queueEntry;
   while (m_queue.Dequeue (dst, queueEntry))
     {
@@ -1629,7 +1629,7 @@ RoutingProtocol::SendPacketFromQueue (Ipv4Address dst, Ptr<Ipv4Route> route)
 void
 RoutingProtocol::SendRerrWhenBreaksLinkToNextHop (Ipv4Address nextHop)
 {
-  NS_LOG_FUNCTION (this << nextHop);
+  NS_LOG_FUNCTION (nextHop);
   RerrHeader rerrHeader;
   std::vector<Ipv4Address> precursors;
   std::map<Ipv4Address, uint32_t> unreachable;
@@ -1677,7 +1677,7 @@ void
 RoutingProtocol::SendRerrWhenNoRouteToForward (Ipv4Address dst,
                                                uint32_t dstSeqNo, Ipv4Address origin)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // A node SHOULD NOT originate more than RERR_RATELIMIT RERR messages per second.
   if (m_rerrCount == RerrRateLimit)
     {
@@ -1730,7 +1730,7 @@ RoutingProtocol::SendRerrWhenNoRouteToForward (Ipv4Address dst,
 void
 RoutingProtocol::SendRerrMessage (Ptr<Packet> packet, std::vector<Ipv4Address> precursors)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (precursors.empty ())
     {
@@ -1798,7 +1798,7 @@ RoutingProtocol::SendRerrMessage (Ptr<Packet> packet, std::vector<Ipv4Address> p
 Ptr<Socket>
 RoutingProtocol::FindSocketWithInterfaceAddress (Ipv4InterfaceAddress addr ) const
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
   for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j =
          m_socketAddresses.begin (); j != m_socketAddresses.end (); ++j)
     {

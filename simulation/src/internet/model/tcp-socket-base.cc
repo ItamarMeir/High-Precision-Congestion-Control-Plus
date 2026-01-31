@@ -156,7 +156,7 @@ TcpSocketBase::TcpSocketBase (void)
     // For attribute initialization consistency (quiet valgrind)
     m_rWnd (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TcpSocketBase::TcpSocketBase (const TcpSocketBase& sock)
@@ -201,7 +201,7 @@ TcpSocketBase::TcpSocketBase (const TcpSocketBase& sock)
     m_maxWinSize (sock.m_maxWinSize),
     m_rWnd (sock.m_rWnd)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("Invoked the copy constructor");
   // Copy the rtt estimator if it is set
   if (sock.m_rtt)
@@ -220,7 +220,7 @@ TcpSocketBase::TcpSocketBase (const TcpSocketBase& sock)
 
 TcpSocketBase::~TcpSocketBase (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   if (m_endPoint != 0)
     {
@@ -296,7 +296,7 @@ TcpSocketBase::GetNode (void) const
 int
 TcpSocketBase::Bind (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_endPoint = m_tcp->Allocate ();
   if (0 == m_endPoint)
     {
@@ -310,7 +310,7 @@ TcpSocketBase::Bind (void)
 int
 TcpSocketBase::Bind6 (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_endPoint6 = m_tcp->Allocate6 ();
   if (0 == m_endPoint6)
     {
@@ -325,7 +325,7 @@ TcpSocketBase::Bind6 (void)
 int
 TcpSocketBase::Bind (const Address &address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (InetSocketAddress::IsMatchingType (address))
     {
       InetSocketAddress transport = InetSocketAddress::ConvertFrom (address);
@@ -395,7 +395,7 @@ TcpSocketBase::Bind (const Address &address)
 int
 TcpSocketBase::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   // If haven't do so, Bind() this socket first
   if (InetSocketAddress::IsMatchingType (address) && m_endPoint6 == 0)
@@ -475,7 +475,7 @@ TcpSocketBase::Connect (const Address & address)
 int
 TcpSocketBase::Listen (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Linux quits EINVAL if we're not in CLOSED state, so match what they do
   if (m_state != CLOSED)
     {
@@ -492,7 +492,7 @@ TcpSocketBase::Listen (void)
 int
 TcpSocketBase::Close (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // First we check to see if there is any unread rx data
   // Bug number 426 claims we should send reset in this case.
   if (m_rxBuffer.Size () != 0)
@@ -517,7 +517,7 @@ TcpSocketBase::Close (void)
 int
 TcpSocketBase::ShutdownSend (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_shutdownSend = true;
   return 0;
 }
@@ -526,7 +526,7 @@ TcpSocketBase::ShutdownSend (void)
 int
 TcpSocketBase::ShutdownRecv (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_shutdownRecv = true;
   return 0;
 }
@@ -536,7 +536,7 @@ TcpSocketBase::ShutdownRecv (void)
 int
 TcpSocketBase::Send (Ptr<Packet> p, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_ABORT_MSG_IF (flags, "use of flags is not supported in TcpSocketBase::Send()");
   if (m_state == ESTABLISHED || m_state == SYN_SENT || m_state == CLOSE_WAIT)
     {
@@ -573,7 +573,7 @@ TcpSocketBase::SendTo (Ptr<Packet> p, uint32_t flags, const Address &address)
 Ptr<Packet>
 TcpSocketBase::Recv (uint32_t maxSize, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ABORT_MSG_IF (flags, "use of flags is not supported in TcpSocketBase::Recv()");
   if (m_rxBuffer.Size () == 0 && m_state == CLOSE_WAIT)
     {
@@ -600,7 +600,7 @@ TcpSocketBase::Recv (uint32_t maxSize, uint32_t flags)
 Ptr<Packet>
 TcpSocketBase::RecvFrom (uint32_t maxSize, uint32_t flags, Address &fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   Ptr<Packet> packet = Recv (maxSize, flags);
   // Null packet means no data to read, and an empty packet indicates EOF
   if (packet != 0 && packet->GetSize () != 0)
@@ -625,7 +625,7 @@ TcpSocketBase::RecvFrom (uint32_t maxSize, uint32_t flags, Address &fromAddress)
 uint32_t
 TcpSocketBase::GetTxAvailable (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_txBuffer.Available ();
 }
 
@@ -633,7 +633,7 @@ TcpSocketBase::GetTxAvailable (void) const
 uint32_t
 TcpSocketBase::GetRxAvailable (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rxBuffer.Available ();
 }
 
@@ -641,7 +641,7 @@ TcpSocketBase::GetRxAvailable (void) const
 int
 TcpSocketBase::GetSockName (Address &address) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_endPoint != 0)
     {
       address = InetSocketAddress (m_endPoint->GetLocalAddress (), m_endPoint->GetLocalPort ());
@@ -687,7 +687,7 @@ TcpSocketBase::BindToNetDevice (Ptr<NetDevice> netdevice)
 int
 TcpSocketBase::SetupCallback (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_endPoint == 0 && m_endPoint6 == 0)
     {
@@ -713,7 +713,7 @@ TcpSocketBase::SetupCallback (void)
 int
 TcpSocketBase::DoConnect (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // A new connection is allowed only if this socket does not have a connection
   if (m_state == CLOSED || m_state == LISTEN || m_state == SYN_SENT || m_state == LAST_ACK || m_state == CLOSE_WAIT)
@@ -736,7 +736,7 @@ TcpSocketBase::DoConnect (void)
 int
 TcpSocketBase::DoClose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   switch (m_state)
     {
     case SYN_RCVD:
@@ -778,7 +778,7 @@ TcpSocketBase::DoClose (void)
 void
 TcpSocketBase::CloseAndNotify (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (!m_closeNotified)
     {
@@ -836,7 +836,7 @@ TcpSocketBase::ForwardIcmp (Ipv4Address icmpSource, uint8_t icmpTtl,
                             uint8_t icmpType, uint8_t icmpCode,
                             uint32_t icmpInfo)
 {
-  NS_LOG_FUNCTION (this << icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
+  NS_LOG_FUNCTION (icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
                    (uint32_t)icmpCode << icmpInfo);
   if (!m_icmpCallback.IsNull ())
     {
@@ -849,7 +849,7 @@ TcpSocketBase::ForwardIcmp6 (Ipv6Address icmpSource, uint8_t icmpTtl,
                             uint8_t icmpType, uint8_t icmpCode,
                             uint32_t icmpInfo)
 {
-  NS_LOG_FUNCTION (this << icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
+  NS_LOG_FUNCTION (icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
                    (uint32_t)icmpCode << icmpInfo);
   if (!m_icmpCallback6.IsNull ())
     {
@@ -1110,7 +1110,7 @@ TcpSocketBase::DoForwardUp (Ptr<Packet> packet, Ipv6Header header, uint16_t port
 void
 TcpSocketBase::ProcessEstablished (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1156,7 +1156,7 @@ TcpSocketBase::ProcessEstablished (Ptr<Packet> packet, const TcpHeader& tcpHeade
 void
 TcpSocketBase::ReceivedAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Received ACK. Compare the ACK number against highest unacked seqno
   if (0 == (tcpHeader.GetFlags () & TcpHeader::ACK))
@@ -1209,7 +1209,7 @@ void
 TcpSocketBase::ProcessListen (Ptr<Packet> packet, const TcpHeader& tcpHeader,
                               const Address& fromAddress, const Address& toAddress)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1250,7 +1250,7 @@ TcpSocketBase::ProcessListen (Ptr<Packet> packet, const TcpHeader& tcpHeader,
 void
 TcpSocketBase::ProcessSynSent (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, SWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1335,7 +1335,7 @@ void
 TcpSocketBase::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
                                const Address& fromAddress, const Address& toAddress)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honoured.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1437,7 +1437,7 @@ TcpSocketBase::ProcessSynRcvd (Ptr<Packet> packet, const TcpHeader& tcpHeader,
 void
 TcpSocketBase::ProcessWait (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1509,7 +1509,7 @@ TcpSocketBase::ProcessWait (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 void
 TcpSocketBase::ProcessClosing (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1542,7 +1542,7 @@ TcpSocketBase::ProcessClosing (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 void
 TcpSocketBase::ProcessLastAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Extract the flags. PSH, URG, CWR and ECE are not honored.
   uint16_t tcpflags = tcpHeader.GetFlags () &
@@ -1579,7 +1579,7 @@ TcpSocketBase::ProcessLastAck (Ptr<Packet> packet, const TcpHeader& tcpHeader)
 void
 TcpSocketBase::PeerClose (Ptr<Packet> p, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
 
   // Ignore all out of range packets
   if (tcpHeader.GetSequenceNumber () < m_rxBuffer.NextRxSequence ()
@@ -1655,7 +1655,7 @@ TcpSocketBase::DoPeerClose (void)
 void
 TcpSocketBase::Destroy (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_endPoint = 0;
   if (m_tcp != 0)
     {
@@ -1676,7 +1676,7 @@ TcpSocketBase::Destroy (void)
 void
 TcpSocketBase::Destroy6 (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_endPoint6 = 0;
   if (m_tcp != 0)
     {
@@ -1696,7 +1696,7 @@ TcpSocketBase::Destroy6 (void)
 void
 TcpSocketBase::SendEmptyPacket (uint16_t flags)
 {
-  NS_LOG_FUNCTION (this << (uint32_t)flags);
+  NS_LOG_FUNCTION ((uint32_t)flags);
   Ptr<Packet> p = Create<Packet> ();
   TcpHeader header;
   SequenceNumber32 s = m_nextTxSequence;
@@ -1865,7 +1865,7 @@ TcpSocketBase::SendEmptyPacket (uint16_t flags)
 void
 TcpSocketBase::SendRST (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SendEmptyPacket (TcpHeader::RST);
   NotifyErrorClose ();
 }
@@ -1907,7 +1907,7 @@ TcpSocketBase::DeallocateEndPoint (void)
 int
 TcpSocketBase::SetupEndpoint ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv4> ipv4 = m_node->GetObject<Ipv4> ();
   NS_ASSERT (ipv4 != 0);
   if (ipv4->GetRoutingProtocol () == 0)
@@ -1937,7 +1937,7 @@ TcpSocketBase::SetupEndpoint ()
 int
 TcpSocketBase::SetupEndpoint6 ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Ipv6L3Protocol> ipv6 = m_node->GetObject<Ipv6L3Protocol> ();
   NS_ASSERT (ipv6 != 0);
   if (ipv6->GetRoutingProtocol () == 0)
@@ -2019,7 +2019,7 @@ TcpSocketBase::ConnectionSucceeded ()
 uint32_t
 TcpSocketBase::SendDataPacket (SequenceNumber32 seq, uint32_t maxSize, bool withAck)
 {
-  NS_LOG_FUNCTION (this << seq << maxSize << withAck);
+  NS_LOG_FUNCTION (seq << maxSize << withAck);
 
   uint8_t ECNbits = (m_EcnState & ECN_CONN) ? Ipv4Header::ECT1 : 0;
 
@@ -2151,7 +2151,7 @@ TcpSocketBase::SendDataPacket (SequenceNumber32 seq, uint32_t maxSize, bool with
 bool
 TcpSocketBase::SendPendingData (bool withAck)
 {
-  NS_LOG_FUNCTION (this << withAck);
+  NS_LOG_FUNCTION (withAck);
   if (m_txBuffer.Size () == 0)
     {
       return false;                           // Nothing to send
@@ -2222,21 +2222,21 @@ TcpSocketBase::SendPendingData (bool withAck)
 uint32_t
 TcpSocketBase::UnAckDataCount ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_nextTxSequence.Get () - m_txBuffer.HeadSequence ();
 }
 
 uint32_t
 TcpSocketBase::BytesInFlight ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_highTxMark.Get () - m_txBuffer.HeadSequence ();
 }
 
 uint32_t
 TcpSocketBase::Window ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rWnd;
 }
 
@@ -2260,7 +2260,7 @@ TcpSocketBase::AdvertisedWindowSize ()
 void
 TcpSocketBase::ReceivedData (Ptr<Packet> p, const TcpHeader& tcpHeader)
 {
-  NS_LOG_FUNCTION (this << tcpHeader);
+  NS_LOG_FUNCTION (tcpHeader);
   NS_LOG_LOGIC ("seq " << tcpHeader.GetSequenceNumber () <<
                 " ack " << tcpHeader.GetAckNumber () <<
                 " pkt size " << p->GetSize () );
@@ -2328,7 +2328,7 @@ TcpSocketBase::EstimateRtt (const TcpHeader& tcpHeader)
   if(nextRtt != 0)
   {
     m_lastRtt = nextRtt;
-    NS_LOG_FUNCTION(this << m_lastRtt);
+    NS_LOG_FUNCTION(m_lastRtt);
   }
 
 }
@@ -2339,7 +2339,7 @@ TcpSocketBase::EstimateRtt (const TcpHeader& tcpHeader)
 void
 TcpSocketBase::NewAck (SequenceNumber32 const& ack)
 {
-  NS_LOG_FUNCTION (this << ack);
+  NS_LOG_FUNCTION (ack);
 
   if (m_state != SYN_RCVD)
     { // Set RTO unless the ACK is received in SYN_RCVD state
@@ -2391,7 +2391,7 @@ TcpSocketBase::NewAck (SequenceNumber32 const& ack)
 void
 TcpSocketBase::ReTxTimeout ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " ReTxTimeout Expired at time " << Simulator::Now ().GetSeconds ());
   // If erroneous timeout in closed/timed-wait state, just return
   if (m_state == CLOSED || m_state == TIME_WAIT)
@@ -2417,7 +2417,7 @@ TcpSocketBase::DelAckTimeout (void)
 void
 TcpSocketBase::LastAckTimeout (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_lastAckEvent.Cancel ();
   if (m_state == LAST_ACK)
@@ -2484,7 +2484,7 @@ TcpSocketBase::Retransmit ()
 void
 TcpSocketBase::DoRetransmit ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // Retransmit SYN packet
   if (m_state == SYN_SENT)
     {

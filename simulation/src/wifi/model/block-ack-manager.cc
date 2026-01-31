@@ -194,7 +194,7 @@ BlockAckManager::UpdateAgreement (const MgtAddBaResponseHeader *respHdr, Mac48Ad
 void
 BlockAckManager::StorePacket (Ptr<const Packet> packet, const WifiMacHeader &hdr, Time tStamp)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (hdr.IsQosData ());
 
   uint8_t tid = hdr.GetQosTid ();
@@ -209,7 +209,7 @@ BlockAckManager::StorePacket (Ptr<const Packet> packet, const WifiMacHeader &hdr
 Ptr<const Packet>
 BlockAckManager::GetNextPacket (WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<const Packet> packet = 0;
   if (m_retryPackets.size () > 0)
     {
@@ -321,7 +321,7 @@ BlockAckManager::SetBlockAckThreshold (uint8_t nPackets)
 void
 BlockAckManager::NotifyGotBlockAck (const CtrlBAckResponseHeader *blockAck, Mac48Address recipient)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint16_t sequenceFirstLost = 0;
   if (!blockAck->IsMultiTid ())
     {
@@ -421,7 +421,7 @@ BlockAckManager::ScheduleBlockAckReqIfNeeded (Mac48Address recipient, uint8_t ti
      this number could be incorrect. In fact is possible that a block ack agreement exists for n
      packets but some of these packets are dropped due to MSDU lifetime expiration.
    */
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   AgreementsI it = m_agreements.find (std::make_pair (recipient, tid));
   NS_ASSERT (it != m_agreements.end ());
 
@@ -463,7 +463,7 @@ BlockAckManager::InactivityTimeout (Mac48Address recipient, uint8_t tid)
 void
 BlockAckManager::NotifyAgreementEstablished (Mac48Address recipient, uint8_t tid, uint16_t startingSeq)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   AgreementsI it = m_agreements.find (std::make_pair (recipient, tid));
   NS_ASSERT (it != m_agreements.end ());
 
@@ -474,7 +474,7 @@ BlockAckManager::NotifyAgreementEstablished (Mac48Address recipient, uint8_t tid
 void
 BlockAckManager::NotifyAgreementUnsuccessful (Mac48Address recipient, uint8_t tid)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   AgreementsI it = m_agreements.find (std::make_pair (recipient, tid));
   NS_ASSERT (it != m_agreements.end ());
   if (it != m_agreements.end ())
@@ -486,7 +486,7 @@ BlockAckManager::NotifyAgreementUnsuccessful (Mac48Address recipient, uint8_t ti
 void
 BlockAckManager::NotifyMpduTransmission (Mac48Address recipient, uint8_t tid, uint16_t nextSeqNumber)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Ptr<Packet> bar = 0;
   AgreementsI it = m_agreements.find (std::make_pair (recipient, tid));
   NS_ASSERT (it != m_agreements.end ());
@@ -518,7 +518,7 @@ BlockAckManager::SetQueue (Ptr<WifiMacQueue> queue)
 bool
 BlockAckManager::SwitchToBlockAckIfNeeded (Mac48Address recipient, uint8_t tid, uint16_t startingSeq)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (!ExistsAgreementInState (recipient, tid, OriginatorBlockAckAgreement::PENDING));
   if (!ExistsAgreementInState (recipient, tid, OriginatorBlockAckAgreement::UNSUCCESSFUL) && ExistsAgreement (recipient, tid))
     {
@@ -536,7 +536,7 @@ BlockAckManager::SwitchToBlockAckIfNeeded (Mac48Address recipient, uint8_t tid, 
 void
 BlockAckManager::TearDownBlockAck (Mac48Address recipient, uint8_t tid)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   DestroyAgreement (recipient, tid);
 }
 
@@ -607,7 +607,7 @@ BlockAckManager::CleanupBuffers (void)
 void
 BlockAckManager::SetMaxPacketDelay (Time maxDelay)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_maxDelay = maxDelay;
 }
 

@@ -26,31 +26,31 @@ namespace ns3 {
 
 ObjectPtrContainerValue::ObjectPtrContainerValue ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ObjectPtrContainerValue::Iterator
 ObjectPtrContainerValue::Begin (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_objects.begin ();
 }
 ObjectPtrContainerValue::Iterator
 ObjectPtrContainerValue::End (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_objects.end ();
 }
 uint32_t
 ObjectPtrContainerValue::GetN (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_objects.size ();
 }
 Ptr<Object>
 ObjectPtrContainerValue::Get (uint32_t i) const
 {
-  NS_LOG_FUNCTION (this << i);
+  NS_LOG_FUNCTION (i);
   Iterator it = m_objects.find (i); 
   Ptr<Object> value = 0;
   if ( it != m_objects.end () )
@@ -63,13 +63,13 @@ ObjectPtrContainerValue::Get (uint32_t i) const
 Ptr<AttributeValue>
 ObjectPtrContainerValue::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return ns3::Create<ObjectPtrContainerValue> (*this);
 }
 std::string 
 ObjectPtrContainerValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
   std::ostringstream oss;
   Iterator it;
   for (it = Begin (); it != End (); ++it)
@@ -85,7 +85,7 @@ ObjectPtrContainerValue::SerializeToString (Ptr<const AttributeChecker> checker)
 bool 
 ObjectPtrContainerValue::DeserializeFromString (std::string value, Ptr<const AttributeChecker> checker)
 {
-  NS_LOG_FUNCTION (this << value << checker);
+  NS_LOG_FUNCTION (value << checker);
   NS_FATAL_ERROR ("cannot deserialize a set of object pointers.");
   return true;
 }
@@ -94,13 +94,13 @@ bool
 ObjectPtrContainerAccessor::Set (ObjectBase * object, const AttributeValue & value) const
 {
   // not allowed.
-  NS_LOG_FUNCTION (this << object << &value);
+  NS_LOG_FUNCTION (object << &value);
   return false;
 }
 bool 
 ObjectPtrContainerAccessor::Get (const ObjectBase * object, AttributeValue &value) const
 {
-  NS_LOG_FUNCTION (this << object << &value);
+  NS_LOG_FUNCTION (object << &value);
   ObjectPtrContainerValue *v = dynamic_cast<ObjectPtrContainerValue *> (&value);
   if (v == 0)
     {
@@ -124,13 +124,13 @@ ObjectPtrContainerAccessor::Get (const ObjectBase * object, AttributeValue &valu
 bool 
 ObjectPtrContainerAccessor::HasGetter (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return true;
 }
 bool 
 ObjectPtrContainerAccessor::HasSetter (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return false;
 }
 

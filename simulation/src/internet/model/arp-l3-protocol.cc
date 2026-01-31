@@ -58,18 +58,18 @@ ArpL3Protocol::GetTypeId (void)
 
 ArpL3Protocol::ArpL3Protocol ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 ArpL3Protocol::~ArpL3Protocol ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void 
 ArpL3Protocol::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = node;
 }
 
@@ -96,7 +96,7 @@ ArpL3Protocol::NotifyNewAggregate ()
 void 
 ArpL3Protocol::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (CacheList::iterator i = m_cacheList.begin (); i != m_cacheList.end (); ++i)
     {
       Ptr<ArpCache> cache = *i;
@@ -110,7 +110,7 @@ ArpL3Protocol::DoDispose (void)
 Ptr<ArpCache> 
 ArpL3Protocol::CreateCache (Ptr<NetDevice> device, Ptr<Ipv4Interface> interface)
 {
-  NS_LOG_FUNCTION (this << device << interface);
+  NS_LOG_FUNCTION (device << interface);
   Ptr<Ipv4L3Protocol> ipv4 = m_node->GetObject<Ipv4L3Protocol> ();
   Ptr<ArpCache> cache = CreateObject<ArpCache> ();
   cache->SetDevice (device, interface);
@@ -124,7 +124,7 @@ ArpL3Protocol::CreateCache (Ptr<NetDevice> device, Ptr<Ipv4Interface> interface)
 Ptr<ArpCache>
 ArpL3Protocol::FindCache (Ptr<NetDevice> device)
 {
-  NS_LOG_FUNCTION (this << device);
+  NS_LOG_FUNCTION (device);
   for (CacheList::const_iterator i = m_cacheList.begin (); i != m_cacheList.end (); i++)
     {
       if ((*i)->GetDevice () == device)
@@ -141,7 +141,7 @@ void
 ArpL3Protocol::Receive (Ptr<NetDevice> device, Ptr<const Packet> p, uint16_t protocol, const Address &from,
                         const Address &to, NetDevice::PacketType packetType)
 {
-  NS_LOG_FUNCTION (this << device << p->GetSize () << protocol << from << to << packetType);
+  NS_LOG_FUNCTION (device << p->GetSize () << protocol << from << to << packetType);
 
   Ptr<Packet> packet = p->Copy ();
 
@@ -245,7 +245,7 @@ ArpL3Protocol::Lookup (Ptr<Packet> packet, Ipv4Address destination,
                        Ptr<ArpCache> cache,
                        Address *hardwareDestination)
 {
-  NS_LOG_FUNCTION (this << packet << destination << device << cache);
+  NS_LOG_FUNCTION (packet << destination << device << cache);
   ArpCache::Entry *entry = cache->Lookup (destination);
   if (entry != 0)
     {
@@ -311,7 +311,7 @@ ArpL3Protocol::Lookup (Ptr<Packet> packet, Ipv4Address destination,
 void
 ArpL3Protocol::SendArpRequest (Ptr<const ArpCache> cache, Ipv4Address to)
 {
-  NS_LOG_FUNCTION (this << cache << to);
+  NS_LOG_FUNCTION (cache << to);
   ArpHeader arp;
   // need to pick a source address; use routing implementation to select
   Ptr<Ipv4L3Protocol> ipv4 = m_node->GetObject<Ipv4L3Protocol> ();
@@ -332,7 +332,7 @@ ArpL3Protocol::SendArpRequest (Ptr<const ArpCache> cache, Ipv4Address to)
 void
 ArpL3Protocol::SendArpReply (Ptr<const ArpCache> cache, Ipv4Address myIp, Ipv4Address toIp, Address toMac)
 {
-  NS_LOG_FUNCTION (this << cache << toIp << toMac);
+  NS_LOG_FUNCTION (cache << toIp << toMac);
   ArpHeader arp;
   NS_LOG_LOGIC ("ARP: sending reply from node "<<m_node->GetId ()<<
                 "|| src: " << cache->GetDevice ()->GetAddress () <<

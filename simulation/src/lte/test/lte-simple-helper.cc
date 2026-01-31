@@ -39,7 +39,7 @@ NS_OBJECT_ENSURE_REGISTERED (LteSimpleHelper);
 
 LteSimpleHelper::LteSimpleHelper (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_enbDeviceFactory.SetTypeId (LteSimpleNetDevice::GetTypeId ());
   m_ueDeviceFactory.SetTypeId (LteSimpleNetDevice::GetTypeId ());
 }
@@ -47,7 +47,7 @@ LteSimpleHelper::LteSimpleHelper (void)
 void
 LteSimpleHelper::DoStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_phyChannel = CreateObject<SimpleChannel> ();
 
@@ -56,7 +56,7 @@ LteSimpleHelper::DoStart (void)
 
 LteSimpleHelper::~LteSimpleHelper (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId LteSimpleHelper::GetTypeId (void)
@@ -79,7 +79,7 @@ TypeId LteSimpleHelper::GetTypeId (void)
 void
 LteSimpleHelper::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_phyChannel = 0;
 
   m_enbMac->Dispose ();
@@ -94,7 +94,7 @@ LteSimpleHelper::DoDispose ()
 NetDeviceContainer
 LteSimpleHelper::InstallEnbDevice (NodeContainer c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Start ();  // will run DoStart () if necessary
   NetDeviceContainer devices;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
@@ -109,7 +109,7 @@ LteSimpleHelper::InstallEnbDevice (NodeContainer c)
 NetDeviceContainer
 LteSimpleHelper::InstallUeDevice (NodeContainer c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NetDeviceContainer devices;
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
     {
@@ -124,7 +124,7 @@ LteSimpleHelper::InstallUeDevice (NodeContainer c)
 Ptr<NetDevice>
 LteSimpleHelper::InstallSingleEnbDevice (Ptr<Node> n)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_enbRrc = CreateObject<LteTestRrc> ();
   m_enbPdcp = CreateObject<LtePdcp> ();
@@ -169,7 +169,7 @@ LteSimpleHelper::InstallSingleEnbDevice (Ptr<Node> n)
 Ptr<NetDevice>
 LteSimpleHelper::InstallSingleUeDevice (Ptr<Node> n)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_ueRrc = CreateObject<LteTestRrc> ();
   m_uePdcp = CreateObject<LtePdcp> ();

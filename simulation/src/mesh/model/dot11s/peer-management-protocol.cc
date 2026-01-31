@@ -581,7 +581,7 @@ PeerManagementProtocol::ResetStats ()
 int64_t
 PeerManagementProtocol::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_beaconShift->SetStream (stream);
   return 1;
 }

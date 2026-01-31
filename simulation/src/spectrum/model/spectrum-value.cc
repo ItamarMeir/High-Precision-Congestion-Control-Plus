@@ -216,7 +216,7 @@ SpectrumValue::Divide (const SpectrumValue& x)
 void
 SpectrumValue::Divide (double s)
 {
-  NS_LOG_FUNCTION (this << s);
+  NS_LOG_FUNCTION (s);
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())
@@ -280,7 +280,7 @@ SpectrumValue::ShiftRight (int n)
 void
 SpectrumValue::Pow (double exp)
 {
-  NS_LOG_FUNCTION (this << exp);
+  NS_LOG_FUNCTION (exp);
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())
@@ -294,7 +294,7 @@ SpectrumValue::Pow (double exp)
 void
 SpectrumValue::Exp (double base)
 {
-  NS_LOG_FUNCTION (this << base);
+  NS_LOG_FUNCTION (base);
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())
@@ -308,7 +308,7 @@ SpectrumValue::Exp (double base)
 void
 SpectrumValue::Log10 ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())
@@ -321,7 +321,7 @@ SpectrumValue::Log10 ()
 void
 SpectrumValue::Log2 ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())
@@ -335,7 +335,7 @@ SpectrumValue::Log2 ()
 void
 SpectrumValue::Log ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Values::iterator it1 = m_values.begin ();
 
   while (it1 != m_values.end ())

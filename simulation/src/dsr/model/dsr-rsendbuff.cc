@@ -82,7 +82,7 @@ SendBuffer::Enqueue (SendBuffEntry & entry)
 void
 SendBuffer::DropPacketWithDst (Ipv4Address dst)
 {
-  NS_LOG_FUNCTION (this << dst);
+  NS_LOG_FUNCTION (dst);
   Purge ();
   /*
    * Drop the packet with destination address dst

@@ -351,7 +351,7 @@ Ipv4ClickRouting::HandlePacketFromClick (int ifid, int ptype, const unsigned cha
 void
 Ipv4ClickRouting::SendPacketToClick (int ifid, int ptype, const unsigned char* data, int len)
 {
-  NS_LOG_FUNCTION (this << ifid);
+  NS_LOG_FUNCTION (ifid);
   m_simNode->curtime = GetTimevalFromNow ();
 
   // Since packets in ns-3 don't have global Packet ID's and Flow ID's, we
@@ -392,7 +392,7 @@ Ipv4ClickRouting::Send (Ptr<Packet> p, Ipv4Address src, Ipv4Address dst)
 void
 Ipv4ClickRouting::Receive (Ptr<Packet> p, Mac48Address receiverAddr, Mac48Address dest)
 {
-  NS_LOG_FUNCTION (this << p << receiverAddr << dest);
+  NS_LOG_FUNCTION (p << receiverAddr << dest);
 
   uint32_t ifid;
 

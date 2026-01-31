@@ -40,7 +40,7 @@ PacketMetadata::DataFreeList PacketMetadata::m_freeList;
 
 PacketMetadata::DataFreeList::~DataFreeList ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   for (iterator i = begin (); i != end (); i++)
     {
       PacketMetadata::Deallocate (*i);
@@ -79,7 +79,7 @@ PacketMetadata::EnableChecking (void)
 void
 PacketMetadata::ReserveCopy (uint32_t size)
 {
-  NS_LOG_FUNCTION (this << size);
+  NS_LOG_FUNCTION (size);
   struct PacketMetadata::Data *newData = PacketMetadata::Create (m_used + size);
   memcpy (newData->m_data, m_data->m_data, m_used);
   newData->m_dirtyEnd = m_used;
@@ -104,7 +104,7 @@ PacketMetadata::ReserveCopy (uint32_t size)
 void
 PacketMetadata::Reserve (uint32_t size)
 {
-  NS_LOG_FUNCTION (this << size);
+  NS_LOG_FUNCTION (size);
   NS_ASSERT (m_data != 0);
   if (m_data->m_size >= m_used + size &&
       (m_head == 0xffff ||
@@ -123,14 +123,14 @@ PacketMetadata::Reserve (uint32_t size)
 bool
 PacketMetadata::IsSharedPointerOk (uint16_t pointer) const
 {
-  NS_LOG_FUNCTION (this << pointer);
+  NS_LOG_FUNCTION (pointer);
   bool ok = pointer == 0xffff || pointer <= m_data->m_size;
   return ok;
 }
 bool
 PacketMetadata::IsPointerOk (uint16_t pointer) const
 {
-  NS_LOG_FUNCTION (this << pointer);
+  NS_LOG_FUNCTION (pointer);
   bool ok = pointer == 0xffff || pointer <= m_used;
   return ok;
 }
@@ -138,7 +138,7 @@ PacketMetadata::IsPointerOk (uint16_t pointer) const
 bool
 PacketMetadata::IsStateOk (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   bool ok = m_used <= m_data->m_size;
   ok &= IsPointerOk (m_head);
   ok &= IsPointerOk (m_tail);
@@ -170,7 +170,7 @@ PacketMetadata::IsStateOk (void) const
 uint32_t
 PacketMetadata::GetUleb128Size (uint32_t value) const
 {
-  NS_LOG_FUNCTION (this << value);
+  NS_LOG_FUNCTION (value);
   if (value < 0x80)
     {
       return 1;
@@ -192,7 +192,7 @@ PacketMetadata::GetUleb128Size (uint32_t value) const
 uint32_t
 PacketMetadata::ReadUleb128 (const uint8_t **pBuffer) const
 {
-  NS_LOG_FUNCTION (this << &pBuffer);
+  NS_LOG_FUNCTION (&pBuffer);
   const uint8_t *buffer = *pBuffer;
   uint32_t result = 0;
   uint8_t byte;
@@ -242,7 +242,7 @@ PacketMetadata::ReadUleb128 (const uint8_t **pBuffer) const
 void
 PacketMetadata::Append16 (uint16_t value, uint8_t *buffer)
 {
-  NS_LOG_FUNCTION (this << value << &buffer);
+  NS_LOG_FUNCTION (value << &buffer);
   buffer[0] = value & 0xff;
   value >>= 8;
   buffer[1] = value;
@@ -250,7 +250,7 @@ PacketMetadata::Append16 (uint16_t value, uint8_t *buffer)
 void
 PacketMetadata::Append32 (uint32_t value,  uint8_t *buffer)
 {
-  NS_LOG_FUNCTION (this << value << &buffer);
+  NS_LOG_FUNCTION (value << &buffer);
   buffer[0] = value & 0xff;
   buffer[1] = (value >> 8) & 0xff;
   buffer[2] = (value >> 16) & 0xff;
@@ -260,7 +260,7 @@ PacketMetadata::Append32 (uint32_t value,  uint8_t *buffer)
 void
 PacketMetadata::AppendValueExtra (uint32_t value, uint8_t *buffer)
 {
-  NS_LOG_FUNCTION (this << value << &buffer);
+  NS_LOG_FUNCTION (value << &buffer);
   if (value < 0x200000)
     {
       uint8_t byte = value & (~0x80);
@@ -307,7 +307,7 @@ PacketMetadata::AppendValueExtra (uint32_t value, uint8_t *buffer)
 void
 PacketMetadata::AppendValue (uint32_t value, uint8_t *buffer)
 {
-  NS_LOG_FUNCTION (this << value << &buffer);
+  NS_LOG_FUNCTION (value << &buffer);
   if (value < 0x80)
     {
       buffer[0] = value;
@@ -327,7 +327,7 @@ PacketMetadata::AppendValue (uint32_t value, uint8_t *buffer)
 void
 PacketMetadata::UpdateTail (uint16_t written)
 {
-  NS_LOG_FUNCTION (this << written);
+  NS_LOG_FUNCTION (written);
   if (m_head == 0xffff)
     {
       NS_ASSERT (m_tail == 0xffff);
@@ -354,7 +354,7 @@ PacketMetadata::UpdateTail (uint16_t written)
 void
 PacketMetadata::UpdateHead (uint16_t written)
 {
-  NS_LOG_FUNCTION (this << written);
+  NS_LOG_FUNCTION (written);
   if (m_head == 0xffff)
     {
       NS_ASSERT (m_tail == 0xffff);
@@ -380,7 +380,7 @@ PacketMetadata::UpdateHead (uint16_t written)
 uint16_t
 PacketMetadata::AddSmall (const struct PacketMetadata::SmallItem *item)
 {
-  NS_LOG_FUNCTION (this << item->next << item->prev << item->typeUid << item->size << item->chunkUid);
+  NS_LOG_FUNCTION (item->next << item->prev << item->typeUid << item->size << item->chunkUid);
   NS_ASSERT (m_data != 0);
   NS_ASSERT (m_used != item->prev && m_used != item->next);
   uint32_t typeUidSize = GetUleb128Size (item->typeUid);
@@ -411,7 +411,7 @@ PacketMetadata::AddBig (uint32_t next, uint32_t prev,
                         const PacketMetadata::SmallItem *item,
                         const PacketMetadata::ExtraItem *extraItem)
 {
-  NS_LOG_FUNCTION (this << next << prev <<
+  NS_LOG_FUNCTION (next << prev <<
                    item->next << item->prev << item->typeUid << item->size << item->chunkUid <<
                    extraItem->fragmentStart << extraItem->fragmentEnd << extraItem->packetUid);
   NS_ASSERT (m_data != 0);
@@ -547,7 +547,7 @@ PacketMetadata::ReadItems (uint16_t current,
                            struct PacketMetadata::SmallItem *item,
                            struct PacketMetadata::ExtraItem *extraItem) const
 {
-  NS_LOG_FUNCTION (this << current << item->chunkUid << item->prev << item->next << item->size <<
+  NS_LOG_FUNCTION (current << item->chunkUid << item->prev << item->next << item->size <<
                         item->typeUid << extraItem->fragmentEnd << extraItem->fragmentStart <<
                         extraItem->packetUid);
   NS_ASSERT (current <= m_data->m_size);
@@ -661,7 +661,7 @@ PacketMetadata::Deallocate (struct PacketMetadata::Data *data)
 PacketMetadata
 PacketMetadata::CreateFragment (uint32_t start, uint32_t end) const
 {
-  NS_LOG_FUNCTION (this << start << end);
+  NS_LOG_FUNCTION (start << end);
   PacketMetadata fragment = *this;
   fragment.RemoveAtStart (start);
   fragment.RemoveAtEnd (end);
@@ -671,7 +671,7 @@ PacketMetadata::CreateFragment (uint32_t start, uint32_t end) const
 void
 PacketMetadata::AddHeader (const Header &header, uint32_t size)
 {
-  NS_LOG_FUNCTION (this << &header << size);
+  NS_LOG_FUNCTION (&header << size);
   NS_ASSERT (IsStateOk ());
   uint32_t uid = header.GetInstanceTypeId ().GetUid () << 1;
   DoAddHeader (uid, size);
@@ -680,7 +680,7 @@ PacketMetadata::AddHeader (const Header &header, uint32_t size)
 void
 PacketMetadata::DoAddHeader (uint32_t uid, uint32_t size)
 {
-  NS_LOG_FUNCTION (this << uid << size);
+  NS_LOG_FUNCTION (uid << size);
   if (!m_enable)
     {
       m_metadataSkipped = true;
@@ -701,7 +701,7 @@ void
 PacketMetadata::RemoveHeader (const Header &header, uint32_t size)
 {
   uint32_t uid = header.GetInstanceTypeId ().GetUid () << 1;
-  NS_LOG_FUNCTION (this << &header << size);
+  NS_LOG_FUNCTION (&header << size);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -749,7 +749,7 @@ void
 PacketMetadata::AddTrailer (const Trailer &trailer, uint32_t size)
 {
   uint32_t uid = trailer.GetInstanceTypeId ().GetUid () << 1;
-  NS_LOG_FUNCTION (this << &trailer << size);
+  NS_LOG_FUNCTION (&trailer << size);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -771,7 +771,7 @@ void
 PacketMetadata::RemoveTrailer (const Trailer &trailer, uint32_t size)
 {
   uint32_t uid = trailer.GetInstanceTypeId ().GetUid () << 1;
-  NS_LOG_FUNCTION (this << &trailer << size);
+  NS_LOG_FUNCTION (&trailer << size);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -818,7 +818,7 @@ PacketMetadata::RemoveTrailer (const Trailer &trailer, uint32_t size)
 void
 PacketMetadata::AddAtEnd (PacketMetadata const&o)
 {
-  NS_LOG_FUNCTION (this << &o);
+  NS_LOG_FUNCTION (&o);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -896,7 +896,7 @@ PacketMetadata::AddAtEnd (PacketMetadata const&o)
 void
 PacketMetadata::AddPaddingAtEnd (uint32_t end)
 {
-  NS_LOG_FUNCTION (this << end);
+  NS_LOG_FUNCTION (end);
   if (!m_enable)
     {
       m_metadataSkipped = true;
@@ -906,7 +906,7 @@ PacketMetadata::AddPaddingAtEnd (uint32_t end)
 void
 PacketMetadata::RemoveAtStart (uint32_t start)
 {
-  NS_LOG_FUNCTION (this << start);
+  NS_LOG_FUNCTION (start);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -969,7 +969,7 @@ PacketMetadata::RemoveAtStart (uint32_t start)
 void
 PacketMetadata::RemoveAtEnd (uint32_t end)
 {
-  NS_LOG_FUNCTION (this << end);
+  NS_LOG_FUNCTION (end);
   NS_ASSERT (IsStateOk ());
   if (!m_enable)
     {
@@ -1034,7 +1034,7 @@ PacketMetadata::RemoveAtEnd (uint32_t end)
 uint32_t
 PacketMetadata::GetTotalSize (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t totalSize = 0;
   uint16_t current = m_head;
   uint16_t tail = m_tail;
@@ -1057,13 +1057,13 @@ PacketMetadata::GetTotalSize (void) const
 uint64_t
 PacketMetadata::GetUid (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_packetUid;
 }
 PacketMetadata::ItemIterator
 PacketMetadata::BeginItem (Buffer buffer) const
 {
-  NS_LOG_FUNCTION (this << &buffer);
+  NS_LOG_FUNCTION (&buffer);
   return ItemIterator (this, buffer);
 }
 PacketMetadata::ItemIterator::ItemIterator (const PacketMetadata *metadata, Buffer buffer)
@@ -1073,12 +1073,12 @@ PacketMetadata::ItemIterator::ItemIterator (const PacketMetadata *metadata, Buff
     m_offset (0),
     m_hasReadTail (false)
 {
-  NS_LOG_FUNCTION (this << metadata << &buffer);
+  NS_LOG_FUNCTION (metadata << &buffer);
 }
 bool
 PacketMetadata::ItemIterator::HasNext (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_current == 0xffff)
     {
       return false;
@@ -1092,7 +1092,7 @@ PacketMetadata::ItemIterator::HasNext (void) const
 PacketMetadata::Item
 PacketMetadata::ItemIterator::Next (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   struct PacketMetadata::Item item;
   struct PacketMetadata::SmallItem smallItem;
   struct PacketMetadata::ExtraItem extraItem;
@@ -1154,7 +1154,7 @@ PacketMetadata::ItemIterator::Next (void)
 uint32_t
 PacketMetadata::GetSerializedSize (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t totalSize = 0;
 
   // add 8 bytes for the packet uid
@@ -1199,7 +1199,7 @@ PacketMetadata::GetSerializedSize (void) const
 uint32_t
 PacketMetadata::Serialize (uint8_t* buffer, uint32_t maxSize) const
 {
-  NS_LOG_FUNCTION (this << &buffer << maxSize);
+  NS_LOG_FUNCTION (&buffer << maxSize);
   uint8_t* start = buffer;
 
   buffer = AddToRawU64 (m_packetUid, start, buffer, maxSize);
@@ -1300,7 +1300,7 @@ PacketMetadata::Serialize (uint8_t* buffer, uint32_t maxSize) const
 uint32_t
 PacketMetadata::Deserialize (const uint8_t* buffer, uint32_t size)
 {
-  NS_LOG_FUNCTION (this << &buffer << size);
+  NS_LOG_FUNCTION (&buffer << size);
   const uint8_t* start = buffer;
   uint32_t desSize = size - 4;
 

@@ -35,7 +35,7 @@ SpectrumConverter::SpectrumConverter ()
 
 SpectrumConverter::SpectrumConverter (Ptr<const SpectrumModel> fromSpectrumModel, Ptr<const SpectrumModel> toSpectrumModel)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_fromSpectrumModel = fromSpectrumModel;
   m_toSpectrumModel = toSpectrumModel;
 
@@ -61,7 +61,7 @@ SpectrumConverter::SpectrumConverter (Ptr<const SpectrumModel> fromSpectrumModel
 
 double SpectrumConverter::GetCoefficient (const BandInfo& from, const BandInfo& to) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   double coeff = std::min (from.fh, to.fh) - std::max (from.fl, to.fl);
   coeff = std::max (0.0, coeff);
   coeff = std::min (1.0, coeff / (to.fh - to.fl));

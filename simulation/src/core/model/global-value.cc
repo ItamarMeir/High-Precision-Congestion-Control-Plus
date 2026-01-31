@@ -60,7 +60,7 @@ GlobalValue::GlobalValue (std::string name, std::string help,
 void
 GlobalValue::InitializeFromEnv (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 #ifdef HAVE_GETENV
   char *envVar = getenv ("NS_GLOBAL_VALUE");
   if (envVar == 0)
@@ -126,7 +126,7 @@ GlobalValue::GetValue (AttributeValue &value) const
 Ptr<const AttributeChecker> 
 GlobalValue::GetChecker (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   return m_checker;
 }
@@ -194,7 +194,7 @@ GlobalValue::End (void)
 void 
 GlobalValue::ResetInitialValue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_currentValue = m_initialValue;
 }
 

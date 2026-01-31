@@ -65,7 +65,7 @@ Ipv4Interface::Ipv4Interface ()
     m_device (0),
     m_cache (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Ipv4Interface::~Ipv4Interface ()

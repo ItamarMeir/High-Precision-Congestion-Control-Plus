@@ -90,7 +90,7 @@ bool Time::StaticInit ()
 
 Time::Time (const std::string& s)
 {
-  NS_LOG_FUNCTION (this << &s);
+  NS_LOG_FUNCTION (&s);
   std::string::size_type n = s.find_first_not_of ("+-0123456789.");
   if (n != std::string::npos)
     { // Found non-numeric

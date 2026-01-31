@@ -266,7 +266,7 @@ StaticInformation::Gather (TypeId tid)
 void 
 StaticInformation::DoGather (TypeId tid)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION removed due to ambiguous overload with TypeId
   if (HasAlreadyBeenProcessed (tid))
     {
       return;

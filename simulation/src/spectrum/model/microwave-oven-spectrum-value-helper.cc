@@ -35,7 +35,7 @@ class MicrowaveOvenSpectrumModel5MhzInitializer
 public:
   MicrowaveOvenSpectrumModel5MhzInitializer ()
   {
-    NS_LOG_FUNCTION (this);
+    // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
     Bands bands;
     for (double fl = 2400e6; fl < 2499e6; fl += 5e6)
       {
@@ -57,7 +57,7 @@ class MicrowaveOvenSpectrumModel6MhzInitializer
 public:
   MicrowaveOvenSpectrumModel6MhzInitializer ()
   {
-    NS_LOG_FUNCTION (this);
+    // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
     Bands bands;
     for (double fl = 2360e6; fl < 2479e6; fl += 6e6)
       {

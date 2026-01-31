@@ -28,23 +28,23 @@ namespace ns3 {
 BooleanValue::BooleanValue ()
   : m_value (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 BooleanValue::BooleanValue (bool value)
   : m_value (value)
 {
-  NS_LOG_FUNCTION (this << value);
+  NS_LOG_FUNCTION (value);
 }
 void
 BooleanValue::Set (bool value)
 {
-  NS_LOG_FUNCTION (this << value);
+  NS_LOG_FUNCTION (value);
   m_value = value;
 }
 bool
 BooleanValue::Get (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_value;
 }
 BooleanValue::operator bool () const
@@ -68,14 +68,14 @@ std::ostream & operator << (std::ostream &os, const BooleanValue &value)
 Ptr<AttributeValue> 
 BooleanValue::Copy (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   return Create<BooleanValue> (*this);
 }
 std::string 
 BooleanValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 {
-  NS_LOG_FUNCTION (this << checker);
+  NS_LOG_FUNCTION (checker);
 
   if (m_value)
     {
@@ -89,7 +89,7 @@ BooleanValue::SerializeToString (Ptr<const AttributeChecker> checker) const
 bool 
 BooleanValue::DeserializeFromString (std::string value, Ptr<const AttributeChecker> checker)
 {
-  NS_LOG_FUNCTION (this << value << checker);
+  NS_LOG_FUNCTION (value << checker);
 
   if (value == "true" ||
       value == "1" ||

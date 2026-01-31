@@ -31,19 +31,19 @@ namespace ns3 {
 LteTestSinrChunkProcessor::LteTestSinrChunkProcessor (Ptr<LtePhy> p)
   : m_phy (p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   NS_ASSERT (m_phy);
 }
 
 LteTestSinrChunkProcessor::~LteTestSinrChunkProcessor ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 LteTestSinrChunkProcessor::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_sumSinr = 0;
   m_totDuration = MicroSeconds (0);
 }
@@ -51,7 +51,7 @@ LteTestSinrChunkProcessor::Start ()
 void
 LteTestSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time duration)
 {
-  NS_LOG_FUNCTION (this << sinr << duration);
+  NS_LOG_FUNCTION (sinr << duration);
   if (m_sumSinr == 0)
     {
       m_sumSinr = Create<SpectrumValue> (sinr.GetSpectrumModel ());
@@ -65,7 +65,7 @@ LteTestSinrChunkProcessor::EvaluateSinrChunk (const SpectrumValue& sinr, Time du
 void
 LteTestSinrChunkProcessor::End ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_totDuration.GetSeconds () > 0)
     {
       NS_LOG_LOGIC (this << " m_sumSinr = " << *m_sumSinr);
@@ -82,7 +82,7 @@ LteTestSinrChunkProcessor::End ()
 Ptr<SpectrumValue>
 LteTestSinrChunkProcessor::GetSinr ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   return m_sinr;
 }

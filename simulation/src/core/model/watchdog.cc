@@ -34,14 +34,14 @@ Watchdog::Watchdog ()
 
 Watchdog::~Watchdog ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_impl;
 }
 
 void
 Watchdog::Ping (Time delay)
 {
-  NS_LOG_FUNCTION (this << delay);
+  NS_LOG_FUNCTION (delay);
   Time end = Simulator::Now () + delay;
   m_end = std::max (m_end, end);
   if (m_event.IsRunning ())
@@ -54,7 +54,7 @@ Watchdog::Ping (Time delay)
 void
 Watchdog::Expire (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_end == Simulator::Now ())
     {
       m_impl->Invoke ();

@@ -78,7 +78,7 @@ NscTcpSocketImpl::NscTcpSocketImpl ()
     m_txBufferSize (0),
     m_lastMeasuredRtt (Seconds (0.0))
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 NscTcpSocketImpl::NscTcpSocketImpl(const NscTcpSocketImpl& sock)
@@ -127,7 +127,7 @@ NscTcpSocketImpl::NscTcpSocketImpl(const NscTcpSocketImpl& sock)
 
 NscTcpSocketImpl::~NscTcpSocketImpl ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   if (m_endPoint != 0)
     {
@@ -275,7 +275,7 @@ NscTcpSocketImpl::ShutdownRecv (void)
 int
 NscTcpSocketImpl::Close (void)
 {
-  NS_LOG_FUNCTION (this << m_state);
+  NS_LOG_FUNCTION (m_state);
 
   if (m_state == CLOSED)
     {
@@ -299,7 +299,7 @@ NscTcpSocketImpl::Close (void)
 int
 NscTcpSocketImpl::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (m_endPoint == 0)
     {
       if (Bind () == -1)
@@ -325,7 +325,7 @@ NscTcpSocketImpl::Connect (const Address & address)
 int
 NscTcpSocketImpl::Send (const Ptr<Packet> p, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   NS_ASSERT (p->GetSize () > 0);
   if (m_state == ESTABLISHED || m_state == SYN_SENT || m_state == CLOSE_WAIT)
@@ -360,7 +360,7 @@ NscTcpSocketImpl::Send (const Ptr<Packet> p, uint32_t flags)
 int
 NscTcpSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags, const Address &address)
 {
-  NS_LOG_FUNCTION (this << address << p);
+  NS_LOG_FUNCTION (address << p);
   if (!m_connected)
     {
       m_errno = ERROR_NOTCONN;
@@ -390,7 +390,7 @@ NscTcpSocketImpl::GetTxAvailable (void) const
 int
 NscTcpSocketImpl::Listen (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_nscTcpSocket->listen (m_localPort);
   m_state = LISTEN;
   return 0;
@@ -448,7 +448,7 @@ Ptr<Packet>
 NscTcpSocketImpl::RecvFrom (uint32_t maxSize, uint32_t flags,
                             Address &fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   Ptr<Packet> packet = Recv (maxSize, flags);
   if (packet != 0)
     {
@@ -617,7 +617,7 @@ bool NscTcpSocketImpl::ReadPendingData (void)
 
 bool NscTcpSocketImpl::SendPendingData (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC ("ENTERING SendPendingData");
 
   if (m_txBuffer.empty ())

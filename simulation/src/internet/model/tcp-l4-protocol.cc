@@ -207,21 +207,21 @@ TcpL4Protocol::Allocate (void)
 Ipv4EndPoint *
 TcpL4Protocol::Allocate (Ipv4Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   return m_endPoints->Allocate (address);
 }
 
 Ipv4EndPoint *
 TcpL4Protocol::Allocate (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   return m_endPoints->Allocate (port);
 }
 
 Ipv4EndPoint *
 TcpL4Protocol::Allocate (Ipv4Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   return m_endPoints->Allocate (address, port);
 }
 
@@ -229,7 +229,7 @@ Ipv4EndPoint *
 TcpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
                          Ipv4Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   return m_endPoints->Allocate (localAddress, localPort,
                                 peerAddress, peerPort);
 }
@@ -237,7 +237,7 @@ TcpL4Protocol::Allocate (Ipv4Address localAddress, uint16_t localPort,
 void
 TcpL4Protocol::DeAllocate (Ipv4EndPoint *endPoint)
 {
-  NS_LOG_FUNCTION (this << endPoint);
+  NS_LOG_FUNCTION (endPoint);
   m_endPoints->DeAllocate (endPoint);
 }
 
@@ -251,21 +251,21 @@ TcpL4Protocol::Allocate6 (void)
 Ipv6EndPoint *
 TcpL4Protocol::Allocate6 (Ipv6Address address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   return m_endPoints6->Allocate (address);
 }
 
 Ipv6EndPoint *
 TcpL4Protocol::Allocate6 (uint16_t port)
 {
-  NS_LOG_FUNCTION (this << port);
+  NS_LOG_FUNCTION (port);
   return m_endPoints6->Allocate (port);
 }
 
 Ipv6EndPoint *
 TcpL4Protocol::Allocate6 (Ipv6Address address, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << address << port);
+  NS_LOG_FUNCTION (address << port);
   return m_endPoints6->Allocate (address, port);
 }
 
@@ -273,7 +273,7 @@ Ipv6EndPoint *
 TcpL4Protocol::Allocate6 (Ipv6Address localAddress, uint16_t localPort,
                           Ipv6Address peerAddress, uint16_t peerPort)
 {
-  NS_LOG_FUNCTION (this << localAddress << localPort << peerAddress << peerPort);
+  NS_LOG_FUNCTION (localAddress << localPort << peerAddress << peerPort);
   return m_endPoints6->Allocate (localAddress, localPort,
                                  peerAddress, peerPort);
 }
@@ -281,7 +281,7 @@ TcpL4Protocol::Allocate6 (Ipv6Address localAddress, uint16_t localPort,
 void
 TcpL4Protocol::DeAllocate (Ipv6EndPoint *endPoint)
 {
-  NS_LOG_FUNCTION (this << endPoint);
+  NS_LOG_FUNCTION (endPoint);
   m_endPoints6->DeAllocate (endPoint);
 }
 
@@ -291,7 +291,7 @@ TcpL4Protocol::ReceiveIcmp (Ipv4Address icmpSource, uint8_t icmpTtl,
                             Ipv4Address payloadSource,Ipv4Address payloadDestination,
                             const uint8_t payload[8])
 {
-  NS_LOG_FUNCTION (this << icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo
+  NS_LOG_FUNCTION (icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo
                         << payloadSource << payloadDestination);
   uint16_t src, dst;
   src = payload[0] << 8;
@@ -318,7 +318,7 @@ TcpL4Protocol::ReceiveIcmp (Ipv6Address icmpSource, uint8_t icmpTtl,
                             Ipv6Address payloadSource,Ipv6Address payloadDestination,
                             const uint8_t payload[8])
 {
-  NS_LOG_FUNCTION (this << icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo
+  NS_LOG_FUNCTION (icmpSource << icmpTtl << icmpType << icmpCode << icmpInfo
                         << payloadSource << payloadDestination);
   uint16_t src, dst;
   src = payload[0] << 8;
@@ -344,7 +344,7 @@ TcpL4Protocol::Receive (Ptr<Packet> packet,
                         Ipv4Header const &ipHeader,
                         Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << packet << ipHeader << incomingInterface);
+  NS_LOG_FUNCTION (packet << ipHeader << incomingInterface);
 
   TcpHeader tcpHeader;
   if(Node::ChecksumEnabled ())
@@ -433,7 +433,7 @@ TcpL4Protocol::Receive (Ptr<Packet> packet,
                         Ipv6Header const &ipHeader,
                         Ptr<Ipv6Interface> interface)
 {
-  NS_LOG_FUNCTION (this << packet << ipHeader.GetSourceAddress () << ipHeader.GetDestinationAddress ());
+  NS_LOG_FUNCTION (packet << ipHeader.GetSourceAddress () << ipHeader.GetDestinationAddress ());
 
   TcpHeader tcpHeader;
 
@@ -514,7 +514,7 @@ TcpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv4Address saddr, Ipv4Address daddr, uint8_t tos,
                      uint16_t sport, uint16_t dport, Ptr<NetDevice> oif)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << (uint32_t)tos << sport << dport << oif);
+  NS_LOG_FUNCTION (packet << saddr << daddr << (uint32_t)tos << sport << dport << oif);
 
   TcpHeader tcpHeader;
   tcpHeader.SetDestinationPort (dport);
@@ -559,7 +559,7 @@ TcpL4Protocol::Send (Ptr<Packet> packet,
                      Ipv6Address saddr, Ipv6Address daddr, uint8_t tClass,
                      uint16_t sport, uint16_t dport, Ptr<NetDevice> oif)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << (uint32_t)tClass << sport << dport << oif);
+  NS_LOG_FUNCTION (packet << saddr << daddr << (uint32_t)tClass << sport << dport << oif);
 
   TcpHeader tcpHeader;
   tcpHeader.SetDestinationPort (dport);
@@ -608,7 +608,7 @@ TcpL4Protocol::SendPacket (Ptr<Packet> packet, const TcpHeader &outgoing,
                                  << " ack " << outgoing.GetAckNumber ()
                                  << " flags " << std::hex << (int)outgoing.GetFlags () << std::dec
                                  << " data size " << packet->GetSize ());
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << oif);
+  NS_LOG_FUNCTION (packet << saddr << daddr << oif);
   // XXX outgoingHeader cannot be logged
 
   TcpHeader outgoingHeader = outgoing;
@@ -655,7 +655,7 @@ TcpL4Protocol::SendPacket (Ptr<Packet> packet, const TcpHeader &outgoing,
                                  << " ack " << outgoing.GetAckNumber ()
                                  << " flags " << std::hex << (int)outgoing.GetFlags () << std::dec
                                  << " data size " << packet->GetSize ());
-  NS_LOG_FUNCTION (this << packet << saddr << daddr << oif);
+  NS_LOG_FUNCTION (packet << saddr << daddr << oif);
   // XXX outgoingHeader cannot be logged
 
   if (daddr.IsIpv4MappedAddress ())

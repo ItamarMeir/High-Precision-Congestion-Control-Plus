@@ -364,7 +364,7 @@ namespace ns3 {
 	void
 		UdpEchoClient::HandleRead(Ptr<Socket> socket)
 	{
-		NS_LOG_FUNCTION(this << socket);
+		NS_LOG_FUNCTION(socket);
 		Ptr<Packet> packet;
 		Address from;
 		while ((packet = socket->RecvFrom(from)))

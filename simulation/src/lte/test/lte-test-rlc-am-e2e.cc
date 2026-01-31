@@ -96,14 +96,14 @@ LteRlcAmE2eTestCase::~LteRlcAmE2eTestCase ()
 void
 LteRlcAmE2eTestCase::DlDropEvent (Ptr<const Packet> p)
 {
-  // NS_LOG_FUNCTION (this);
+  // // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_dlDrops++;
 }
 
 void
 LteRlcAmE2eTestCase::UlDropEvent (Ptr<const Packet> p)
 {
-  // NS_LOG_FUNCTION (this);
+  // // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_ulDrops++;
 }
 

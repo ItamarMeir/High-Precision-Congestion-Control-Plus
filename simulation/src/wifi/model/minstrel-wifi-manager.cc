@@ -144,7 +144,7 @@ MinstrelWifiManager::SetupPhy (Ptr<WifiPhy> phy)
 int64_t
 MinstrelWifiManager::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_uniformRandomVariable->SetStream (stream);
   return 1;
 }

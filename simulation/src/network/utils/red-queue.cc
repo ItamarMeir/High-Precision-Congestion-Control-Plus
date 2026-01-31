@@ -186,7 +186,7 @@ RedQueue::SetQueueLimit (uint32_t lim)
 void
 RedQueue::SetTh (double minTh, double maxTh)
 {
-  NS_LOG_FUNCTION (this << minTh << maxTh);
+  NS_LOG_FUNCTION (minTh << maxTh);
   NS_ASSERT (minTh <= maxTh);
   m_minTh = minTh;
   m_maxTh = maxTh;
@@ -208,7 +208,7 @@ RedQueue::AssignStreams (int64_t stream)
 bool
 RedQueue::DoEnqueue (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
 
   if (!m_hasRedStarted )
     {
@@ -417,7 +417,7 @@ RedQueue::InitializeParams (void)
 double
 RedQueue::Estimator (uint32_t nQueued, uint32_t m, double qAvg, double qW)
 {
-  NS_LOG_FUNCTION (this << nQueued << m << qAvg << qW);
+  NS_LOG_FUNCTION (nQueued << m << qAvg << qW);
   double newAve;
 
   newAve = qAvg;
@@ -437,7 +437,7 @@ RedQueue::Estimator (uint32_t nQueued, uint32_t m, double qAvg, double qW)
 uint32_t
 RedQueue::DropEarly (Ptr<Packet> p, uint32_t qSize)
 {
-  NS_LOG_FUNCTION (this << p << qSize);
+  NS_LOG_FUNCTION (p << qSize);
   m_vProb1 = CalculatePNew (m_qAvg, m_maxTh, m_isGentle, m_vA, m_vB, m_vC, m_vD, m_curMaxP);
   m_vProb = ModifyP (m_vProb1, m_count, m_countBytes, m_meanPktSize, m_isWait, p->GetSize ());
 
@@ -499,7 +499,7 @@ double
 RedQueue::CalculatePNew (double qAvg, double maxTh, bool isGentle, double vA,
                          double vB, double vC, double vD, double maxP)
 {
-  NS_LOG_FUNCTION (this << qAvg << maxTh << isGentle << vA << vB << vC << vD << maxP);
+  NS_LOG_FUNCTION (qAvg << maxTh << isGentle << vA << vB << vC << vD << maxP);
   double p;
 
   if (isGentle && qAvg >= maxTh)
@@ -540,7 +540,7 @@ double
 RedQueue::ModifyP (double p, uint32_t count, uint32_t countBytes,
                    uint32_t meanPktSize, bool isWait, uint32_t size)
 {
-  NS_LOG_FUNCTION (this << p << count << countBytes << meanPktSize << isWait << size);
+  NS_LOG_FUNCTION (p << count << countBytes << meanPktSize << isWait << size);
   double count1 = (double) count;
 
   if (GetMode () == QUEUE_MODE_BYTES)
@@ -609,7 +609,7 @@ RedQueue::GetQueueSize (void)
 Ptr<Packet>
 RedQueue::DoDequeue (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_packets.empty ())
     {
@@ -638,7 +638,7 @@ RedQueue::DoDequeue (void)
 Ptr<const Packet>
 RedQueue::DoPeek (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_packets.empty ())
     {
       NS_LOG_LOGIC ("Queue empty");

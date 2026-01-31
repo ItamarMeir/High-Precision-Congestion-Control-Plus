@@ -40,20 +40,20 @@ NS_LOG_COMPONENT_DEFINE ("EpcSgwPgwApplication");
 
 EpcSgwPgwApplication::UeInfo::UeInfo ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 EpcSgwPgwApplication::UeInfo::AddBearer (Ptr<EpcTft> tft, uint32_t teid)
 {
-  NS_LOG_FUNCTION (this << tft << teid);
+  NS_LOG_FUNCTION (tft << teid);
   return m_tftClassifier.Add (tft, teid);
 }
 
 uint32_t
 EpcSgwPgwApplication::UeInfo::Classify (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   // we hardcode DOWNLINK direction since the PGW is espected to
   // classify only downlink packets (uplink packets will go to the
   // internet without any classification). 
@@ -100,7 +100,7 @@ EpcSgwPgwApplication::EpcSgwPgwApplication (const Ptr<VirtualNetDevice> tunDevic
     m_gtpuUdpPort (2152), // fixed by the standard
     m_teidCount (0)
 {
-  NS_LOG_FUNCTION (this << tunDevice << s1uSocket);
+  NS_LOG_FUNCTION (tunDevice << s1uSocket);
   m_s1uSocket->SetRecvCallback (MakeCallback (&EpcSgwPgwApplication::RecvFromS1uSocket, this));
 }
 
@@ -114,7 +114,7 @@ EpcSgwPgwApplication::~EpcSgwPgwApplication ()
 uint32_t 
 EpcSgwPgwApplication::ActivateS1Bearer (Ipv4Address ueAddr, Ipv4Address enbAddr, Ptr<EpcTft> tft)
 {
-  NS_LOG_FUNCTION (this << ueAddr << enbAddr << tft);
+  NS_LOG_FUNCTION (ueAddr << enbAddr << tft);
 
   // simple sanity check. If you ever need more than 4M teids
   // throughout your simulation, you'll need to implement a smarter teid
@@ -139,7 +139,7 @@ EpcSgwPgwApplication::ActivateS1Bearer (Ipv4Address ueAddr, Ipv4Address enbAddr,
 bool
 EpcSgwPgwApplication::RecvFromTunDevice (Ptr<Packet> packet, const Address& source, const Address& dest, uint16_t protocolNumber)
 {
-  NS_LOG_FUNCTION (this << source << dest << packet << packet->GetSize ());
+  NS_LOG_FUNCTION (source << dest << packet << packet->GetSize ());
 
   // get IP address of UE
   Ptr<Packet> pCopy = packet->Copy ();
@@ -177,7 +177,7 @@ EpcSgwPgwApplication::RecvFromTunDevice (Ptr<Packet> packet, const Address& sour
 void 
 EpcSgwPgwApplication::RecvFromS1uSocket (Ptr<Socket> socket)
 {
-  NS_LOG_FUNCTION (this << socket);  
+  NS_LOG_FUNCTION (socket);  
   NS_ASSERT (socket == m_s1uSocket);
   Ptr<Packet> packet = socket->Recv ();
   GtpuHeader gtpu;
@@ -194,7 +194,7 @@ EpcSgwPgwApplication::RecvFromS1uSocket (Ptr<Socket> socket)
 void 
 EpcSgwPgwApplication::SendToTunDevice (Ptr<Packet> packet, uint32_t teid)
 {
-  NS_LOG_FUNCTION (this << packet << teid);
+  NS_LOG_FUNCTION (packet << teid);
   NS_LOG_LOGIC (" packet size: " << packet->GetSize () << " bytes");
   m_tunDevice->Receive (packet, 0x0800, m_tunDevice->GetAddress (), m_tunDevice->GetAddress (), NetDevice::PACKET_HOST);
 }
@@ -202,7 +202,7 @@ EpcSgwPgwApplication::SendToTunDevice (Ptr<Packet> packet, uint32_t teid)
 void 
 EpcSgwPgwApplication::SendToS1uSocket (Ptr<Packet> packet, Ipv4Address enbAddr, uint32_t teid)
 {
-  NS_LOG_FUNCTION (this << packet << enbAddr << teid);
+  NS_LOG_FUNCTION (packet << enbAddr << teid);
 
   GtpuHeader gtpu;
   gtpu.SetTeid (teid);

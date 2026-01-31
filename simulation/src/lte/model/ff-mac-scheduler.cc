@@ -31,13 +31,13 @@ NS_OBJECT_ENSURE_REGISTERED (FfMacScheduler);
 
 FfMacScheduler::~FfMacScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 FfMacScheduler::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId

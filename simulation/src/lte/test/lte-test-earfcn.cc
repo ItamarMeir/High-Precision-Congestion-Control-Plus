@@ -48,7 +48,7 @@ LteEarfcnTestCase::LteEarfcnTestCase (const char* str, uint16_t earfcn, double f
     m_earfcn (earfcn),
     m_f (f)
 {
-  NS_LOG_FUNCTION (this << str << earfcn << f);
+  NS_LOG_FUNCTION (str << earfcn << f);
 }
 
 LteEarfcnTestCase::~LteEarfcnTestCase ()
@@ -124,7 +124,7 @@ static LteEarfcnTestSuite g_lteEarfcnTestSuite;
 LteEarfcnTestSuite::LteEarfcnTestSuite ()
   : TestSuite ("lte-earfcn", UNIT)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   AddTestCase (new LteEarfcnDlTestCase ("DL EARFCN=500", 500, 2160e6));
   AddTestCase (new LteEarfcnDlTestCase ("DL EARFCN=1000", 1000, 1970e6));

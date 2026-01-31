@@ -197,7 +197,7 @@ EmuNetDevice::EmuNetDevice ()
     m_isMulticast (false),
     m_pendingReadCount (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_packetBuffer = new uint8_t[65536];
   Start (m_tStart);
 }
@@ -919,14 +919,14 @@ EmuNetDevice::SendFrom (Ptr<Packet> packet, const Address &src, const Address &d
 void 
 EmuNetDevice::SetDataRate (DataRate bps)
 {
-  NS_LOG_FUNCTION (this << bps);
+  NS_LOG_FUNCTION (bps);
   NS_FATAL_ERROR ("EmuNetDevice::SetDataRate():  Unable."); 
 }
 
 void
 EmuNetDevice::SetQueue (Ptr<Queue> q)
 {
-  NS_LOG_FUNCTION (this << q);
+  NS_LOG_FUNCTION (q);
   m_queue = q;
 }
 
@@ -1055,7 +1055,7 @@ EmuNetDevice::GetMulticast (Ipv4Address multicastGroup) const
 Address
 EmuNetDevice::GetMulticast (Ipv6Address addr) const
 {
-  NS_LOG_FUNCTION (this << addr);
+  NS_LOG_FUNCTION (addr);
 
   Mac48Address ad = Mac48Address::GetMulticast (addr);
   NS_LOG_LOGIC ("MAC IPv6 multicast address is " << ad);

@@ -5,13 +5,127 @@ This is the simulator for [HPCC: High Precision Congestion Control (SIGCOMM' 201
 
 We have update this simulator to support HPCC-PINT, which reduces the INT header overhead to 1 to 2 byte. This improves the long flow completion time. See [PINT: Probabilistic In-band Network Telemetry (SIGCOMM' 2020)](https://liyuliang001.github.io/publications/pint.pdf).
 
-## NS-3 simulation
-The ns-3 simulation is under `simulation/`. Refer to the README.md under it for more details.
+## HPCC-Plus Extensions
 
-## Traffic generator
-The traffic generator is under `traffic_gen/`. Refer to the README.md under it for more details.
+This is a fork of the original HPCC Alibaba repository that explores improvements to the HPCC congestion control model by addressing end-host congestion. This repository includes implementations of:
 
-## Analysis
+1. **End-host Congestion Model** - A model that accounts for congestion at the receiver end-host, complementing the fabric-centric approach of original HPCC.
+
+2. **HPCC_ecwnd** - HPCC variant where end-hosts advertise explicit congestion window (`ecwnd`) based on local receiver congestion. The effective window is `min(ecwnd, fcwnd)` where:
+   - `ecwnd` = end-host congestion window (receiver-side)
+   - `fcwnd` = fabric congestion window (regular HPCC window based on fabric telemetry)
+
+3. **HPCC_Plus** - Treats end-host congestion as a virtual switch with modifications and applies regular HPCC congestion control principles, providing a unified approach to fabric and end-host congestion.
+
+These extensions aim to improve performance in scenarios where end-host (receiver) congestion is a bottleneck, potentially achieving better flow completion times and overall network utilization.
+
+## Installation & Setup
+
+### Prerequisites
+- Docker (recommended for consistent environment)
+- Or manually: Ubuntu 20.04+ with build tools, Python 2, Qt5, and ns-3 dependencies
+
+### Option 1: Using Docker (Recommended)
+
+1. **Build the Docker container:**
+   ```bash
+   docker build -t hpcc-simulator:latest .
+   ```
+
+2. **Run the container with X11 display forwarding (for GUI tools like NetAnim):**
+   ```bash
+   docker run -it \
+     -e DISPLAY=$DISPLAY \
+     -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+     -v $(pwd):/workspace \
+     hpcc-simulator:latest
+   ```
+
+3. **Or use VS Code Dev Containers:**
+   - Install the "Dev Containers" extension in VS Code
+   - Open the workspace folder in VS Code
+   - Click the Remote indicator in the bottom left and select "Reopen in Container"
+
+### Option 2: Manual Installation
+
+**Required packages:**
+```bash
+sudo apt-get update && sudo apt-get install -y \
+    python2 \
+    python2-dev \
+    build-essential \
+    gcc \
+    g++ \
+    gdb \
+    gnuplot \
+    git \
+    tcpdump \
+    sqlite3 \
+    libsqlite3-dev \
+    libxml2 \
+    libxml2-dev \
+    qtbase5-dev \
+    qt5-qmake \
+    qtbase5-dev-tools
+```
+
+**Install Python dependencies:**
+```bash
+pip install pybindgen
+```
+
+**Build NetAnim (optional, for visualization):**
+```bash
+hg clone https://code.nsnam.org/netanim/ /opt/netanim
+cd /opt/netanim
+hg update -r netanim-3.108
+qmake NetAnim.pro
+make -j$(nproc)
+```
+
+## Project Structure
+
+- **`simulation/`** - NS-3 simulation code for congestion control algorithms. See [simulation/README.md](simulation/README.md)
+- **`traffic_gen/`** - Traffic generator for workload creation. See [traffic_gen/README.md](traffic_gen/README.md)
+- **`analysis/`** - Analysis scripts for packet-level events and FCT analysis. See [analysis/README.md](analysis/README.md)
+- **`netanim/`** - NetAnim visualization tool for packet animation playback
+- **`pybindgen/`** - Python bindings generator (installed via pip, not committed)
+- **`results/`** - Output directory for simulation results, logs, and plots
+
+## Quick Start
+
+1. **Navigate to simulation directory:**
+   ```bash
+   cd simulation/
+   ```
+
+2. **Review configuration:**
+   - See [simulation/README.md](simulation/README.md) for available parameters and scenarios
+
+3. **Run a simulation:**
+   ```bash
+   # Follow instructions in simulation/README.md
+   ```
+
+4. **Analyze results:**
+   ```bash
+   cd ../analysis/
+   # Follow instructions in analysis/README.md
+   ```
+
+5. **Visualize with NetAnim:**
+   ```bash
+   NetAnim results/data/simulation.xml
+   ```
+
+## Key Features
+
+- High precision congestion control algorithms (HPCC, DCQCN, TIMELY, DCTCP)
+- Programmable packet-level simulation with ns-3
+- Support for DCN topologies and workloads
+- Comprehensive analysis tools for FCT and packet-level events
+- PINT support for reduced INT header overhead
+
 We provide a few analysis scripts under `analysis/` to view the packet-level events, and analyzing the fct in the same way as [HPCC](https://liyuliang001.github.io/publications/hpcc.pdf) Figure 11.
 Refer to the README.md under it for more details.
 

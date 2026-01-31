@@ -66,7 +66,7 @@ ApWifiMac::GetTypeId (void)
 
 ApWifiMac::ApWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_beaconDca = CreateObject<DcaTxop> ();
   m_beaconDca->SetAifsn (1);
   m_beaconDca->SetMinCw (0);
@@ -82,13 +82,13 @@ ApWifiMac::ApWifiMac ()
 
 ApWifiMac::~ApWifiMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 ApWifiMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_beaconDca = 0;
   m_enableBeaconGeneration = false;
   m_beaconEvent.Cancel ();
@@ -107,7 +107,7 @@ ApWifiMac::SetAddress (Mac48Address address)
 void
 ApWifiMac::SetBeaconGeneration (bool enable)
 {
-  NS_LOG_FUNCTION (this << enable);
+  NS_LOG_FUNCTION (enable);
   if (!enable)
     {
       m_beaconEvent.Cancel ();
@@ -134,7 +134,7 @@ ApWifiMac::GetBeaconInterval (void) const
 void
 ApWifiMac::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> stationManager)
 {
-  NS_LOG_FUNCTION (this << stationManager);
+  NS_LOG_FUNCTION (stationManager);
   m_beaconDca->SetWifiRemoteStationManager (stationManager);
   RegularWifiMac::SetWifiRemoteStationManager (stationManager);
 }
@@ -142,7 +142,7 @@ ApWifiMac::SetWifiRemoteStationManager (Ptr<WifiRemoteStationManager> stationMan
 void
 ApWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RegularWifiMac::SetLinkUpCallback (linkUp);
 
   // The approach taken here is that, from the point of view of an AP,
@@ -154,7 +154,7 @@ ApWifiMac::SetLinkUpCallback (Callback<void> linkUp)
 void
 ApWifiMac::SetBeaconInterval (Time interval)
 {
-  NS_LOG_FUNCTION (this << interval);
+  NS_LOG_FUNCTION (interval);
   if ((interval.GetMicroSeconds () % 1024) != 0)
     {
       NS_LOG_WARN ("beacon interval should be multiple of 1024us, see IEEE Std. 802.11-2007, section 11.1.1.1");
@@ -165,7 +165,7 @@ ApWifiMac::SetBeaconInterval (Time interval)
 void
 ApWifiMac::StartBeaconing (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   SendOneBeacon ();
 }
 
@@ -198,7 +198,7 @@ void
 ApWifiMac::ForwardDown (Ptr<const Packet> packet, Mac48Address from,
                         Mac48Address to, uint8_t tid)
 {
-  NS_LOG_FUNCTION (this << packet << from << to);
+  NS_LOG_FUNCTION (packet << from << to);
   WifiMacHeader hdr;
 
   // For now, an AP that supports QoS does not support non-QoS
@@ -244,7 +244,7 @@ ApWifiMac::ForwardDown (Ptr<const Packet> packet, Mac48Address from,
 void
 ApWifiMac::Enqueue (Ptr<const Packet> packet, Mac48Address to, Mac48Address from)
 {
-  NS_LOG_FUNCTION (this << packet << to << from);
+  NS_LOG_FUNCTION (packet << to << from);
   if (to.IsBroadcast () || m_stationManager->IsAssociated (to))
     {
       ForwardDown (packet, from, to);
@@ -289,7 +289,7 @@ ApWifiMac::GetSupportedRates (void) const
 void
 ApWifiMac::SendProbeResp (Mac48Address to)
 {
-  NS_LOG_FUNCTION (this << to);
+  NS_LOG_FUNCTION (to);
   WifiMacHeader hdr;
   hdr.SetProbeResp ();
   hdr.SetAddr1 (to);
@@ -314,7 +314,7 @@ ApWifiMac::SendProbeResp (Mac48Address to)
 void
 ApWifiMac::SendAssocResp (Mac48Address to, bool success)
 {
-  NS_LOG_FUNCTION (this << to << success);
+  NS_LOG_FUNCTION (to << success);
   WifiMacHeader hdr;
   hdr.SetAssocResp ();
   hdr.SetAddr1 (to);
@@ -347,7 +347,7 @@ ApWifiMac::SendAssocResp (Mac48Address to, bool success)
 void
 ApWifiMac::SendOneBeacon (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   WifiMacHeader hdr;
   hdr.SetBeacon ();
   hdr.SetAddr1 (Mac48Address::GetBroadcast ());
@@ -371,7 +371,7 @@ ApWifiMac::SendOneBeacon (void)
 void
 ApWifiMac::TxOk (const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RegularWifiMac::TxOk (hdr);
 
   if (hdr.IsAssocResp ()
@@ -385,7 +385,7 @@ ApWifiMac::TxOk (const WifiMacHeader &hdr)
 void
 ApWifiMac::TxFailed (const WifiMacHeader &hdr)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RegularWifiMac::TxFailed (hdr);
 
   if (hdr.IsAssocResp ()
@@ -399,7 +399,7 @@ ApWifiMac::TxFailed (const WifiMacHeader &hdr)
 void
 ApWifiMac::Receive (Ptr<Packet> packet, const WifiMacHeader *hdr)
 {
-  NS_LOG_FUNCTION (this << packet << hdr);
+  NS_LOG_FUNCTION (packet << hdr);
 
   Mac48Address from = hdr->GetAddr2 ();
 

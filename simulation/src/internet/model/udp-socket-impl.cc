@@ -222,7 +222,7 @@ UdpSocketImpl::Bind6 (void)
 int 
 UdpSocketImpl::Bind (const Address &address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   if (InetSocketAddress::IsMatchingType (address))
     {
@@ -311,7 +311,7 @@ UdpSocketImpl::Close (void)
 int
 UdpSocketImpl::Connect (const Address & address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
   if (InetSocketAddress::IsMatchingType(address) == true)
     {
       InetSocketAddress transport = InetSocketAddress::ConvertFrom (address);
@@ -346,7 +346,7 @@ UdpSocketImpl::Listen (void)
 int 
 UdpSocketImpl::Send (Ptr<Packet> p, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << p << flags);
+  NS_LOG_FUNCTION (p << flags);
 
   if (!m_connected)
     {
@@ -359,7 +359,7 @@ UdpSocketImpl::Send (Ptr<Packet> p, uint32_t flags)
 int 
 UdpSocketImpl::DoSend (Ptr<Packet> p)
 {
-  NS_LOG_FUNCTION (this << p);
+  NS_LOG_FUNCTION (p);
   if ((m_endPoint == 0) && (InetSocketAddress::IsMatchingType(m_defaultAddress) == true))
     {
       if (Bind () == -1)
@@ -389,7 +389,7 @@ UdpSocketImpl::DoSend (Ptr<Packet> p)
 int
 UdpSocketImpl::DoSendTo (Ptr<Packet> p, const Address &address)
 {
-  NS_LOG_FUNCTION (this << p << address);
+  NS_LOG_FUNCTION (p << address);
 
   if (!m_connected)
     {
@@ -433,7 +433,7 @@ UdpSocketImpl::DoSendTo (Ptr<Packet> p, const Address &address)
 int
 UdpSocketImpl::DoSendTo (Ptr<Packet> p, Ipv4Address dest, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << p << dest << port);
+  NS_LOG_FUNCTION (p << dest << port);
   if (m_boundnetdevice)
     {
       NS_LOG_LOGIC ("Bound interface number " << m_boundnetdevice->GetIfIndex ());
@@ -616,7 +616,7 @@ UdpSocketImpl::DoSendTo (Ptr<Packet> p, Ipv4Address dest, uint16_t port)
 int
 UdpSocketImpl::DoSendTo (Ptr<Packet> p, Ipv6Address dest, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << p << dest << port);
+  NS_LOG_FUNCTION (p << dest << port);
 
   if (dest.IsIpv4MappedAddress ())
     {
@@ -734,7 +734,7 @@ UdpSocketImpl::GetTxAvailable (void) const
 int 
 UdpSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags, const Address &address)
 {
-  NS_LOG_FUNCTION (this << p << flags << address);
+  NS_LOG_FUNCTION (p << flags << address);
   if (InetSocketAddress::IsMatchingType (address))
     {
       InetSocketAddress transport = InetSocketAddress::ConvertFrom (address);
@@ -764,7 +764,7 @@ UdpSocketImpl::GetRxAvailable (void) const
 Ptr<Packet>
 UdpSocketImpl::Recv (uint32_t maxSize, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   if (m_deliveryQueue.empty () )
     {
       m_errno = ERROR_AGAIN;
@@ -787,7 +787,7 @@ Ptr<Packet>
 UdpSocketImpl::RecvFrom (uint32_t maxSize, uint32_t flags, 
                          Address &fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   Ptr<Packet> packet = Recv (maxSize, flags);
   if (packet != 0)
     {
@@ -867,7 +867,7 @@ void
 UdpSocketImpl::ForwardUp (Ptr<Packet> packet, Ipv4Header header, uint16_t port,
                           Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << packet << header << port);
+  NS_LOG_FUNCTION (packet << header << port);
 
   if (m_shutdownRecv)
     {
@@ -908,7 +908,7 @@ UdpSocketImpl::ForwardUp (Ptr<Packet> packet, Ipv4Header header, uint16_t port,
 void 
 UdpSocketImpl::ForwardUp6 (Ptr<Packet> packet, Ipv6Address saddr, Ipv6Address daddr, uint16_t port)
 {
-  NS_LOG_FUNCTION (this << packet << saddr << port);
+  NS_LOG_FUNCTION (packet << saddr << port);
 
   if (m_shutdownRecv)
     {
@@ -942,7 +942,7 @@ UdpSocketImpl::ForwardIcmp (Ipv4Address icmpSource, uint8_t icmpTtl,
                             uint8_t icmpType, uint8_t icmpCode,
                             uint32_t icmpInfo)
 {
-  NS_LOG_FUNCTION (this << icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
+  NS_LOG_FUNCTION (icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
                    (uint32_t)icmpCode << icmpInfo);
   if (!m_icmpCallback.IsNull ())
     {
@@ -955,7 +955,7 @@ UdpSocketImpl::ForwardIcmp6 (Ipv6Address icmpSource, uint8_t icmpTtl,
                             uint8_t icmpType, uint8_t icmpCode,
                             uint32_t icmpInfo)
 {
-  NS_LOG_FUNCTION (this << icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
+  NS_LOG_FUNCTION (icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
                    (uint32_t)icmpCode << icmpInfo);
   if (!m_icmpCallback6.IsNull ())
     {

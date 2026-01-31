@@ -124,21 +124,21 @@ Icmpv4L4Protocol::SendDestUnreachFragNeeded (Ipv4Header header,
                                              Ptr<const Packet> orgData,
                                              uint16_t nextHopMtu)
 {
-  NS_LOG_FUNCTION (this << header << *orgData << nextHopMtu);
+  NS_LOG_FUNCTION (header << *orgData << nextHopMtu);
   SendDestUnreach (header, orgData, Icmpv4DestinationUnreachable::FRAG_NEEDED, nextHopMtu);
 }
 void
 Icmpv4L4Protocol::SendDestUnreachPort (Ipv4Header header,
                                        Ptr<const Packet> orgData)
 {
-  NS_LOG_FUNCTION (this << header << *orgData);
+  NS_LOG_FUNCTION (header << *orgData);
   SendDestUnreach (header, orgData, Icmpv4DestinationUnreachable::PORT_UNREACHABLE, 0);
 }
 void
 Icmpv4L4Protocol::SendDestUnreach (Ipv4Header header, Ptr<const Packet> orgData,
                                    uint8_t code, uint16_t nextHopMtu)
 {
-  NS_LOG_FUNCTION (this << header << *orgData << (uint32_t) code << nextHopMtu);
+  NS_LOG_FUNCTION (header << *orgData << (uint32_t) code << nextHopMtu);
   Ptr<Packet> p = Create<Packet> ();
   Icmpv4DestinationUnreachable unreach;
   unreach.SetNextHopMtu (nextHopMtu);
@@ -151,7 +151,7 @@ Icmpv4L4Protocol::SendDestUnreach (Ipv4Header header, Ptr<const Packet> orgData,
 void
 Icmpv4L4Protocol::SendTimeExceededTtl (Ipv4Header header, Ptr<const Packet> orgData)
 {
-  NS_LOG_FUNCTION (this << header << *orgData);
+  NS_LOG_FUNCTION (header << *orgData);
   Ptr<Packet> p = Create<Packet> ();
   Icmpv4TimeExceeded time;
   time.SetHeader (header);
@@ -166,7 +166,7 @@ Icmpv4L4Protocol::HandleEcho (Ptr<Packet> p,
                               Ipv4Address source,
                               Ipv4Address destination)
 {
-  NS_LOG_FUNCTION (this << p << header << source << destination);
+  NS_LOG_FUNCTION (p << header << source << destination);
 
   Ptr<Packet> reply = Create<Packet> ();
   Icmpv4Echo echo;
@@ -193,7 +193,7 @@ Icmpv4L4Protocol::HandleDestUnreach (Ptr<Packet> p,
                                      Ipv4Address source,
                                      Ipv4Address destination)
 {
-  NS_LOG_FUNCTION (this << p << icmp << source << destination);
+  NS_LOG_FUNCTION (p << icmp << source << destination);
 
   Icmpv4DestinationUnreachable unreach;
   p->PeekHeader (unreach);
@@ -208,7 +208,7 @@ Icmpv4L4Protocol::HandleTimeExceeded (Ptr<Packet> p,
                                       Ipv4Address source,
                                       Ipv4Address destination)
 {
-  NS_LOG_FUNCTION (this << p << icmp << source << destination);
+  NS_LOG_FUNCTION (p << icmp << source << destination);
 
   Icmpv4TimeExceeded time;
   p->PeekHeader (time);
@@ -224,7 +224,7 @@ Icmpv4L4Protocol::Receive (Ptr<Packet> p,
                            Ipv4Header const &header,
                            Ptr<Ipv4Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << p << header << incomingInterface);
+  NS_LOG_FUNCTION (p << header << incomingInterface);
 
   Icmpv4Header icmp;
   p->RemoveHeader (icmp);
@@ -249,13 +249,13 @@ Icmpv4L4Protocol::Receive (Ptr<Packet> p,
                            Ipv6Header const &header,
                            Ptr<Ipv6Interface> incomingInterface)
 {
-  NS_LOG_FUNCTION (this << p << header.GetSourceAddress () << header.GetDestinationAddress () << incomingInterface);
+  NS_LOG_FUNCTION (p << header.GetSourceAddress () << header.GetDestinationAddress () << incomingInterface);
   return IpL4Protocol::RX_ENDPOINT_UNREACH;
 }
 void
 Icmpv4L4Protocol::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_node = 0;
   m_downTarget.Nullify ();
   IpL4Protocol::DoDispose ();

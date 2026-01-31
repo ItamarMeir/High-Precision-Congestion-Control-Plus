@@ -55,7 +55,7 @@ WaveformGenerator::~WaveformGenerator ()
 void
 WaveformGenerator::DoDispose (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channel = 0;
   m_netDevice = 0;
   m_mobility = 0;
@@ -138,13 +138,13 @@ WaveformGenerator::SetChannel (Ptr<SpectrumChannel> c)
 void
 WaveformGenerator::StartRx (Ptr<SpectrumSignalParameters> params)
 {
-  NS_LOG_FUNCTION (this << params);
+  NS_LOG_FUNCTION (params);
 }
 
 void
 WaveformGenerator::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 {
-  NS_LOG_FUNCTION (this << *txPsd);
+  NS_LOG_FUNCTION (*txPsd);
   m_txPowerSpectralDensity = txPsd;
 }
 
@@ -157,7 +157,7 @@ WaveformGenerator::GetRxAntenna ()
 void
 WaveformGenerator::SetAntenna (Ptr<AntennaModel> a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   m_antenna = a;
 }
 
@@ -191,7 +191,7 @@ double WaveformGenerator::GetDutyCycle () const
 void
 WaveformGenerator::GenerateWaveform ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   Ptr<SpectrumSignalParameters> txParams = Create<SpectrumSignalParameters> ();
   txParams->duration = Time (m_period * m_dutyCycle);
@@ -214,7 +214,7 @@ WaveformGenerator::GenerateWaveform ()
 void
 WaveformGenerator::Start ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_active)
     {
       NS_LOG_LOGIC ("generator was not active, now starting");
@@ -228,7 +228,7 @@ WaveformGenerator::Start ()
 void
 WaveformGenerator::Stop ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_active = false;
 }
 

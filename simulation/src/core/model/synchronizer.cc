@@ -37,32 +37,32 @@ Synchronizer::GetTypeId (void)
 Synchronizer::Synchronizer ()
   : m_realtimeOriginNano (0), m_simOriginNano (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 Synchronizer::~Synchronizer ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 bool
 Synchronizer::Realtime (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return DoRealtime ();
 }
 
 uint64_t
 Synchronizer::GetCurrentRealtime (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return NanosecondToTimeStep (DoGetCurrentRealtime ());
 }
 
 void
 Synchronizer::SetOrigin (uint64_t ts)
 {
-  NS_LOG_FUNCTION (this << ts);
+  NS_LOG_FUNCTION (ts);
   m_simOriginNano = TimeStepToNanosecond (ts);
   DoSetOrigin (m_simOriginNano);
 }
@@ -70,14 +70,14 @@ Synchronizer::SetOrigin (uint64_t ts)
 uint64_t
 Synchronizer::GetOrigin (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return NanosecondToTimeStep (m_simOriginNano);
 }
 
 int64_t
 Synchronizer::GetDrift (uint64_t ts)
 {
-  NS_LOG_FUNCTION (this << ts);
+  NS_LOG_FUNCTION (ts);
   int64_t tDrift = DoGetDrift (TimeStepToNanosecond (ts));
 
   if (tDrift < 0) 
@@ -91,7 +91,7 @@ Synchronizer::GetDrift (uint64_t ts)
 bool
 Synchronizer::Synchronize (uint64_t tsCurrent, uint64_t tsDelay)
 {
-  NS_LOG_FUNCTION (this << tsCurrent << tsDelay);
+  NS_LOG_FUNCTION (tsCurrent << tsDelay);
   return DoSynchronize (TimeStepToNanosecond (tsCurrent), 
                         TimeStepToNanosecond (tsDelay));
 }
@@ -99,42 +99,42 @@ Synchronizer::Synchronize (uint64_t tsCurrent, uint64_t tsDelay)
 void
 Synchronizer::Signal (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   DoSignal ();
 }
 
 void
 Synchronizer::SetCondition (bool cond)
 {
-  NS_LOG_FUNCTION (this << cond);
+  NS_LOG_FUNCTION (cond);
   DoSetCondition (cond);
 }
 
 void
 Synchronizer::EventStart (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   DoEventStart ();
 }
 
 uint64_t
 Synchronizer::EventEnd (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return NanosecondToTimeStep (DoEventEnd ());
 }
 
 uint64_t
 Synchronizer::TimeStepToNanosecond (uint64_t ts)
 {
-  NS_LOG_FUNCTION (this << ts);
+  NS_LOG_FUNCTION (ts);
   return TimeStep (ts).GetNanoSeconds ();
 }
 
 uint64_t
 Synchronizer::NanosecondToTimeStep (uint64_t ns)
 {
-  NS_LOG_FUNCTION (this << ns);
+  NS_LOG_FUNCTION (ns);
   return NanoSeconds (ns).GetTimeStep ();
 }
 

@@ -40,7 +40,7 @@ RadiotapHeader::RadiotapHeader()
     m_antennaSignal (0),
     m_antennaNoise (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
  
 TypeId RadiotapHeader::GetTypeId (void)
@@ -55,21 +55,21 @@ TypeId RadiotapHeader::GetTypeId (void)
 TypeId 
 RadiotapHeader::GetInstanceTypeId (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return GetTypeId ();
 }
 
 uint32_t
 RadiotapHeader::GetSerializedSize (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_length;
 }
 
 void
 RadiotapHeader::Serialize (Buffer::Iterator start) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   start.WriteU8 (0); // major version of radiotap header
   start.WriteU8 (0); // pad field
@@ -132,7 +132,7 @@ RadiotapHeader::Serialize (Buffer::Iterator start) const
 uint32_t
 RadiotapHeader::Deserialize (Buffer::Iterator start)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint8_t tmp = start.ReadU8 (); // major version of radiotap header
   NS_ASSERT_MSG (tmp == 0x00, "RadiotapHeader::Deserialize(): Unexpected major version");
@@ -217,7 +217,7 @@ RadiotapHeader::Deserialize (Buffer::Iterator start)
 void
 RadiotapHeader::Print (std::ostream &os) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   os << " tsft=" << m_tsft
      << " flags=" << std::hex << m_flags << std::dec
      << " rate=" << (uint16_t) m_rate
@@ -230,7 +230,7 @@ RadiotapHeader::Print (std::ostream &os) const
 void
 RadiotapHeader::SetTsft (uint64_t value)
 {
-  NS_LOG_FUNCTION (this << value);
+  NS_LOG_FUNCTION (value);
   m_tsft = value;
 
   if (!(m_present & RADIOTAP_TSFT))
@@ -245,14 +245,14 @@ RadiotapHeader::SetTsft (uint64_t value)
 uint64_t
 RadiotapHeader::GetTsft () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_tsft;
 }
 
 void 
 RadiotapHeader::SetFrameFlags (uint8_t flags)
 {
-  NS_LOG_FUNCTION (this << flags);
+  NS_LOG_FUNCTION (flags);
   m_flags = flags;
 
   if (!(m_present & RADIOTAP_FLAGS))
@@ -267,14 +267,14 @@ RadiotapHeader::SetFrameFlags (uint8_t flags)
 uint8_t
 RadiotapHeader::GetFrameFlags (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_flags;
 }
 
 void 
 RadiotapHeader::SetRate (uint8_t rate)
 {
-  NS_LOG_FUNCTION (this << rate);
+  NS_LOG_FUNCTION (rate);
   m_rate = rate;
 
   if (!(m_present & RADIOTAP_RATE))
@@ -289,14 +289,14 @@ RadiotapHeader::SetRate (uint8_t rate)
 uint8_t
 RadiotapHeader::GetRate (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_rate;
 }
 
 void 
 RadiotapHeader::SetChannelFrequencyAndFlags (uint16_t frequency, uint16_t flags)
 {
-  NS_LOG_FUNCTION (this << frequency << flags);
+  NS_LOG_FUNCTION (frequency << flags);
   m_channelFreq = frequency;
   m_channelFlags = flags;
 
@@ -312,21 +312,21 @@ RadiotapHeader::SetChannelFrequencyAndFlags (uint16_t frequency, uint16_t flags)
 uint16_t 
 RadiotapHeader::GetChannelFrequency (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_channelFreq;
 }
 
 uint16_t 
 RadiotapHeader::GetChannelFlags (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_channelFlags;
 }
 
 void 
 RadiotapHeader::SetAntennaSignalPower (double signal)
 {
-  NS_LOG_FUNCTION (this << signal);
+  NS_LOG_FUNCTION (signal);
 
   if (!(m_present & RADIOTAP_DBM_ANTSIGNAL))
     {
@@ -352,14 +352,14 @@ RadiotapHeader::SetAntennaSignalPower (double signal)
 uint8_t
 RadiotapHeader::GetAntennaSignalPower (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_antennaSignal;
 }
 
 void
 RadiotapHeader::SetAntennaNoisePower (double noise)
 {
-  NS_LOG_FUNCTION (this << noise);
+  NS_LOG_FUNCTION (noise);
 
   if (!(m_present & RADIOTAP_DBM_ANTNOISE))
     {
@@ -385,7 +385,7 @@ RadiotapHeader::SetAntennaNoisePower (double noise)
 uint8_t 
 RadiotapHeader::GetAntennaNoisePower (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_antennaNoise;
 }
 

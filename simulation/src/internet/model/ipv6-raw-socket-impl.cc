@@ -85,7 +85,7 @@ void Ipv6RawSocketImpl::DoDispose ()
 
 void Ipv6RawSocketImpl::SetNode (Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
+  NS_LOG_FUNCTION (node);
   m_node = node;
 }
 
@@ -107,7 +107,7 @@ enum Socket::SocketType Ipv6RawSocketImpl::GetSocketType () const
 
 int Ipv6RawSocketImpl::Bind (const Address& address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   if (!Inet6SocketAddress::IsMatchingType (address))
     {
@@ -166,7 +166,7 @@ int Ipv6RawSocketImpl::ShutdownRecv ()
 
 int Ipv6RawSocketImpl::Connect (const Address& address)
 {
-  NS_LOG_FUNCTION (this << address);
+  NS_LOG_FUNCTION (address);
 
   if (!Inet6SocketAddress::IsMatchingType (address))
     {
@@ -188,7 +188,7 @@ int Ipv6RawSocketImpl::Listen ()
 
 int Ipv6RawSocketImpl::Send (Ptr<Packet> p, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << p << flags);
+  NS_LOG_FUNCTION (p << flags);
   Inet6SocketAddress to = Inet6SocketAddress (m_dst, m_protocol);
   /*
    * Add tags for each socket option.
@@ -212,7 +212,7 @@ int Ipv6RawSocketImpl::Send (Ptr<Packet> p, uint32_t flags)
 
 int Ipv6RawSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags, const Address& toAddress)
 {
-  NS_LOG_FUNCTION (this << p << flags << toAddress);
+  NS_LOG_FUNCTION (p << flags << toAddress);
 
   if (!Inet6SocketAddress::IsMatchingType (toAddress))
     {
@@ -277,14 +277,14 @@ int Ipv6RawSocketImpl::SendTo (Ptr<Packet> p, uint32_t flags, const Address& toA
 
 Ptr<Packet> Ipv6RawSocketImpl::Recv (uint32_t maxSize, uint32_t flags)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags);
+  NS_LOG_FUNCTION (maxSize << flags);
   Address tmp;
   return RecvFrom (maxSize, flags, tmp);
 }
 
 Ptr<Packet> Ipv6RawSocketImpl::RecvFrom (uint32_t maxSize, uint32_t flags, Address& fromAddress)
 {
-  NS_LOG_FUNCTION (this << maxSize << flags << fromAddress);
+  NS_LOG_FUNCTION (maxSize << flags << fromAddress);
 
   if (m_data.empty ())
     {
@@ -331,7 +331,7 @@ uint32_t Ipv6RawSocketImpl::GetRxAvailable () const
 
 bool Ipv6RawSocketImpl::ForwardUp (Ptr<const Packet> p, Ipv6Header hdr, Ptr<NetDevice> device)
 {
-  NS_LOG_FUNCTION (this << *p << hdr << device);
+  NS_LOG_FUNCTION (*p << hdr << device);
 
   if (m_shutdownRecv)
     {

@@ -76,7 +76,7 @@ MeshWifiInterfaceMac::GetTypeId ()
 MeshWifiInterfaceMac::MeshWifiInterfaceMac () :
   m_standard (WIFI_PHY_STANDARD_80211a)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Let the lower layers know that we are acting as a mesh node
   SetTypeOfStation (MESH);
@@ -84,7 +84,7 @@ MeshWifiInterfaceMac::MeshWifiInterfaceMac () :
 }
 MeshWifiInterfaceMac::~MeshWifiInterfaceMac ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 //-----------------------------------------------------------------------------
 // WifiMac inherited
@@ -92,13 +92,13 @@ MeshWifiInterfaceMac::~MeshWifiInterfaceMac ()
 void
 MeshWifiInterfaceMac::Enqueue (Ptr<const Packet> packet, Mac48Address to, Mac48Address from)
 {
-  NS_LOG_FUNCTION (this << packet << to << from);
+  NS_LOG_FUNCTION (packet << to << from);
   ForwardDown (packet, from, to);
 }
 void
 MeshWifiInterfaceMac::Enqueue (Ptr<const Packet> packet, Mac48Address to)
 {
-  NS_LOG_FUNCTION (this << packet << to);
+  NS_LOG_FUNCTION (packet << to);
   ForwardDown (packet, m_low->GetAddress (), to);
 }
 bool
@@ -109,7 +109,7 @@ MeshWifiInterfaceMac::SupportsSendFrom () const
 void
 MeshWifiInterfaceMac::SetLinkUpCallback (Callback<void> linkUp)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   RegularWifiMac::SetLinkUpCallback (linkUp);
 
   // The approach taken here is that, from the point of view of a mesh
@@ -120,7 +120,7 @@ MeshWifiInterfaceMac::SetLinkUpCallback (Callback<void> linkUp)
 void
 MeshWifiInterfaceMac::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_plugins.clear ();
   m_beaconSendEvent.Cancel ();
 
@@ -148,7 +148,7 @@ MeshWifiInterfaceMac::DoStart ()
 int64_t
 MeshWifiInterfaceMac::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   int64_t currentStream = stream;
   m_coefficient->SetStream (currentStream++);
   for (PluginList::const_iterator i = m_plugins.begin (); i < m_plugins.end (); i++)
@@ -164,7 +164,7 @@ MeshWifiInterfaceMac::AssignStreams (int64_t stream)
 void
 MeshWifiInterfaceMac::InstallPlugin (Ptr<MeshWifiInterfaceMacPlugin> plugin)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   plugin->SetParent (this);
   m_plugins.push_back (plugin);
@@ -175,7 +175,7 @@ MeshWifiInterfaceMac::InstallPlugin (Ptr<MeshWifiInterfaceMacPlugin> plugin)
 uint16_t
 MeshWifiInterfaceMac::GetFrequencyChannel () const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (m_phy != 0); // need PHY to set/get channel
 
   Ptr<YansWifiPhy> phy = m_phy->GetObject<YansWifiPhy> ();
@@ -191,7 +191,7 @@ MeshWifiInterfaceMac::GetFrequencyChannel () const
 void
 MeshWifiInterfaceMac::SwitchFrequencyChannel (uint16_t new_id)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (m_phy != 0); // need PHY to set/get channel
   /* TODO
    *
@@ -345,13 +345,13 @@ MeshWifiInterfaceMac::CheckSupportedRates (SupportedRates rates) const
 void
 MeshWifiInterfaceMac::SetRandomStartDelay (Time interval)
 {
-  NS_LOG_FUNCTION (this << interval);
+  NS_LOG_FUNCTION (interval);
   m_randomStart = interval;
 }
 void
 MeshWifiInterfaceMac::SetBeaconInterval (Time interval)
 {
-  NS_LOG_FUNCTION (this << interval);
+  NS_LOG_FUNCTION (interval);
   m_beaconInterval = interval;
 }
 Time
@@ -362,7 +362,7 @@ MeshWifiInterfaceMac::GetBeaconInterval () const
 void
 MeshWifiInterfaceMac::SetBeaconGeneration (bool enable)
 {
-  NS_LOG_FUNCTION (this << enable);
+  NS_LOG_FUNCTION (enable);
   m_beaconEnable = enable;
 }
 bool
@@ -396,7 +396,7 @@ MeshWifiInterfaceMac::ScheduleNextBeacon ()
 void
 MeshWifiInterfaceMac::SendBeacon ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_DEBUG (GetAddress () << " is sending beacon");
 
   NS_ASSERT (!m_beaconSendEvent.IsRunning ());

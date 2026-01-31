@@ -44,13 +44,13 @@ CalendarScheduler::GetTypeId (void)
 
 CalendarScheduler::CalendarScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Init (2, 1, 0);
   m_qSize = 0;
 }
 CalendarScheduler::~CalendarScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete [] m_buckets;
   m_buckets = 0;
 }
@@ -59,7 +59,7 @@ CalendarScheduler::Init (uint32_t nBuckets,
                          uint64_t width,
                          uint64_t startPrio)
 {
-  NS_LOG_FUNCTION (this << nBuckets << width << startPrio);
+  NS_LOG_FUNCTION (nBuckets << width << startPrio);
   m_buckets = new Bucket [nBuckets];
   m_nBuckets = nBuckets;
   m_width = width;
@@ -70,7 +70,7 @@ CalendarScheduler::Init (uint32_t nBuckets,
 void
 CalendarScheduler::PrintInfo (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   std::cout << "nBuckets=" << m_nBuckets << ", width=" << m_width << std::endl;
   std::cout << "Bucket Distribution ";
@@ -83,7 +83,7 @@ CalendarScheduler::PrintInfo (void)
 uint32_t
 CalendarScheduler::Hash (uint64_t ts) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t bucket = (ts / m_width) % m_nBuckets;
   return bucket;
@@ -92,7 +92,7 @@ CalendarScheduler::Hash (uint64_t ts) const
 void
 CalendarScheduler::DoInsert (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << ev.key.m_ts << ev.key.m_uid);
+  NS_LOG_FUNCTION (ev.key.m_ts << ev.key.m_uid);
   // calculate bucket index.
   uint32_t bucket = Hash (ev.key.m_ts);
   NS_LOG_LOGIC ("insert in bucket=" << bucket);
@@ -113,7 +113,7 @@ CalendarScheduler::DoInsert (const Event &ev)
 void
 CalendarScheduler::Insert (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << &ev);
+  NS_LOG_FUNCTION (&ev);
   DoInsert (ev);
   m_qSize++;
   ResizeUp ();
@@ -121,13 +121,13 @@ CalendarScheduler::Insert (const Event &ev)
 bool
 CalendarScheduler::IsEmpty (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_qSize == 0;
 }
 Scheduler::Event
 CalendarScheduler::PeekNext (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_ASSERT (!IsEmpty ());
   uint32_t i = m_lastBucket;
   uint64_t bucketTop = m_bucketTop;
@@ -162,7 +162,7 @@ CalendarScheduler::PeekNext (void) const
 Scheduler::Event
 CalendarScheduler::DoRemoveNext (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   uint32_t i = m_lastBucket;
   uint64_t bucketTop = m_bucketTop;
@@ -209,7 +209,7 @@ CalendarScheduler::DoRemoveNext (void)
 Scheduler::Event
 CalendarScheduler::RemoveNext (void)
 {
-  NS_LOG_FUNCTION (this << m_lastBucket << m_bucketTop);
+  NS_LOG_FUNCTION (m_lastBucket << m_bucketTop);
   NS_ASSERT (!IsEmpty ());
 
   Scheduler::Event ev = DoRemoveNext ();
@@ -224,7 +224,7 @@ CalendarScheduler::RemoveNext (void)
 void
 CalendarScheduler::Remove (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << &ev);
+  NS_LOG_FUNCTION (&ev);
   NS_ASSERT (!IsEmpty ());
   // bucket index of event
   uint32_t bucket = Hash (ev.key.m_ts);
@@ -248,7 +248,7 @@ CalendarScheduler::Remove (const Event &ev)
 void
 CalendarScheduler::ResizeUp (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_qSize > m_nBuckets * 2
       && m_nBuckets < 32768)
@@ -259,7 +259,7 @@ CalendarScheduler::ResizeUp (void)
 void
 CalendarScheduler::ResizeDown (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_qSize < m_nBuckets / 2)
     {
@@ -270,7 +270,7 @@ CalendarScheduler::ResizeDown (void)
 uint32_t
 CalendarScheduler::CalculateNewWidth (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (m_qSize < 2)
     {
@@ -349,7 +349,7 @@ CalendarScheduler::CalculateNewWidth (void)
 void
 CalendarScheduler::DoResize (uint32_t newSize, uint32_t newWidth)
 {
-  NS_LOG_FUNCTION (this << newSize << newWidth);
+  NS_LOG_FUNCTION (newSize << newWidth);
 
   Bucket *oldBuckets = m_buckets;
   uint32_t oldNBuckets = m_nBuckets;
@@ -368,7 +368,7 @@ CalendarScheduler::DoResize (uint32_t newSize, uint32_t newWidth)
 void
 CalendarScheduler::Resize (uint32_t newSize)
 {
-  NS_LOG_FUNCTION (this << newSize);
+  NS_LOG_FUNCTION (newSize);
 
   // PrintInfo ();
   uint32_t newWidth = CalculateNewWidth ();

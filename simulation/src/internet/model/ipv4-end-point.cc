@@ -134,7 +134,7 @@ Ipv4EndPoint::ForwardIcmp (Ipv4Address icmpSource, uint8_t icmpTtl,
                            uint8_t icmpType, uint8_t icmpCode,
                            uint32_t icmpInfo)
 {
-  NS_LOG_FUNCTION (this << icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
+  NS_LOG_FUNCTION (icmpSource << (uint32_t)icmpTtl << (uint32_t)icmpType <<
                    (uint32_t)icmpCode << icmpInfo);
   if (!m_icmpCallback.IsNull ())
     {

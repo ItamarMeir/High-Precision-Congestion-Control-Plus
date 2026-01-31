@@ -44,12 +44,12 @@ TypeId InetTopologyReader::GetTypeId (void)
 
 InetTopologyReader::InetTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 InetTopologyReader::~InetTopologyReader ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 NodeContainer

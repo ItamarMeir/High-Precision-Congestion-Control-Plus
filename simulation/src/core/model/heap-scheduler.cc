@@ -43,7 +43,7 @@ HeapScheduler::GetTypeId (void)
 
 HeapScheduler::HeapScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   // we purposedly waste an item at the start of
   // the array to make sure the indexes in the
   // array start at one.
@@ -53,52 +53,52 @@ HeapScheduler::HeapScheduler ()
 
 HeapScheduler::~HeapScheduler ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 uint32_t
 HeapScheduler::Parent (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return id / 2;
 }
 uint32_t
 HeapScheduler::Sibling (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return id + 1;
 }
 uint32_t
 HeapScheduler::LeftChild (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return id * 2;
 }
 uint32_t
 HeapScheduler::RightChild (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return id * 2 + 1;
 }
 
 uint32_t
 HeapScheduler::Root (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return 1;
 }
 
 bool
 HeapScheduler::IsRoot (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return (id == Root ()) ? true : false;
 }
 
 uint32_t
 HeapScheduler::Last (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_heap.size () - 1;
 }
 
@@ -106,14 +106,14 @@ HeapScheduler::Last (void) const
 bool
 HeapScheduler::IsBottom (uint32_t id) const
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   return (id >= m_heap.size ()) ? true : false;
 }
 
 void
 HeapScheduler::Exch (uint32_t a, uint32_t b)
 {
-  NS_LOG_FUNCTION (this << a << b);
+  NS_LOG_FUNCTION (a << b);
   NS_ASSERT (b < m_heap.size () && a < m_heap.size ());
   NS_LOG_DEBUG ("Exch " << a << ", " << b);
   Event tmp (m_heap[a]);
@@ -124,28 +124,28 @@ HeapScheduler::Exch (uint32_t a, uint32_t b)
 bool
 HeapScheduler::IsLessStrictly (uint32_t a, uint32_t b) const
 {
-  NS_LOG_FUNCTION (this << a << b);
+  NS_LOG_FUNCTION (a << b);
   return m_heap[a] < m_heap[b];
 }
 
 uint32_t
 HeapScheduler::Smallest (uint32_t a, uint32_t b) const
 {
-  NS_LOG_FUNCTION (this << a << b);
+  NS_LOG_FUNCTION (a << b);
   return IsLessStrictly (a,b) ? a : b;
 }
 
 bool
 HeapScheduler::IsEmpty (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return (m_heap.size () == 1) ? true : false;
 }
 
 void
 HeapScheduler::BottomUp (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   uint32_t index = Last ();
   while (!IsRoot (index)
          && IsLessStrictly (index, Parent (index)))
@@ -158,7 +158,7 @@ HeapScheduler::BottomUp (void)
 void
 HeapScheduler::TopDown (uint32_t start)
 {
-  NS_LOG_FUNCTION (this << start);
+  NS_LOG_FUNCTION (start);
   uint32_t index = start;
   uint32_t right = RightChild (index);
   while (!IsBottom (right))
@@ -194,7 +194,7 @@ HeapScheduler::TopDown (uint32_t start)
 void
 HeapScheduler::Insert (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << &ev);
+  NS_LOG_FUNCTION (&ev);
   m_heap.push_back (ev);
   BottomUp ();
 }
@@ -202,13 +202,13 @@ HeapScheduler::Insert (const Event &ev)
 Scheduler::Event
 HeapScheduler::PeekNext (void) const
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_heap[Root ()];
 }
 Scheduler::Event
 HeapScheduler::RemoveNext (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   Event next = m_heap[Root ()];
   Exch (Root (), Last ());
   m_heap.pop_back ();
@@ -220,7 +220,7 @@ HeapScheduler::RemoveNext (void)
 void
 HeapScheduler::Remove (const Event &ev)
 {
-  NS_LOG_FUNCTION (this << &ev);
+  NS_LOG_FUNCTION (&ev);
   uint32_t uid = ev.key.m_uid;
   for (uint32_t i = 1; i < m_heap.size (); i++)
     {

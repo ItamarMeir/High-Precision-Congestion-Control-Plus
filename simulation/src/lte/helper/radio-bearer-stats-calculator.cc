@@ -37,20 +37,20 @@ RadioBearerStatsCalculator::RadioBearerStatsCalculator ()
     m_pendingOutput (false), 
     m_protocolType ("RLC")
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 RadioBearerStatsCalculator::RadioBearerStatsCalculator (std::string protocolType)
   : m_firstWrite (true),
     m_pendingOutput (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_protocolType = protocolType;
 }
 
 RadioBearerStatsCalculator::~RadioBearerStatsCalculator ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId
@@ -88,7 +88,7 @@ RadioBearerStatsCalculator::GetTypeId (void)
 void
 RadioBearerStatsCalculator::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (m_pendingOutput)
     {
       ShowResults ();
@@ -98,7 +98,7 @@ RadioBearerStatsCalculator::DoDispose ()
 void
 RadioBearerStatsCalculator::UlTxPdu (uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize)
 {
-  NS_LOG_FUNCTION (this << "UlTxPDU" << imsi << rnti << (uint32_t) lcid << packetSize);
+  NS_LOG_FUNCTION ("UlTxPDU" << imsi << rnti << (uint32_t) lcid << packetSize);
   CheckEpoch ();
   ImsiLcidPair_t p (imsi, lcid);
   if (Simulator::Now () > m_startTime)
@@ -113,7 +113,7 @@ RadioBearerStatsCalculator::UlTxPdu (uint64_t imsi, uint16_t rnti, uint8_t lcid,
 void
 RadioBearerStatsCalculator::DlTxPdu (uint16_t cellId, uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize)
 {
-  NS_LOG_FUNCTION (this << "DlTxPDU" << imsi << rnti << (uint32_t) lcid << packetSize);
+  NS_LOG_FUNCTION ("DlTxPDU" << imsi << rnti << (uint32_t) lcid << packetSize);
   CheckEpoch ();
   ImsiLcidPair_t p (imsi, lcid);
   if (Simulator::Now () > m_startTime)
@@ -130,7 +130,7 @@ void
 RadioBearerStatsCalculator::UlRxPdu (uint16_t cellId, uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize,
                                      uint64_t delay)
 {
-  NS_LOG_FUNCTION (this << "UlRxPDU" << imsi << rnti << (uint32_t) lcid << packetSize << delay);
+  NS_LOG_FUNCTION ("UlRxPDU" << imsi << rnti << (uint32_t) lcid << packetSize << delay);
   ImsiLcidPair_t p (imsi, lcid);
   CheckEpoch ();
 
@@ -156,7 +156,7 @@ RadioBearerStatsCalculator::UlRxPdu (uint16_t cellId, uint64_t imsi, uint16_t rn
 void
 RadioBearerStatsCalculator::DlRxPdu (uint64_t imsi, uint16_t rnti, uint8_t lcid, uint32_t packetSize, uint64_t delay)
 {
-  NS_LOG_FUNCTION (this << "DlRxPDU" << imsi << rnti << (uint32_t) lcid << packetSize << delay);
+  NS_LOG_FUNCTION ("DlRxPDU" << imsi << rnti << (uint32_t) lcid << packetSize << delay);
   CheckEpoch ();
   ImsiLcidPair_t p (imsi, lcid);
   if (Simulator::Now () > m_startTime)
@@ -181,7 +181,7 @@ void
 RadioBearerStatsCalculator::ShowResults (void)
 {
 
-  NS_LOG_FUNCTION (this << GetUlOutputFilename ().c_str () << GetDlOutputFilename ().c_str ());
+  NS_LOG_FUNCTION (GetUlOutputFilename ().c_str () << GetDlOutputFilename ().c_str ());
   NS_LOG_INFO ("Write Rlc Stats in " << GetUlOutputFilename ().c_str () << " and in " << GetDlOutputFilename ().c_str ());
 
   std::ofstream ulOutFile;
@@ -238,7 +238,7 @@ RadioBearerStatsCalculator::ShowResults (void)
 void
 RadioBearerStatsCalculator::WriteUlResults (std::ofstream& outFile)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Get the unique IMSI / LCID list
 
@@ -284,7 +284,7 @@ RadioBearerStatsCalculator::WriteUlResults (std::ofstream& outFile)
 void
 RadioBearerStatsCalculator::WriteDlResults (std::ofstream& outFile)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   // Get the unique IMSI list
   std::vector < ImsiLcidPair_t > pairVector;
@@ -329,7 +329,7 @@ RadioBearerStatsCalculator::WriteDlResults (std::ofstream& outFile)
 void
 RadioBearerStatsCalculator::ResetResults (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   m_ulTxPackets.erase (m_ulTxPackets.begin (), m_ulTxPackets.end ());
   m_ulRxPackets.erase (m_ulRxPackets.begin (), m_ulRxPackets.end ());
@@ -349,7 +349,7 @@ RadioBearerStatsCalculator::ResetResults (void)
 void
 RadioBearerStatsCalculator::CheckEpoch (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 
   if (Simulator::Now () > m_startTime + m_epochDuration)
     {
@@ -362,7 +362,7 @@ RadioBearerStatsCalculator::CheckEpoch (void)
 void
 RadioBearerStatsCalculator::StartEpoch (void)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   while (Simulator::Now () > m_startTime + m_epochDuration)
     {
       m_startTime += m_epochDuration;
@@ -372,7 +372,7 @@ RadioBearerStatsCalculator::StartEpoch (void)
 uint32_t
 RadioBearerStatsCalculator::GetUlTxPackets (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_ulTxPackets[p];
 }
@@ -380,7 +380,7 @@ RadioBearerStatsCalculator::GetUlTxPackets (uint64_t imsi, uint8_t lcid)
 uint32_t
 RadioBearerStatsCalculator::GetUlRxPackets (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_ulRxPackets[p];
 }
@@ -388,7 +388,7 @@ RadioBearerStatsCalculator::GetUlRxPackets (uint64_t imsi, uint8_t lcid)
 uint64_t
 RadioBearerStatsCalculator::GetUlTxData (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_ulTxData[p];
 }
@@ -396,7 +396,7 @@ RadioBearerStatsCalculator::GetUlTxData (uint64_t imsi, uint8_t lcid)
 uint64_t
 RadioBearerStatsCalculator::GetUlRxData (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_ulRxData[p];
 }
@@ -404,7 +404,7 @@ RadioBearerStatsCalculator::GetUlRxData (uint64_t imsi, uint8_t lcid)
 double
 RadioBearerStatsCalculator::GetUlDelay (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   Uint64StatsMap::iterator it = m_ulDelay.find (p);
   if (it == m_ulDelay.end ())
@@ -419,7 +419,7 @@ RadioBearerStatsCalculator::GetUlDelay (uint64_t imsi, uint8_t lcid)
 std::vector<double>
 RadioBearerStatsCalculator::GetUlDelayStats (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   std::vector<double> stats;
   Uint64StatsMap::iterator it = m_ulDelay.find (p);
@@ -442,7 +442,7 @@ RadioBearerStatsCalculator::GetUlDelayStats (uint64_t imsi, uint8_t lcid)
 std::vector<double>
 RadioBearerStatsCalculator::GetUlPduSizeStats (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   std::vector<double> stats;
   Uint32StatsMap::iterator it = m_ulPduSize.find (p);
@@ -465,7 +465,7 @@ RadioBearerStatsCalculator::GetUlPduSizeStats (uint64_t imsi, uint8_t lcid)
 uint32_t
 RadioBearerStatsCalculator::GetDlTxPackets (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_dlTxPackets[p];
 }
@@ -473,7 +473,7 @@ RadioBearerStatsCalculator::GetDlTxPackets (uint64_t imsi, uint8_t lcid)
 uint32_t
 RadioBearerStatsCalculator::GetDlRxPackets (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_dlRxPackets[p];
 }
@@ -481,7 +481,7 @@ RadioBearerStatsCalculator::GetDlRxPackets (uint64_t imsi, uint8_t lcid)
 uint64_t
 RadioBearerStatsCalculator::GetDlTxData (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_dlTxData[p];
 }
@@ -489,7 +489,7 @@ RadioBearerStatsCalculator::GetDlTxData (uint64_t imsi, uint8_t lcid)
 uint64_t
 RadioBearerStatsCalculator::GetDlRxData (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_dlRxData[p];
 }
@@ -497,7 +497,7 @@ RadioBearerStatsCalculator::GetDlRxData (uint64_t imsi, uint8_t lcid)
 uint32_t
 RadioBearerStatsCalculator::GetUlCellId (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_ulCellId[p];
 }
@@ -505,7 +505,7 @@ RadioBearerStatsCalculator::GetUlCellId (uint64_t imsi, uint8_t lcid)
 uint32_t
 RadioBearerStatsCalculator::GetDlCellId (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   return m_dlCellId[p];
 }
@@ -513,7 +513,7 @@ RadioBearerStatsCalculator::GetDlCellId (uint64_t imsi, uint8_t lcid)
 double
 RadioBearerStatsCalculator::GetDlDelay (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   Uint64StatsMap::iterator it = m_dlDelay.find (p);
   if (it == m_dlDelay.end ())
@@ -527,7 +527,7 @@ RadioBearerStatsCalculator::GetDlDelay (uint64_t imsi, uint8_t lcid)
 std::vector<double>
 RadioBearerStatsCalculator::GetDlDelayStats (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   std::vector<double> stats;
   Uint64StatsMap::iterator it = m_dlDelay.find (p);
@@ -550,7 +550,7 @@ RadioBearerStatsCalculator::GetDlDelayStats (uint64_t imsi, uint8_t lcid)
 std::vector<double>
 RadioBearerStatsCalculator::GetDlPduSizeStats (uint64_t imsi, uint8_t lcid)
 {
-  NS_LOG_FUNCTION (this << imsi << (uint16_t) lcid);
+  NS_LOG_FUNCTION (imsi << (uint16_t) lcid);
   ImsiLcidPair_t p (imsi, lcid);
   std::vector<double> stats;
   Uint32StatsMap::iterator it = m_dlPduSize.find (p);

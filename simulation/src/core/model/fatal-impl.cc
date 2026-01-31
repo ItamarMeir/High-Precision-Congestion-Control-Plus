@@ -68,7 +68,7 @@ struct destructor
 {
   ~destructor ()
   {
-    NS_LOG_FUNCTION (this);
+    // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
     std::list<std::ostream*> **pstreams = PeekStreamList ();
     delete *pstreams;
     *pstreams = 0;

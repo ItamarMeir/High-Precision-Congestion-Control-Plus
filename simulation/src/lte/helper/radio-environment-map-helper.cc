@@ -61,7 +61,7 @@ RadioEnvironmentMapHelper::~RadioEnvironmentMapHelper ()
 void
 RadioEnvironmentMapHelper::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 TypeId
@@ -168,7 +168,7 @@ RadioEnvironmentMapHelper::SetBandwidth (uint8_t bw)
 void 
 RadioEnvironmentMapHelper::Install ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   if (!m_rem.empty ())
     {
       NS_FATAL_ERROR ("only one REM supported per instance of RadioEnvironmentMapHelper");
@@ -197,7 +197,7 @@ RadioEnvironmentMapHelper::Install ()
 void 
 RadioEnvironmentMapHelper::DelayedInstall ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_xStep = (m_xMax - m_xMin)/(m_xRes-1);
   m_yStep = (m_yMax - m_yMin)/(m_yRes-1);
   
@@ -255,7 +255,7 @@ RadioEnvironmentMapHelper::DelayedInstall ()
 void 
 RadioEnvironmentMapHelper::RunOneIteration (double xMin, double xMax, double yMin, double yMax)
 {
-  NS_LOG_FUNCTION (this << xMin << xMax << yMin << yMax);
+  NS_LOG_FUNCTION (xMin << xMax << yMin << yMax);
   std::list<RemPoint>::iterator remIt = m_rem.begin ();
   double x;
   double y;
@@ -289,7 +289,7 @@ RadioEnvironmentMapHelper::RunOneIteration (double xMin, double xMax, double yMi
 void 
 RadioEnvironmentMapHelper::PrintAndReset ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   
   for (std::list<RemPoint>::iterator it = m_rem.begin ();
        it != m_rem.end ();
@@ -318,7 +318,7 @@ RadioEnvironmentMapHelper::PrintAndReset ()
 void 
 RadioEnvironmentMapHelper::Finalize ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_outFile.close ();
   if (m_stopWhenDone)
     {

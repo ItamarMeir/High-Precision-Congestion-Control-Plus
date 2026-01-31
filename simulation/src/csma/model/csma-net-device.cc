@@ -155,7 +155,7 @@ CsmaNetDevice::GetTypeId (void)
 CsmaNetDevice::CsmaNetDevice ()
   : m_linkUp (false)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_txMachineState = READY;
   m_tInterframeGap = Seconds (0);
   m_channel = 0; 
@@ -210,7 +210,7 @@ CsmaNetDevice::GetEncapsulationMode (void)
 bool
 CsmaNetDevice::SetMtu (uint16_t mtu)
 {
-  NS_LOG_FUNCTION (this << mtu);
+  NS_LOG_FUNCTION (mtu);
   m_mtu = mtu;
 
   NS_LOG_LOGIC ("m_encapMode = " << m_encapMode);
@@ -612,7 +612,7 @@ CsmaNetDevice::TransmitReadyEvent (void)
 bool
 CsmaNetDevice::Attach (Ptr<CsmaChannel> ch)
 {
-  NS_LOG_FUNCTION (this << &ch);
+  NS_LOG_FUNCTION (&ch);
 
   m_channel = ch;
 

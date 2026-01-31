@@ -47,18 +47,18 @@ namespace ns3 {
 DsrMainHelper::DsrMainHelper ()
   : m_dsrHelper (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 DsrMainHelper::DsrMainHelper (const DsrMainHelper &o)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_dsrHelper = o.m_dsrHelper->Copy ();
 }
 
 DsrMainHelper::~DsrMainHelper ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_dsrHelper;
 }
 
@@ -102,7 +102,7 @@ DsrMainHelper::Install (Ptr<Node> node)
 void
 DsrMainHelper::SetDsrHelper (DsrHelper &dsrHelper)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   delete m_dsrHelper;
   m_dsrHelper = dsrHelper.Copy ();
 }

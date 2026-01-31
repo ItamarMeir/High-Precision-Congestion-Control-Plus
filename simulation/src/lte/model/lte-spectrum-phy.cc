@@ -71,7 +71,7 @@ LteSpectrumPhy::LteSpectrumPhy ()
   : m_state (IDLE),
   m_transmissionMode (0)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_random = CreateObject<UniformRandomVariable> ();
   m_random->SetAttribute ("Min", DoubleValue (0.0));
   m_random->SetAttribute ("Max", DoubleValue (1.0));
@@ -85,14 +85,14 @@ LteSpectrumPhy::LteSpectrumPhy ()
 
 LteSpectrumPhy::~LteSpectrumPhy ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_expectedTbs.clear ();
   m_txModeGain.clear ();
 }
 
 void LteSpectrumPhy::DoDispose ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_channel = 0;
   m_mobility = 0;
   m_device = 0;
@@ -159,7 +159,7 @@ LteSpectrumPhy::GetTypeId (void)
 Ptr<NetDevice>
 LteSpectrumPhy::GetDevice ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_device;
 }
 
@@ -167,7 +167,7 @@ LteSpectrumPhy::GetDevice ()
 Ptr<MobilityModel>
 LteSpectrumPhy::GetMobility ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   return m_mobility;
 }
 
@@ -175,7 +175,7 @@ LteSpectrumPhy::GetMobility ()
 void
 LteSpectrumPhy::SetDevice (Ptr<NetDevice> d)
 {
-  NS_LOG_FUNCTION (this << d);
+  NS_LOG_FUNCTION (d);
   m_device = d;
 }
 
@@ -183,7 +183,7 @@ LteSpectrumPhy::SetDevice (Ptr<NetDevice> d)
 void
 LteSpectrumPhy::SetMobility (Ptr<MobilityModel> m)
 {
-  NS_LOG_FUNCTION (this << m);
+  NS_LOG_FUNCTION (m);
   m_mobility = m;
 }
 
@@ -191,7 +191,7 @@ LteSpectrumPhy::SetMobility (Ptr<MobilityModel> m)
 void
 LteSpectrumPhy::SetChannel (Ptr<SpectrumChannel> c)
 {
-  NS_LOG_FUNCTION (this << c);
+  NS_LOG_FUNCTION (c);
   m_channel = c;
 }
 
@@ -205,7 +205,7 @@ LteSpectrumPhy::GetRxSpectrumModel () const
 void
 LteSpectrumPhy::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 {
-  NS_LOG_FUNCTION (this << txPsd);
+  NS_LOG_FUNCTION (txPsd);
   NS_ASSERT (txPsd);
   m_txPsd = txPsd;
 }
@@ -214,7 +214,7 @@ LteSpectrumPhy::SetTxPowerSpectralDensity (Ptr<SpectrumValue> txPsd)
 void
 LteSpectrumPhy::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd)
 {
-  NS_LOG_FUNCTION (this << noisePsd);
+  NS_LOG_FUNCTION (noisePsd);
   NS_ASSERT (noisePsd);
   m_rxSpectrumModel = noisePsd->GetSpectrumModel ();
   m_interference->SetNoisePowerSpectralDensity (noisePsd);
@@ -225,7 +225,7 @@ LteSpectrumPhy::SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd)
 void
 LteSpectrumPhy::SetGenericPhyTxEndCallback (GenericPhyTxEndCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_genericPhyTxEndCallback = c;
 }
 
@@ -233,7 +233,7 @@ LteSpectrumPhy::SetGenericPhyTxEndCallback (GenericPhyTxEndCallback c)
 void
 LteSpectrumPhy::SetGenericPhyRxEndErrorCallback (GenericPhyRxEndErrorCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_genericPhyRxEndErrorCallback = c;
 }
 
@@ -241,7 +241,7 @@ LteSpectrumPhy::SetGenericPhyRxEndErrorCallback (GenericPhyRxEndErrorCallback c)
 void
 LteSpectrumPhy::SetGenericPhyRxEndOkCallback (GenericPhyRxEndOkCallback c)
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   m_genericPhyRxEndOkCallback = c;
 }
 
@@ -254,7 +254,7 @@ LteSpectrumPhy::GetRxAntenna ()
 void
 LteSpectrumPhy::SetAntenna (Ptr<AntennaModel> a)
 {
-  NS_LOG_FUNCTION (this << a);
+  NS_LOG_FUNCTION (a);
   m_antenna = a;
 }
 
@@ -276,7 +276,7 @@ LteSpectrumPhy::ChangeState (State newState)
 bool
 LteSpectrumPhy::StartTx (Ptr<PacketBurst> pb)
 {
-  NS_LOG_FUNCTION (this << pb);
+  NS_LOG_FUNCTION (pb);
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   m_phyTxStartTrace (pb);
@@ -336,7 +336,7 @@ LteSpectrumPhy::StartTx (Ptr<PacketBurst> pb)
 void
 LteSpectrumPhy::EndTx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   NS_ASSERT (m_state == TX);
@@ -361,7 +361,7 @@ LteSpectrumPhy::EndTx ()
 void
 LteSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
 {
-  NS_LOG_FUNCTION (this << spectrumRxParams);
+  NS_LOG_FUNCTION (spectrumRxParams);
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   // interference will happen regardless of the type of the signal (could be 3G, GSM, whatever)
@@ -446,7 +446,7 @@ LteSpectrumPhy::StartRx (Ptr<SpectrumSignalParameters> spectrumRxParams)
 void
 LteSpectrumPhy::UpdateSinrPerceived (const SpectrumValue& sinr)
 {
-  NS_LOG_FUNCTION (this << sinr);
+  NS_LOG_FUNCTION (sinr);
   m_sinrPerceived = sinr;
 }
 
@@ -474,7 +474,7 @@ LteSpectrumPhy::AddExpectedTb (uint16_t  rnti, uint16_t size, uint8_t mcs, std::
 void
 LteSpectrumPhy::EndRx ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
   NS_LOG_LOGIC (this << " state: " << m_state);
 
   NS_ASSERT (m_state == RX);
@@ -559,7 +559,7 @@ LteSpectrumPhy::AddSinrChunkProcessor (Ptr<LteSinrChunkProcessor> p)
 void 
 LteSpectrumPhy::SetTransmissionMode (uint8_t txMode)
 {
-  NS_LOG_FUNCTION (this << (uint16_t) txMode);
+  NS_LOG_FUNCTION ((uint16_t) txMode);
   NS_ASSERT_MSG (txMode < m_txModeGain.size (), "TransmissionMode not available: 1.." << m_txModeGain.size ());
   m_transmissionMode = txMode;
 }
@@ -568,7 +568,7 @@ LteSpectrumPhy::SetTransmissionMode (uint8_t txMode)
 void 
 LteSpectrumPhy::SetTxModeGain (uint8_t txMode, double gain)
 {
-  NS_LOG_FUNCTION (this << " txmode " << (uint16_t)txMode << " gain " << gain);
+  NS_LOG_FUNCTION (" txmode " << (uint16_t)txMode << " gain " << gain);
   // convert to linear
   gain = pow (10.0, (gain / 10.0));
   if (m_txModeGain.size () < txMode)
@@ -594,7 +594,7 @@ LteSpectrumPhy::SetTxModeGain (uint8_t txMode, double gain)
 int64_t
 LteSpectrumPhy::AssignStreams (int64_t stream)
 {
-  NS_LOG_FUNCTION (this << stream);
+  NS_LOG_FUNCTION (stream);
   m_random->SetStream (stream);
   return 1;
 }

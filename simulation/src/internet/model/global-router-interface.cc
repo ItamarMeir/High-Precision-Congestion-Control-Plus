@@ -63,7 +63,7 @@ GlobalRoutingLinkRecord::GlobalRoutingLinkRecord (
     m_linkType (linkType),
     m_metric (metric)
 {
-  NS_LOG_FUNCTION (this << linkType << linkId << linkData << metric);
+  NS_LOG_FUNCTION (linkType << linkId << linkData << metric);
 }
 
 GlobalRoutingLinkRecord::~GlobalRoutingLinkRecord ()
@@ -162,7 +162,7 @@ GlobalRoutingLSA::GlobalRoutingLSA (
     m_status (status),
     m_node_id (0)
 {
-  NS_LOG_FUNCTION (this << status << linkStateId << advertisingRtr);
+  NS_LOG_FUNCTION (status << linkStateId << advertisingRtr);
 }
 
 GlobalRoutingLSA::GlobalRoutingLSA (GlobalRoutingLSA& lsa)

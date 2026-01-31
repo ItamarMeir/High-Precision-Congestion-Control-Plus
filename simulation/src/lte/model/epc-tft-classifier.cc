@@ -42,13 +42,13 @@ namespace ns3 {
 
 EpcTftClassifier::EpcTftClassifier ()
 {
-  NS_LOG_FUNCTION (this);
+  // NS_LOG_FUNCTION (this); // Removed due to compiler ambiguity
 }
 
 void
 EpcTftClassifier::Add (Ptr<EpcTft> tft, uint32_t id)
 {
-  NS_LOG_FUNCTION (this << tft);
+  NS_LOG_FUNCTION (tft);
   
   m_tftMap[id] = tft;  
   
@@ -59,7 +59,7 @@ EpcTftClassifier::Add (Ptr<EpcTft> tft, uint32_t id)
 void
 EpcTftClassifier::Delete (uint32_t id)
 {
-  NS_LOG_FUNCTION (this << id);
+  NS_LOG_FUNCTION (id);
   m_tftMap.erase (id);
 }
 
@@ -67,7 +67,7 @@ EpcTftClassifier::Delete (uint32_t id)
 uint32_t 
 EpcTftClassifier::Classify (Ptr<Packet> p, EpcTft::Direction direction)
 {
-  NS_LOG_FUNCTION (this << p << direction);
+  NS_LOG_FUNCTION (p << direction);
 
   Ptr<Packet> pCopy = p->Copy ();
 
