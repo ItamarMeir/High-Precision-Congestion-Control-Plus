@@ -1,0 +1,23 @@
+2
+0 2 3 100 100000000 1
+1 2 3 101 100000000 1
+
+First line: # of flows
+src0 dst0 3 dst_port0 write_size_bytes0 start_time0
+src1 dst1 3 dst_port1 write_size_bytes1 start_time1
+...
+
+Flow Format Notes:
+Write size is in BYTES (passed to RdmaClient `WriteSize`).
+- src, dst: source and destination node IDs (hosts only, not switches)
+- 3: protocol (fixed)
+- dport: destination port number
+- write_size_bytes: total bytes to send
+  PACKET_PAYLOAD_SIZE is the payload size for each packet (default: 1000 bytes, set in config)
+- start_time: flow start time in seconds
+
+Example (1Gbps links, congestion to ~500Mbps per flow):
+  write_size_bytes=100,000,000 bytes = 100 MB
+  Expected FCT: 100 MB ÷ 500 Mbps = 1.6 seconds
+
+Please order the flows in ascending start_time!

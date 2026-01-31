@@ -55,6 +55,12 @@ RUN apt-get update && apt-get install -y \
 # Crucial: Make 'python' command point to python2
 RUN ln -sf /usr/bin/python2 /usr/bin/python
 
+# Install pybindgen for Python bindings generation
+RUN apt-get update && apt-get install -y \
+    python-pip \
+    && pip install pybindgen \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /workspace
 

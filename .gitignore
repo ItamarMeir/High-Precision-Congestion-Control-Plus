@@ -27,7 +27,8 @@ results/data/*.tr
 results/data/qlen*.txt
 results/data/fct*.txt
 results/data/pfc*.txt
-
+# Third-party dependencies
+pybindgen/
 # Misc
 *.log
 .DS_Store

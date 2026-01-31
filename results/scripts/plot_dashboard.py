@@ -85,6 +85,9 @@ def plot_dashboard(base_dir='simulation/mix'):
     qlen_file = _select_file_in(base_dir, os.path.join('outputs', 'qlen'), 'qlen_fat_k4.txt', 'qlen.txt')
     if qlen_file:
         qlen_times, qlen_values = _parse_qlen_time_blocks(qlen_file)
+        if qlen_times:
+            t0 = qlen_times[0]
+            qlen_times = [max(0.0, t - t0) for t in qlen_times]
     
     # Parse FCT data
     fct_file = _select_file_in(base_dir, os.path.join('outputs', 'fct'), 'fct_fat_k4.txt', 'fct.txt')

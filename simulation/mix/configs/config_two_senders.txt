@@ -1,17 +1,17 @@
-ENABLE_QCN 1 {0: disable, 1: enable}
-USE_DYNAMIC_PFC_THRESHOLD 1 {0: disable, 1: enable}
+ENABLE_QCN 0 {0: disable, 1: enable}
+USE_DYNAMIC_PFC_THRESHOLD 0 {0: disable, 1: enable}
 
 PACKET_PAYLOAD_SIZE 1000 {packet size (bytes)}
 
 TOPOLOGY_FILE mix/topologies/topology_two_senders.txt {input file: topology}
-FLOW_FILE mix/flows/flow_two_senders.txt {input file: flow to generate}
+FLOW_FILE mix/flows/flow_two_senders_heavy.txt {input file: flow to generate}
 TRACE_FILE mix/inputs/trace.txt {input file: nodes to monitor packet-level events}
-TRACE_OUTPUT_FILE mix/outputs/trace/mix_two_senders.tr {output file: packet-level events}
-FCT_OUTPUT_FILE mix/outputs/fct/fct_two_senders.txt {output file: flow completion time}
-PFC_OUTPUT_FILE mix/outputs/pfc/pfc_two_senders.txt {output file: PFC}
-CWND_OUTPUT_FILE mix/outputs/cwnd/cwnd_two_senders.txt {output file: qp rate/window trace}
+TRACE_OUTPUT_FILE ../results/data/mix_two_senders_heavy.tr {output file: packet-level events}
+FCT_OUTPUT_FILE ../results/data/fct_two_senders_heavy.txt {output file: flow completion time}
+PFC_OUTPUT_FILE ../results/data/pfc_two_senders_heavy.txt {output file: PFC}
+CWND_OUTPUT_FILE ../results/data/cwnd_two_senders_heavy.txt {output file: qp rate/window trace}
 
-SIMULATOR_STOP_TIME 4.00 {simulation stop time}
+SIMULATOR_STOP_TIME 8.00 {simulation stop time}
 
 CC_MODE 3 {1: DCQCN, 3: HPCC, 7: TIMELY, 8: DCTCP, 10: HPCC-PINT}
 ALPHA_RESUME_INTERVAL 1 {for DCQCN: interval of update alpha}
@@ -20,9 +20,9 @@ CLAMP_TARGET_RATE 0 {for DCQCN: reduce target rate on consecutive decrease}
 RP_TIMER 900 {for DCQCN: interval of rate increase}
 EWMA_GAIN 0.00390625 {for DCQCN/DCTCP: EWMA gain}
 FAST_RECOVERY_TIMES 1 {for DCQCN: number of fast recovery increases}
-RATE_AI 50Mb/s {additive increase (not for DCTCP)}
-RATE_HAI 100Mb/s {hyper additive increase}
-MIN_RATE 100Mb/s {minimum rate}
+RATE_AI 5Mb/s {additive increase (not for DCTCP)}
+RATE_HAI 10Mb/s {hyper additive increase}
+MIN_RATE 10Mb/s {minimum rate}
 DCTCP_RATE_AI 1000Mb/s {additive increase for DCTCP}
 
 ERROR_RATE_PER_LINK 0.0000 {error rate of each link}
@@ -51,10 +51,10 @@ LINK_DOWN 0 0 0 {a b c: take down link between b and c at time a}
 ENABLE_TRACE 1 {dump packet-level events or not}
 ENABLE_CWND_TRACE 1 {dump qp rate/window trace or not}
 
-KMAX_MAP 3 25000000000 400 50000000000 800 100000000000 1600 {bandwidth->kmax map}
-KMIN_MAP 3 25000000000 100 50000000000 200 100000000000 400 {bandwidth->kmin map}
-PMAX_MAP 3 25000000000 0.2 50000000000 0.2 100000000000 0.2 {bandwidth->pmax map}
+KMAX_MAP 7 1000000000 16 10000000000 160 20000000000 320 25000000000 400 50000000000 800 100000000000 1600 100000000000 1600 {bandwidth->kmax map}
+KMIN_MAP 7 1000000000 4 10000000000 40 20000000000 80 25000000000 100 50000000000 200 100000000000 400 100000000000 400 {bandwidth->kmin map}
+PMAX_MAP 7 1000000000 0.2 10000000000 0.2 20000000000 0.2 25000000000 0.2 50000000000 0.2 100000000000 0.2 100000000000 0.2 {bandwidth->pmax map}
 BUFFER_SIZE 32 {buffer size per switch (MB)}
-QLEN_MON_FILE mix/outputs/qlen/qlen_two_senders.txt {output file: queue length}
-QLEN_MON_START 2000000000 {start time of dumping qlen}
-QLEN_MON_END 2010000000 {end time of dumping qlen}
+QLEN_MON_FILE ../results/data/qlen_two_senders_heavy.txt {output file: queue length}
+QLEN_MON_START 1000000000 {start time of dumping qlen}
+QLEN_MON_END 19000000000 {end time of dumping qlen}

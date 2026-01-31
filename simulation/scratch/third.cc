@@ -126,7 +126,8 @@ std::vector<Ipv4Address> serverAddress;
 std::unordered_map<uint32_t, unordered_map<uint32_t, uint16_t> > portNumder;
 
 struct FlowInput{
-	uint32_t src, dst, pg, maxPacketCount, port, dport;
+	uint32_t src, dst, pg, port, dport;
+	uint64_t maxPacketCount;
 	double start_time;
 	uint32_t idx;
 };
