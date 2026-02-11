@@ -8,12 +8,16 @@ simulation/build/
 
 # NetAnim build/output
 netanim/
+pybindgen/
 
 # Plots and generated images
 results/plots/
 results/data/*.png
 results/data/*.xml
 **/*.png
+
+# Allow study cases
+!results/study_cases/
 
 # Simulation outputs
 simulation/mix/*.tr
@@ -32,3 +36,4 @@ pybindgen/
 # Misc
 *.log
 .DS_Store
+*.html

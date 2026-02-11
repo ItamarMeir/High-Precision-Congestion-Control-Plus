@@ -203,6 +203,11 @@ namespace ns3 {
 					PointerValue (),
 					MakePointerAccessor (&QbbNetDevice::m_rdmaEQ),
 					MakePointerChecker<Object> ())
+			.AddAttribute ("RdmaIngressQueue", 
+					"A queue to use as the NIC RX buffer.",
+					PointerValue (),
+					MakePointerAccessor (&QbbNetDevice::m_rdmaIQ),
+					MakePointerChecker<Object> ())
 			.AddTraceSource ("QbbEnqueue", "Enqueue a packet in the QbbNetDevice.",
 					MakeTraceSourceAccessor (&QbbNetDevice::m_traceEnqueue))
 			.AddTraceSource ("QbbDequeue", "Dequeue a packet in the QbbNetDevice.",
@@ -227,6 +232,8 @@ namespace ns3 {
 		}
 
 		m_rdmaEQ = CreateObject<RdmaEgressQueue>();
+		m_rdmaIQ = CreateObject<RdmaIngressQueue>();
+		m_rxPullMode = 1;
 	}
 
 	QbbNetDevice::~QbbNetDevice()
@@ -245,7 +252,7 @@ namespace ns3 {
 	void
 		QbbNetDevice::TransmitComplete(void)
 	{
-		// NS_LOG_FUNCTION(this); // Removed due to compiler ambiguity
+		NS_LOG_FUNCTION(this);
 		NS_ASSERT_MSG(m_txMachineState == BUSY, "Must be BUSY if transmitting");
 		m_txMachineState = READY;
 		NS_ASSERT_MSG(m_currentPkt != 0, "QbbNetDevice::TransmitComplete(): m_currentPkt zero");
@@ -384,9 +391,29 @@ namespace ns3 {
 				packet->AddPacketTag(FlowIdTag(m_ifIndex));
 				m_node->SwitchReceiveFromDevice(this, packet, ch);
 			}else { // NIC
-				// send to RdmaHw
-				int ret = m_rdmaReceiveCb(packet, ch);
-				// TODO we may based on the ret do something
+				uint32_t qIndex = 0;
+				if (ch.l3Prot == 0x11){ // UDP data
+					qIndex = ch.udp.pg;
+				}else if (ch.l3Prot == 0xFF){ // CNP
+					qIndex = ch.cnp.qIndex;
+				}else if (ch.l3Prot == 0xFD || ch.l3Prot == 0xFC){ // NACK/ACK
+					qIndex = ch.ack.pg;
+				}
+
+				if (m_node->GetNodeType() == 0){ // NIC
+				}
+
+				if (m_rxPullMode == 0 && !m_rdmaReceiveCb.IsNull()){
+					m_rdmaReceiveCb(packet, ch);
+					return;
+				}
+
+				if (m_rdmaIQ && EnqueueRxPacket(packet, qIndex)){
+					if (!m_rdmaRxEnqueueCb.IsNull())
+						m_rdmaRxEnqueueCb(this);
+				}else{
+					m_traceDrop(packet, qIndex);
+				}
 			}
 		}
 		return;
@@ -495,9 +522,34 @@ namespace ns3 {
 		return m_rdmaEQ;
 	}
 
+	Ptr<RdmaIngressQueue> QbbNetDevice::GetRdmaIngressQueue(){
+		return m_rdmaIQ;
+	}
+
+	void QbbNetDevice::SetRxPullMode(uint32_t mode){
+		m_rxPullMode = mode;
+	}
+
+	uint32_t QbbNetDevice::GetRxPullMode() const{
+		return m_rxPullMode;
+	}
+
 	void QbbNetDevice::RdmaEnqueueHighPrioQ(Ptr<Packet> p){
 		m_traceEnqueue(p, 0);
 		m_rdmaEQ->EnqueueHighPrioQ(p);
+	}
+
+	bool QbbNetDevice::EnqueueRxPacket(Ptr<Packet> p, uint32_t qIndex){
+		if (!m_rdmaIQ)
+			return false;
+		return m_rdmaIQ->Enqueue(p, qIndex);
+	}
+
+	Ptr<Packet> QbbNetDevice::DequeueRxPacket(void){
+		if (!m_rdmaIQ)
+			return 0;
+		uint32_t qIndex = 0;
+		return m_rdmaIQ->Dequeue(qIndex);
 	}
 
 	void QbbNetDevice::TakeDown(){

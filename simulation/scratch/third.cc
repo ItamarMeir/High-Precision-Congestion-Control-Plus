@@ -38,7 +38,7 @@
 #include <ns3/rdma-driver.h>
 #include <ns3/switch-node.h>
 #include <ns3/sim-setting.h>
-#include "ns3/netanim-module.h"
+// #include "ns3/netanim-module.h"
 
 using namespace ns3;
 using namespace std;
@@ -53,6 +53,8 @@ std::string data_rate, link_delay, topology_file, flow_file, trace_file, trace_o
 std::string fct_output_file = "fct.txt";
 std::string pfc_output_file = "pfc.txt";
 std::string cwnd_output_file = "cwnd.txt";
+std::string rxbuf_output_file = "rxbuf.txt";
+std::string drop_output_file = "drop.txt";
 
 double alpha_resume_interval = 55, rp_timer, ewma_gain = 1 / 16;
 double rate_decrease_interval = 4;
@@ -84,10 +86,22 @@ uint32_t enable_anim = 0;
 std::string anim_output_file = "mix/topology-animation.xml";
 
 uint32_t buffer_size = 16;
+uint64_t rx_buffer_size = 8 * 1024 * 1024;
+uint64_t rx_buffer_per_queue = 0;
+bool rx_buffer_per_queue_set = false;
+uint32_t rx_pull_mode = 1;
+double rx_pull_rate = 1.0;
+
+// Per-node RX buffer settings (overrides for specific nodes)
+std::map<uint32_t, uint64_t> per_node_rx_buffer_size;
+std::map<uint32_t, uint64_t> per_node_rx_buffer_per_queue;
+std::map<uint32_t, uint32_t> per_node_rx_pull_mode;
+std::map<uint32_t, double> per_node_rx_pull_rate;
 
 uint32_t qlen_dump_interval = 100000000, qlen_mon_interval = 100;
 uint64_t qlen_mon_start = 2000000000, qlen_mon_end = 2100000000;
 string qlen_mon_file;
+std::map<uint32_t, std::vector<std::pair<double, double>>> per_node_rx_pull_rate_schedule;
 
 unordered_map<uint64_t, uint32_t> rate2kmax, rate2kmin;
 unordered_map<uint64_t, double> rate2pmax;
@@ -141,6 +155,7 @@ void ReadFlowInput(){
 	}
 }
 
+/*
 void SetupAnimation(AnimationInterface &anim, NodeContainer &nodes, const std::vector<uint32_t> &node_type){
 	std::vector<uint32_t> host_ids;
 	std::vector<uint32_t> switch_ids;
@@ -166,7 +181,9 @@ void SetupAnimation(AnimationInterface &anim, NodeContainer &nodes, const std::v
 	place_ring(switch_ids, 60.0);
 	place_ring(host_ids, 120.0);
 }
+*/
 
+/*
 void FixAnimHeader(const std::string &filePath){
 	std::ifstream in(filePath.c_str());
 	std::string resolvedPath = filePath;
@@ -188,6 +205,7 @@ void FixAnimHeader(const std::string &filePath){
 	out << rest;
 	out.close();
 }
+*/
 void ScheduleFlowInputs(){
 	while (flow_input.idx < flow_num && Seconds(flow_input.start_time) == Simulator::Now()){
 		uint32_t port = portNumder[flow_input.src][flow_input.dst]++; // get a new port number 
@@ -237,6 +255,16 @@ void trace_qp_rate(FILE* fout, Ptr<RdmaQueuePair> q, uint64_t rate, uint64_t win
 	fflush(fout);
 }
 
+void trace_rxbuf(FILE* fout, Ptr<QbbNetDevice> dev, uint64_t oldv, uint64_t newv){
+	fprintf(fout, "%lu %u %u %lu\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetIfIndex(), newv);
+	fflush(fout);
+}
+
+void trace_drop(FILE* fout, Ptr<QbbNetDevice> dev, Ptr<const Packet> p, uint32_t qIndex){
+	fprintf(fout, "%lu %u %u %u %u\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetIfIndex(), qIndex, p->GetSize());
+	fflush(fout);
+}
+
 void get_pfc(FILE* fout, Ptr<QbbNetDevice> dev, uint32_t type){
 	fprintf(fout, "%lu %u %u %u %u\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetNode()->GetNodeType(), dev->GetIfIndex(), type);
 }
@@ -277,6 +305,7 @@ void monitor_buffer(FILE* qlen_output, NodeContainer *n){
 				fprintf(qlen_output, "\n");
 			}
 		fflush(qlen_output);
+		queue_result.clear();
 	}
 	if (Simulator::Now().GetTimeStep() < qlen_mon_end)
 		Simulator::Schedule(NanoSeconds(qlen_mon_interval), &monitor_buffer, qlen_output, n);
@@ -421,6 +450,12 @@ int main(int argc, char *argv[])
 		{
 			std::string key;
 			conf >> key;
+
+			if (key.size() > 0 && key[0] == '#') {
+				std::string line;
+				std::getline(conf, line);
+				continue;
+			}
 
 			//std::cout << conf.cur << "\n";
 
@@ -650,6 +685,9 @@ int main(int argc, char *argv[])
 			}else if (key.compare("CWND_OUTPUT_FILE") == 0){
 				conf >> cwnd_output_file;
 				std::cout << "CWND_OUTPUT_FILE\t\t\t" << cwnd_output_file << '\n';
+			}else if (key.compare("RXBUF_OUTPUT_FILE") == 0){
+				conf >> rxbuf_output_file;
+				std::cout << "RXBUF_OUTPUT_FILE\t\t\t" << rxbuf_output_file << '\n';
 			}else if (key.compare("LINK_DOWN") == 0){
 				conf >> link_down_time >> link_down_A >> link_down_B;
 				std::cout << "LINK_DOWN\t\t\t\t" << link_down_time << ' '<< link_down_A << ' ' << link_down_B << '\n';
@@ -704,6 +742,54 @@ int main(int argc, char *argv[])
 			}else if (key.compare("BUFFER_SIZE") == 0){
 				conf >> buffer_size;
 				std::cout << "BUFFER_SIZE\t\t\t\t" << buffer_size << '\n';
+			}else if (key.compare("RX_BUFFER_SIZE") == 0){
+				conf >> rx_buffer_size;
+				std::cout << "RX_BUFFER_SIZE\t\t\t\t" << rx_buffer_size << '\n';
+			}else if (key.compare("RX_BUFFER_PER_QUEUE") == 0){
+				conf >> rx_buffer_per_queue;
+				rx_buffer_per_queue_set = true;
+				std::cout << "RX_BUFFER_PER_QUEUE\t\t\t" << rx_buffer_per_queue << '\n';
+			}else if (key.compare("RX_PULL_MODE") == 0){
+				conf >> rx_pull_mode;
+				std::cout << "RX_PULL_MODE\t\t\t\t" << rx_pull_mode << '\n';
+			}else if (key.compare("RX_PULL_RATE") == 0){
+				conf >> rx_pull_rate;
+				std::cout << "RX_PULL_RATE\t\t\t\t" << rx_pull_rate << '\n';
+			}else if (key.compare("RX_BUFFER_SIZE_NODE") == 0){
+				uint32_t node_id;
+				uint64_t size;
+				conf >> node_id >> size;
+				per_node_rx_buffer_size[node_id] = size;
+				std::cout << "RX_BUFFER_SIZE_NODE " << node_id << "\t\t" << size << '\n';
+			}else if (key.compare("RX_BUFFER_PER_QUEUE_NODE") == 0){
+				uint32_t node_id;
+				uint64_t size;
+				conf >> node_id >> size;
+				per_node_rx_buffer_per_queue[node_id] = size;
+				std::cout << "RX_BUFFER_PER_QUEUE_NODE " << node_id << "\t" << size << '\n';
+			}else if (key.compare("RX_PULL_MODE_NODE") == 0){
+				uint32_t node_id, mode;
+				conf >> node_id >> mode;
+				per_node_rx_pull_mode[node_id] = mode;
+				std::cout << "RX_PULL_MODE_NODE " << node_id << "\t\t" << mode << '\n';
+			}else if (key.compare("RX_PULL_RATE_NODE") == 0){
+				uint32_t node_id;
+				double rate;
+				conf >> node_id >> rate;
+				per_node_rx_pull_rate[node_id] = rate;
+				std::cout << "RX_PULL_RATE_NODE " << node_id << "\t\t" << rate << '\n';
+			}else if (key.compare("RX_PULL_RATE_SCHEDULE") == 0){
+				uint32_t node_id;
+				int count;
+				conf >> node_id >> count;
+				std::cout << "RX_PULL_RATE_SCHEDULE Node " << node_id << " count " << count;
+				for (int i=0; i<count; i++){
+					double t, r;
+					conf >> t >> r;
+					per_node_rx_pull_rate_schedule[node_id].push_back({t, r});
+					std::cout << " " << t << " " << r;
+				}
+				std::cout << '\n';
 			}else if (key.compare("QLEN_MON_FILE") == 0){
 				conf >> qlen_mon_file;
 				std::cout << "QLEN_MON_FILE\t\t\t\t" << qlen_mon_file << '\n';
@@ -743,10 +829,17 @@ int main(int argc, char *argv[])
 
 
 	bool dynamicth = use_dynamic_pfc_threshold;
+	if (!rx_buffer_per_queue_set){
+		rx_buffer_per_queue = rx_buffer_size / 8;
+	}
 
 	Config::SetDefault("ns3::QbbNetDevice::PauseTime", UintegerValue(pause_time));
 	Config::SetDefault("ns3::QbbNetDevice::QcnEnabled", BooleanValue(enable_qcn));
 	Config::SetDefault("ns3::QbbNetDevice::DynamicThreshold", BooleanValue(dynamicth));
+	Config::SetDefault("ns3::RdmaIngressQueue::MaxBytes", UintegerValue(rx_buffer_size));
+	Config::SetDefault("ns3::RdmaIngressQueue::MaxBytesPerQueue", UintegerValue(rx_buffer_per_queue));
+	Config::SetDefault("ns3::RdmaHw::RxPullMode", UintegerValue(rx_pull_mode));
+	Config::SetDefault("ns3::RdmaHw::RxPullRate", DoubleValue(rx_pull_rate));
 
 	// set int_multi
 	IntHop::multi = int_multi;
@@ -799,11 +892,13 @@ int main(int argc, char *argv[])
 
 	NS_LOG_INFO("Create nodes.");
 
+	/*
 	std::unique_ptr<AnimationInterface> anim;
 	if (enable_anim){
 		anim.reset(new AnimationInterface(anim_output_file));
 		SetupAnimation(*anim, n, node_type);
 	}
+	*/
 
 	InternetStackHelper internet;
 	internet.Install(n);
@@ -833,6 +928,8 @@ int main(int argc, char *argv[])
 
 	FILE *pfc_file = fopen(pfc_output_file.c_str(), "w");
 	FILE *cwnd_output = nullptr;
+	FILE *rxbuf_output = fopen(rxbuf_output_file.c_str(), "w");
+	FILE *drop_output = fopen(drop_output_file.c_str(), "w");
 
 	QbbHelper qbb;
 	Ipv4AddressHelper ipv4;
@@ -900,7 +997,77 @@ int main(int argc, char *argv[])
 		// setup PFC trace
 		DynamicCast<QbbNetDevice>(d.Get(0))->TraceConnectWithoutContext("QbbPfc", MakeBoundCallback (&get_pfc, pfc_file, DynamicCast<QbbNetDevice>(d.Get(0))));
 		DynamicCast<QbbNetDevice>(d.Get(1))->TraceConnectWithoutContext("QbbPfc", MakeBoundCallback (&get_pfc, pfc_file, DynamicCast<QbbNetDevice>(d.Get(1))));
+
+		// setup drop trace
+		DynamicCast<QbbNetDevice>(d.Get(0))->TraceConnectWithoutContext("Drop", MakeBoundCallback (&trace_drop, drop_output, DynamicCast<QbbNetDevice>(d.Get(0))));
+		DynamicCast<QbbNetDevice>(d.Get(1))->TraceConnectWithoutContext("Drop", MakeBoundCallback (&trace_drop, drop_output, DynamicCast<QbbNetDevice>(d.Get(1))));
+
+		// setup RX buffer trace for hosts
+		if (snode->GetNodeType() == 0){
+			Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(d.Get(0));
+			dev->GetRdmaIngressQueue()->TraceConnectWithoutContext("RdmaIngressBytes",
+				MakeBoundCallback(&trace_rxbuf, rxbuf_output, dev));
+		}
+		if (dnode->GetNodeType() == 0){
+			Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(d.Get(1));
+			dev->GetRdmaIngressQueue()->TraceConnectWithoutContext("RdmaIngressBytes",
+				MakeBoundCallback(&trace_rxbuf, rxbuf_output, dev));
+		}
 	}
+
+	// Apply per-node RX buffer settings to QbbNetDevices
+	for (uint32_t i = 0; i < node_num; i++){
+		if (n.Get(i)->GetNodeType() == 0){ // is host
+			uint32_t node_id = i;
+			Ptr<Node> node = n.Get(i);
+			
+			// Iterate through all devices on this node
+			for (uint32_t j = 0; j < node->GetNDevices(); j++){
+				Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(node->GetDevice(j));
+				if (dev){
+					dev->SetRxPullMode(rx_pull_mode);
+					Ptr<RdmaIngressQueue> rxiq = dev->GetRdmaIngressQueue();
+					if (rxiq){
+						// Apply per-node RX buffer size
+						if (per_node_rx_buffer_size.find(node_id) != per_node_rx_buffer_size.end()){
+							rxiq->SetAttribute("MaxBytes", UintegerValue(per_node_rx_buffer_size[node_id]));
+							std::cout << "Node " << node_id << " dev " << j << ": Applied MaxBytes=" 
+								<< per_node_rx_buffer_size[node_id] << '\n';
+						}
+						// Apply per-node RX buffer per-queue size
+						if (per_node_rx_buffer_per_queue.find(node_id) != per_node_rx_buffer_per_queue.end()){
+							rxiq->SetAttribute("MaxBytesPerQueue", UintegerValue(per_node_rx_buffer_per_queue[node_id]));
+							std::cout << "Node " << node_id << " dev " << j << ": Applied MaxBytesPerQueue=" 
+								<< per_node_rx_buffer_per_queue[node_id] << '\n';
+						}
+					}
+					if (per_node_rx_pull_mode.find(node_id) != per_node_rx_pull_mode.end()){
+						dev->SetRxPullMode(per_node_rx_pull_mode[node_id]);
+						std::cout << "Node " << node_id << " dev " << j << ": Applied RxPullMode=" 
+							<< per_node_rx_pull_mode[node_id] << '\n';
+					}
+				}
+			}
+		}
+	}
+
+	// Emit initial zero RX buffer entries for hosts in immediate pull mode
+	for (uint32_t i = 0; i < node_num; i++){
+		if (n.Get(i)->GetNodeType() == 0){ // is host
+			Ptr<Node> node = n.Get(i);
+			for (uint32_t j = 0; j < node->GetNDevices(); j++){
+				Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(node->GetDevice(j));
+				if (dev && dev->GetRxPullMode() == 0){
+					fprintf(rxbuf_output, "%lu %u %u %lu\n",
+						Simulator::Now().GetTimeStep(),
+						dev->GetNode()->GetId(),
+						dev->GetIfIndex(),
+						0lu);
+				}
+			}
+		}
+	}
+	fflush(rxbuf_output);
 
 	nic_rate = get_nic_rate(n);
 
@@ -969,6 +1136,27 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("RateBound", BooleanValue(rate_bound));
 			rdmaHw->SetAttribute("DctcpRateAI", DataRateValue(DataRate(dctcp_rate_ai)));
 			rdmaHw->SetPintSmplThresh(pint_prob);
+			
+			// Apply per-node RX buffer settings if specified
+			uint32_t node_id = i;
+			if (per_node_rx_pull_mode.find(node_id) != per_node_rx_pull_mode.end()){
+				rdmaHw->SetAttribute("RxPullMode", UintegerValue(per_node_rx_pull_mode[node_id]));
+				std::cout << "Node " << node_id << ": Applied RxPullMode=" << per_node_rx_pull_mode[node_id] << '\n';
+			}
+			if (per_node_rx_pull_rate.find(node_id) != per_node_rx_pull_rate.end()){
+				rdmaHw->SetAttribute("RxPullRate", DoubleValue(per_node_rx_pull_rate[node_id]));
+				std::cout << "Node " << node_id << ": Applied RxPullRate=" << per_node_rx_pull_rate[node_id] << '\n';
+			}
+			
+			// Apply rate schedule
+			if (per_node_rx_pull_rate_schedule.find(node_id) != per_node_rx_pull_rate_schedule.end()){
+				for (auto &sched : per_node_rx_pull_rate_schedule[node_id]){
+					rdmaHw->AddRxPullRateSchedule(Seconds(sched.first), sched.second);
+				}
+				std::cout << "Node " << node_id << ": Applied RxPullRateSchedule with " << per_node_rx_pull_rate_schedule[node_id].size() << " entries\n";
+			}
+
+			
 			// create and install RdmaDriver
 			Ptr<RdmaDriver> rdma = CreateObject<RdmaDriver>();
 			Ptr<Node> node = n.Get(i);
@@ -1106,10 +1294,12 @@ int main(int argc, char *argv[])
 	Simulator::Stop(Seconds(simulator_stop_time));
 	Simulator::Run();
 	Simulator::Destroy();
+	/*
 	if (enable_anim && anim){
 		anim.reset();
 		FixAnimHeader(anim_output_file);
 	}
+	*/
 	NS_LOG_INFO("Done.");
 	fclose(trace_output);
 	if (cwnd_output)

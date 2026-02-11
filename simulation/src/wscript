@@ -377,7 +377,7 @@ class ns3pcfile_task(Task.Task):
         includes = self.env['INCLUDES_%s' % dep]
         return [self.env['CPPPATH_ST'] % include for include in includes]
 
-    def _generate_pcfile(self, name, use, env, outfilename):
+    def _generate_pcopen(self, name, use, env, outfilename):
         outfile = open(outfilename, 'wt')
         prefix = env.PREFIX
         includedir = Utils.subst_vars('${INCLUDEDIR}/%s%s' % (wutils.APPNAME, wutils.VERSION), env)
@@ -412,7 +412,7 @@ Requires: %s\
 
     def run(self):
         output_filename = self.outputs[0].abspath()
-        self._generate_pcfile(self.module.name, 
+        self._generate_pcopen(self.module.name, 
                               self.module.to_list(self.module.use),
                               self.env, output_filename)
 
@@ -482,7 +482,7 @@ class ns3header_task(Task.Task):
             up(self.__class__.__name__.encode())
             for x in self.inputs + self.outputs:
                 up(x.abspath().encode())
-            up(self.mode)
+            up(self.mode.encode())
             if self.mode == 'remove':
                 up(self.header_to_remove.abspath().encode())
             self.uid_ = m.digest()
@@ -504,13 +504,13 @@ class ns3header_task(Task.Task):
             outputs = [node.abspath() for node in self.outputs]
             for src, dst in zip(inputs, outputs):
                 try:
-                    os.chmod(dst, 0600)
+                    os.chmod(dst, 0o600)
                 except OSError:
                     pass
                 shutil.copy2(src, dst)
                 ## make the headers in builddir read-only, to prevent
                 ## accidental modification
-                os.chmod(dst, 0400)
+                os.chmod(dst, 0o400)
             return 0
         else:
             assert len(self.inputs) == 0
@@ -518,7 +518,7 @@ class ns3header_task(Task.Task):
             out_file_name = self.header_to_remove.abspath()
             try:
                 os.unlink(out_file_name)
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno != 2:
                     raise
             return 0
@@ -556,14 +556,14 @@ class gen_ns3_module_header_task(Task.Task):
             out_file_name = self.header_to_remove.abspath()
             try:
                 os.unlink(out_file_name)
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno != 2:
                     raise
             return 0
         assert len(self.outputs) == 1
         out_file_name = self.outputs[0].get_bld().abspath()#self.env)
         header_files = [os.path.basename(node.abspath()) for node in self.inputs]
-        outfile = file(out_file_name, "w")
+        outfile = open(out_file_name, "w")
         header_files.sort()
 
         print >> outfile, """
@@ -575,9 +575,9 @@ class gen_ns3_module_header_task(Task.Task):
     """ % (self.module.upper().replace('-', '_'),)
 
     #     if self.module_deps:
-    #         print >> outfile, "// Module dependencies:"
+    #         print("// Module dependencies:", file=outfile)
     #     for dep in self.module_deps:
-    #         print >> outfile, "#include \"%s-module.h\"" % dep
+    #         print("#include \"%s-module.h\"" % dep, file=outfile)
 
         print >> outfile
         print >> outfile, "// Module headers:"
@@ -590,7 +590,7 @@ class gen_ns3_module_header_task(Task.Task):
         return 0
 
     def sig_explicit_deps(self):
-        self.m.update('\n'.join([node.abspath() for node in self.inputs]))
+        self.m.update('\n'.join([node.abspath() for node in self.inputs]).encode())
         return self.m.digest()
 
     def unique_id(self):
