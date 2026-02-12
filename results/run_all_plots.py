@@ -8,16 +8,38 @@ import os
 import sys
 import subprocess
 import shutil
+import argparse
 from pathlib import Path
 
 # Get results directory
-RESULTS_DIR = Path(__file__).parent.resolve()
+# Get results directory by default, but allow override
+DEFAULT_RESULTS_DIR = Path(__file__).parent.resolve()
+RESULTS_DIR = DEFAULT_RESULTS_DIR 
 DATA_DIR = RESULTS_DIR / "data"
 PLOTS_DIR = RESULTS_DIR / "plots"
-SCRIPTS_DIR = RESULTS_DIR / "scripts"
+INTERACTIVE_PLOTS_DIR = RESULTS_DIR / "interactive_plots"
+SCRIPTS_DIR = DEFAULT_RESULTS_DIR / "scripts"
 
-# Ensure plots directory exists
-PLOTS_DIR.mkdir(exist_ok=True)
+def setup_directories(base_dir=None):
+    global RESULTS_DIR, DATA_DIR, PLOTS_DIR, INTERACTIVE_PLOTS_DIR
+    if base_dir:
+        RESULTS_DIR = Path(base_dir).resolve()
+    
+    DATA_DIR = RESULTS_DIR / "data"
+    PLOTS_DIR = RESULTS_DIR / "plots"
+    INTERACTIVE_PLOTS_DIR = RESULTS_DIR / "interactive_plots"
+    
+    # Ensure directories exist
+    if not DATA_DIR.exists():
+        print(f"❌ Data directory not found: {DATA_DIR}")
+        sys.exit(1)
+        
+    PLOTS_DIR.mkdir(exist_ok=True)
+    INTERACTIVE_PLOTS_DIR.mkdir(exist_ok=True)
+    
+    print(f"📂 Working directory: {RESULTS_DIR}")
+    print(f"   Data: {DATA_DIR}")
+    print(f"   Plots: {PLOTS_DIR}")
 
 # List of all plot scripts to run (order matters for dependencies)
 PLOT_SCRIPTS = [
@@ -66,7 +88,7 @@ def run_plot_script(script_name, description, data_files):
         if "topology" in script_name:
             # This script visualizes the network topology
             # Use the topology that matches the flows being tested
-            topo_file = (RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt").resolve()
+            topo_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt").resolve()
             
             if not topo_file.exists():
                 # Fallback to data folder topology if primary doesn't exist
@@ -74,7 +96,7 @@ def run_plot_script(script_name, description, data_files):
             
             if topo_file.exists():
                 # Unified Topology Analysis (Full + Flows side-by-side)
-                flows_file = (RESULTS_DIR / ".." / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
+                flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
                 
                 cmd = [sys.executable, str(script_path), 
                        str(topo_file),
@@ -114,12 +136,12 @@ def run_plot_script(script_name, description, data_files):
                     # Try to deduce config components from experiment name
                     # Fallback to standard locations if dynamic deduction fails
                     
-                    topo_file = RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
+                    topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
                     # Try to find a specific topology? For now default is safe or we can try to find config
                     
-                    flows_file = (RESULTS_DIR / ".." / "simulation" / "mix" / "flows" / "flow_two_senders_long.txt").resolve()
+                    flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_long.txt").resolve()
                     if not flows_file.exists():
-                         flows_file = (RESULTS_DIR / ".." / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
+                         flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
 
                     if trace_file.exists():
                         cmd = [sys.executable, str(script_path), 
@@ -129,8 +151,17 @@ def run_plot_script(script_name, description, data_files):
                         # Infer config file (strip "mix_" prefix added by trace naming)
                         config_exp = exp_name.replace("mix_", "", 1) if exp_name.startswith("mix_") else exp_name
                         config_name = f"config_{config_exp}.txt"
-                        config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                        if config_file.exists():
+                        
+                        # Search order: local config/, local configs/, global
+                        config_candidates = [
+                            RESULTS_DIR / "config" / config_name,
+                            RESULTS_DIR / "configs" / config_name,
+                            DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                        ]
+                        
+                        config_file = next((p for p in config_candidates if p.exists()), None)
+                        
+                        if config_file:
                             cmd.extend(["--config", str(config_file)])
                         
                         if topo_file.exists():
@@ -165,19 +196,23 @@ def run_plot_script(script_name, description, data_files):
                     exp_name = cwnd_file.stem.replace("cwnd_", "")
                     
                     config_name = f"config_{exp_name}.txt"
-                    config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                    # Default topo
-                    topo_file = RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
                     
-                    if not config_file.exists():
-                         # Fallback for dynamic pull naming convention if different
-                         config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
+                    config_candidates = [
+                        RESULTS_DIR / "config" / config_name,
+                        RESULTS_DIR / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
+                    ]
+                    config_file = next((p for p in config_candidates if p.exists()), None)
 
+                    # Default topo
+                    topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
+                    
                     cmd = [sys.executable, str(script_path), 
                                str(cwnd_file),
                                str(PLOTS_DIR / f"cwnd_rtt_analysis_{exp_name}.png")]
                     
-                    if config_file.exists():
+                    if config_file:
                         cmd.append(str(config_file))
                     if topo_file.exists():
                         cmd.append(str(topo_file))
@@ -211,7 +246,13 @@ def run_plot_script(script_name, description, data_files):
                     
                     # Infer config file
                     config_name = f"config_{exp_name}.txt"
-                    config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                    
+                    config_candidates = [
+                        RESULTS_DIR / "config" / config_name,
+                        RESULTS_DIR / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                    ]
+                    config_file = next((p for p in config_candidates if p.exists()), None)
 
                     cmd = [sys.executable, str(script_path), 
                            "--qlen", str(qlen_file),
@@ -220,11 +261,11 @@ def run_plot_script(script_name, description, data_files):
                     if pfc_file.exists():
                         cmd.extend(["--pfc", str(pfc_file)])
 
-                    if config_file.exists():
+                    if config_file:
                         cmd.extend(["--config", str(config_file)])
 
-                    # Pass INT queue depth CSV if available
-                    queue_depth_csv = RESULTS_DIR.parent / "simulation" / "queue_depth.csv"
+                    # Pass INT queue depth CSV if available in the specific data folder
+                    queue_depth_csv = DATA_DIR / "queue_depth.csv"
                     if queue_depth_csv.exists():
                         cmd.extend(["--queue-depth-csv", str(queue_depth_csv)])
                         
@@ -256,12 +297,18 @@ def run_plot_script(script_name, description, data_files):
                     # rxbuf_dynamic_pull.txt -> config_dynamic_pull.txt
                     exp_name = rxbuf_file.stem.replace("rxbuf_", "")
                     config_name = f"config_{exp_name}.txt"
-                    config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                    
+                    config_candidates = [
+                        RESULTS_DIR / "config" / config_name,
+                        RESULTS_DIR / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                    ]
+                    config_file = next((p for p in config_candidates if p.exists()), None)
                     
                     cmd = [sys.executable, str(script_path), str(rxbuf_file),
                            "--out", str(PLOTS_DIR / f"rx_buffer_{exp_name}.png")]
                     
-                    if config_file.exists():
+                    if config_file:
                         cmd.extend(["--config", str(config_file)])
                         
                     print(f"Command: {' '.join(cmd)}")
@@ -374,12 +421,21 @@ def run_plot_script(script_name, description, data_files):
         elif "interactive_dashboard" in script_name:
              # Interactive Dashboard (Plotly)
              # Find all qlen files to get experiment names
+             # Find all qlen files to get experiment names (fallback to fct/cwnd)
              qlen_files = list(DATA_DIR.glob("qlen_*.txt"))
-             if qlen_files:
-                 for qlen_file in qlen_files:
-                     exp_name = qlen_file.stem.replace("qlen_", "")
+             fct_files = list(DATA_DIR.glob("fct_*.txt"))
+             cwnd_files = list(DATA_DIR.glob("cwnd_*.txt"))
+             
+             # Collect unique experiment names
+             exp_names = set()
+             for f in qlen_files: exp_names.add(f.stem.replace("qlen_", ""))
+             for f in fct_files: exp_names.add(f.stem.replace("fct_", ""))
+             for f in cwnd_files: exp_names.add(f.stem.replace("cwnd_", ""))
+             
+             if exp_names:
+                 for exp_name in sorted(exp_names):
                      config_name = f"config_{exp_name}.txt"
-                     config_file = RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                     config_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
                      
                      cmd = [sys.executable, str(script_path), 
                             "--data-dir", str(DATA_DIR),
@@ -439,14 +495,15 @@ def run_plot_script(script_name, description, data_files):
 
 def main():
     """Main function to run all plots"""
+    parser = argparse.ArgumentParser(description="Master plotting script for HPCC simulations")
+    parser.add_argument("--base-dir", help="Base directory containing data/ and plots/ subdirectories")
+    args = parser.parse_args()
+
     print("\n" + "="*70)
     print("HPCC Simulation - Master Plotting Script")
     print("="*70)
     
-    # Check if data directory exists
-    if not DATA_DIR.exists():
-        print(f"❌ Data directory not found: {DATA_DIR}")
-        sys.exit(1)
+    setup_directories(args.base_dir)
     
     # Find available data files
     data_files = find_data_files()

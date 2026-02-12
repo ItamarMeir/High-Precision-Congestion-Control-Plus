@@ -395,7 +395,7 @@ class ns3pcfile_task(Task.Task):
             if dep.startswith('ns3-'):
                 dep_name = dep[4:]
                 requires.append("libns%s-%s%s" % (wutils.VERSION, dep_name, env.BUILD_SUFFIX))
-        print >> outfile, """\
+        print("""\
 prefix=%s
 libdir=%s
 includedir=%s
@@ -407,7 +407,7 @@ Libs: %s
 Cflags: %s
 Requires: %s\
 """ % (prefix, libdir, includedir,
-       name, name, wutils.VERSION, ' '.join(libs), ' '.join(cflags), ' '.join(requires))
+       name, name, wutils.VERSION, ' '.join(libs), ' '.join(cflags), ' '.join(requires)), file=outfile)
         outfile.close()
 
     def run(self):
@@ -566,25 +566,25 @@ class gen_ns3_module_header_task(Task.Task):
         outfile = open(out_file_name, "w")
         header_files.sort()
 
-        print >> outfile, """
+        print("""
 #ifdef NS3_MODULE_COMPILATION
 # error "Do not include ns3 module aggregator headers from other modules; these are meant only for end user scripts."
 #endif
 
 #ifndef NS3_MODULE_%s
-    """ % (self.module.upper().replace('-', '_'),)
+    """ % (self.module.upper().replace('-', '_'),), file=outfile)
 
     #     if self.module_deps:
     #         print("// Module dependencies:", file=outfile)
     #     for dep in self.module_deps:
     #         print("#include \"%s-module.h\"" % dep, file=outfile)
 
-        print >> outfile
-        print >> outfile, "// Module headers:"
+        print(file=outfile)
+        print("// Module headers:", file=outfile)
         for header in header_files:
-            print >> outfile, "#include \"%s\"" % (header,)
+            print("#include \"%s\"" % (header,), file=outfile)
 
-        print >> outfile, "#endif"
+        print("#endif", file=outfile)
 
         outfile.close()
         return 0

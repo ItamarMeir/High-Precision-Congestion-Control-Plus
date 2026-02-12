@@ -18,6 +18,8 @@
 #define PATH_TO_PGO_CONFIG "path_to_pgo_config"
 
 #include <iostream>
+// #define printf(...) // silence
+// #define fprintf(f, ...) // silence
 #include <fstream>
 #include <unordered_map>
 #include <time.h> 
@@ -56,7 +58,7 @@ std::string cwnd_output_file = "cwnd.txt";
 std::string rxbuf_output_file = "rxbuf.txt";
 std::string drop_output_file = "drop.txt";
 
-double alpha_resume_interval = 55, rp_timer, ewma_gain = 1 / 16;
+double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0;
 double rate_decrease_interval = 4;
 uint32_t fast_recovery_times = 5;
 std::string rate_ai, rate_hai, min_rate = "100Mb/s";
@@ -303,6 +305,9 @@ void monitor_buffer(FILE* qlen_output, NodeContainer *n){
 				for (uint32_t i = 0; i < dist.size(); i++)
 					fprintf(qlen_output, " %u", dist[i]);
 				fprintf(qlen_output, "\n");
+                                (void)it0; // suppress unused
+                                (void)it1;
+                                (void)dist;
 			}
 		fflush(qlen_output);
 		queue_result.clear();

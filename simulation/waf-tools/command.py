@@ -1,6 +1,16 @@
 import re
 import subprocess
 
+# Python 2/3 compatibility shims
+try:
+	basestring
+except NameError:  # Python 3
+	basestring = str
+try:
+	xrange
+except NameError:  # Python 3
+	xrange = range
+
 # import feature, taskgen_method, before_method, task_gen
 from waflib import TaskGen, Node, Task, Utils, Build, Options, Logs, Task
 debug = Logs.debug
@@ -90,7 +100,7 @@ class command_task(Task.Task):
 					cmd.argv[argI] = self._subst_arg(cmd.argv[argI], None, namespace)
 				if cmd.env_vars is not None:
 					env_vars = dict()
-					for name, value in cmd.env_vars.iteritems():
+					for name, value in getattr(cmd.env_vars, 'iteritems', cmd.env_vars.items)():
 						env_vars[name] = self._subst_arg(value, None, namespace)
 					cmd.env_vars = env_vars
 			elif isinstance(cmd, shellcmd.Chdir):

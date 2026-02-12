@@ -87,6 +87,7 @@ sudo apt-get update && sudo apt-get install -y \
 
 **Install Python dependencies:**
 ```bash
+python3 -m pip install matplotlib numpy pillow networkx
 pip install pybindgen
 ```
 
@@ -151,6 +152,9 @@ Run the simulator with a specific configuration file using the helper script:
 
 # Example: Run the 'two_senders_heavy' scenario
 ./run.sh mix/configs/config_two_senders_per_node.txt
+
+# Example: Run the fixed HPCC-Plus dynamic scenario (6s duration)
+./run.sh mix/configs/config_hpcc_plus_dynamic.txt clean
 ```
 
 To run and **clear previous results** (optional):
@@ -169,12 +173,21 @@ python3 results/run_all_plots.py
 
 This will run a suite of analysis scripts and save the output to `/workspace/results/plots/`.
 **Generated Plots include:**
-*   `cwnd_rtt_analysis.png`: Congestion Window & RTT Dashboard
-*   `cwnd_two_senders_heavy_rtt.png`: RTT over Time (timeline)
-*   `switch_throughput.png`: Switch metrics
-*   `rxbuf_two_senders_heavy.png`: RX Buffer Occupancy
-*   `packet_drops.png`: Packet drop tracking
-*   `topology_full.png` / `topology_flows.png`: Network visualization
+*   `cwnd_rtt_analysis_hpcc_plus_dynamic.png`: Congestion Window & RTT Dashboard
+*   `fct_hpcc_plus_dynamic.png`: Flow Completion Time Analysis
+*   `switch_throughput_mix_hpcc_plus_dynamic.png`: Switch throughput per port
+*   `rx_buffer_hpcc_plus_dynamic.png`: NIC RX Buffer Occupancy
+*   `pfc_pause.png`: PFC pause event tracking
+*   `switch_queue_depth_cdf.png`: Queue length distribution (CDF)
+*   `topology_analysis.png`: Network topology visualization with active flows
+*   `dashboard_hpcc_plus_dynamic.png`: Combined metric overview
+
+**Interactive Plots (saved to `/workspace/results/interactive_plots/`):**
+*   `cwnd_rtt_analysis.html`: Interactive window/rate/RTT dashboard
+*   `fct.html`: Interactive flow completion time vs size
+*   `int_queue_depth.html`: Interactive queue depth time-series and CDF
+*   `rx_buffer.html`: Interactive NIC buffer occupancy
+*   `switch_throughput.html`: Interactive port throughput
 
 ### Quick Reference: Common Commands
 
@@ -246,7 +259,4 @@ We provide a few analysis scripts under `analysis/` to view the packet-level eve
 Refer to the README.md under it for more details.
 
 ## Questions
-For technical questions, please create an issue in this repo, so other people can benefit from your questions. 
-You may also check the issue list first to see if people have already asked the questions you have :)
-
-For other questions, please contact Rui Miao (miao.rui@alibaba-inc.com).
+For technical questions or issues regarding this fork and its HPCC-Plus extensions, please create an issue in this repository. This allows our community to benefit from the discussion.

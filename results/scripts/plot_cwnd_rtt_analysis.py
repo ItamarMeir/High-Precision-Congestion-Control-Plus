@@ -15,6 +15,7 @@ Features:
   - RTT component breakdown
 """
 import sys
+import argparse
 import statistics
 from pathlib import Path
 from collections import defaultdict
@@ -257,17 +258,16 @@ def _parse_schedules(config_file):
 
 # helper for plotting lines
 def _draw_lines(ax, schedules):
-    # determine y-limit to place text
-    ylim = ax.get_ylim()
-    ymax = ylim[1]
     for node_id, schedule in schedules.items():
             for time, rate in schedule:
                 ax.axvline(x=time, color='gray', linestyle=':', alpha=0.8, linewidth=1.5)
-                ax.text(time, ymax * 0.98, f' t={time}s\nRate={rate}', rotation=90, 
+                # Using transform=ax.transAxes pins the text to the top of the plot independent of RTT spikes
+                ax.text(time, 0.98, f' t={time}s\nRate={rate}', rotation=90, 
+                        transform=ax.get_xaxis_transform(),
                         verticalalignment='top', fontsize=8, color='black', alpha=0.7)
 
 
-def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=None):
+def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=None, rtt_ymax=None):
     """Generate comprehensive CWND/Rate/RTT analysis dashboard."""
     
     # Parse data
@@ -387,7 +387,8 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
         for t, w, r in zip(data["t"], data["win"], data["rate"]):
             if r > 0 and w > 0:
                 val = (w * 8.0 * 1e6) / r
-                # Basic outlier filter (ignore crazy spikes > 1ms for readability if desired, but raw is usually better)
+                # Cap RTT at 1s to avoid crazy plot scales
+                if val > 1e6: val = 1e6
                 rtt_us_series.append(val)
                 t_series.append(t)
 
@@ -400,6 +401,8 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
     
     ax3.set_xlabel('Time (s)', fontsize=11, fontweight='bold')
     ax3.set_ylabel('RTT (µs)', fontsize=11, fontweight='bold')
+    if rtt_ymax:
+        ax3.set_ylim([0, rtt_ymax])
     ax3.set_title('Round Trip Time Over Time', fontsize=12, fontweight='bold', pad=10)
     ax3.grid(True, alpha=0.3)
     ax3.legend(loc='best', fontsize=9)
@@ -428,16 +431,16 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        cwnd_file = sys.argv[1]
-        output_file = sys.argv[2] if len(sys.argv) > 2 else cwnd_file.replace('.txt', '_analysis.png')
-        config_path = sys.argv[3] if len(sys.argv) > 3 else None
-        topo_path = sys.argv[4] if len(sys.argv) > 4 else None
-    else:
-        base = Path(__file__).resolve().parents[1]
-        cwnd_file = str(base / "data" / "cwnd_two_senders_heavy.txt")
-        output_file = str(base / "plots" / "cwnd_rtt_analysis.png")
-        config_path = str(base.parent / "simulation" / "mix" / "configs" / "config_two_senders.txt")
-        topo_path = str(base.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt")
-
-    plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=config_path, topo_path=topo_path)
+    parser = argparse.ArgumentParser(description="Generate CWND analysis")
+    parser.add_argument("cwnd_file", help="Input CWND text file")
+    parser.add_argument("output_file", nargs="?", help="Output PNG file")
+    parser.add_argument("config_path", nargs="?", help="Configuration file path")
+    parser.add_argument("topo_path", nargs="?", help="Topology file path")
+    parser.add_argument("--rtt-ymax", type=float, help="Fixed Y-axis limit for RTT plot (us)")
+    
+    args = parser.parse_args()
+    
+    cwnd_file = args.cwnd_file
+    output_file = args.output_file if args.output_file else cwnd_file.replace('.txt', '_analysis.png')
+    
+    plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=args.config_path, topo_path=args.topo_path, rtt_ymax=args.rtt_ymax)

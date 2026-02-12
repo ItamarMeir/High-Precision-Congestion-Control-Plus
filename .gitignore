@@ -37,3 +37,4 @@ pybindgen/
 *.log
 .DS_Store
 *.html
+*.tr

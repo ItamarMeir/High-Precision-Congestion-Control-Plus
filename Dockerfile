@@ -67,7 +67,7 @@ RUN curl -sSL https://bootstrap.pypa.io/pip/2.7/get-pip.py -o /tmp/get-pip.py \
 RUN apt-get update && apt-get install -y \
 	python3 \
 	python3-pip \
-	&& python3 -m pip install matplotlib numpy pillow \
+	&& python3 -m pip install matplotlib numpy pillow networkx \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Set working directory

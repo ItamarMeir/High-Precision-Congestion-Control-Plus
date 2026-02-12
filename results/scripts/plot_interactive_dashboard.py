@@ -170,7 +170,7 @@ def plot_queue_depth(csv_path, config_path, out_path):
     }
     generate_plotly_html(traces, layout, out_path, "INT Queue Depth & CDF")
 
-def plot_cwnd_rtt(cwnd_path, config_path, out_path):
+def plot_cwnd_rtt(cwnd_path, config_path, out_path, rtt_ymax=None):
     """Interactive CWND/Rate/RTT 3-panel dashboard."""
     flows = defaultdict(lambda: {'t': [], 'rate': [], 'win': [], 'rtt': []})
     with open(cwnd_path, 'r') as f:
@@ -222,7 +222,7 @@ def plot_cwnd_rtt(cwnd_path, config_path, out_path):
         'yaxis2': {'title': 'Window (KB)', 'domain': [0.35, 0.60], 'autorange': True},
         # Bottom Panel: RTT
         'xaxis3': {'title': 'Time (s)', 'anchor': 'y3', 'rangeslider': {'visible': True, 'thickness': 0.05}}, 
-        'yaxis3': {'title': 'RTT (us)', 'domain': [0.00, 0.25], 'autorange': True},
+        'yaxis3': {'title': 'RTT (us)', 'domain': [0.00, 0.25], 'autorange': rtt_ymax is None, 'range': [0, rtt_ymax] if rtt_ymax else None},
         'shapes': shapes, 'hovermode': 'x unified', 'template': 'plotly_white',
         'height': 1400, 'legend': {'orientation': 'h', 'y': -0.05}
     }
@@ -411,6 +411,7 @@ def main():
     parser.add_argument("--out-dir", default=str(root_dir / "results" / "interactive_plots"))
     parser.add_argument("--config", help="Config file for annotations")
     parser.add_argument("--exp-name", default="dynamic_pull")
+    parser.add_argument("--rtt-ymax", type=float, help="Fixed Y-max for RTT plot (us)")
     args = parser.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)
@@ -423,7 +424,7 @@ def main():
     # CWND
     cwnd = os.path.join(args.data_dir, f"cwnd_{args.exp_name}.txt")
     if os.path.exists(cwnd):
-        plot_cwnd_rtt(cwnd, args.config, os.path.join(args.out_dir, "cwnd_rtt_analysis.html"))
+        plot_cwnd_rtt(cwnd, args.config, os.path.join(args.out_dir, "cwnd_rtt_analysis.html"), rtt_ymax=args.rtt_ymax)
 
     # RX Buffer
     rxbuf = os.path.join(args.data_dir, f"rxbuf_{args.exp_name}.txt")

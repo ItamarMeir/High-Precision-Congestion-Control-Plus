@@ -80,13 +80,43 @@ In this implementation, $T_{ramp}$ corresponds to the **Base RTT** ($RTT_{base}$
 // Term 1: Throughput Utilization (TxRate / LineRate)
 double term1 = txRate / ih.hop[i].GetLineRate();
 
-// Term 2: Queue Utilization (Qlen / (Capacity * T_ramp))
+// Term 2: Queue Utilization (Qlen / (Capacity * BaseRTT))
 // Note: m_win is set to BDP (Capacity * BaseRTT) during init.
 // Therefore: (Qlen * MaxRate) / LineRate / m_win => Qlen / (Capacity * BaseRTT)
 double term2 = (double)ih.hop[i].GetQlen() * qp->m_max_rate.GetBitRate() 
              / ih.hop[i].GetLineRate() / qp->m_win;
 
 double u = term1 + term2;
+```
+
+### 3.1.1. TxRate Calculation
+The `TxRate` is calculated by the receiver (or sender, based on INT data) using the delta of cumulative transmitted bytes and timestamps found in the INT header.
+
+**Formula:**
+$$
+TxRate = \frac{(Bytes_1 - Bytes_0) \times 8}{Time_1 - Time_0}
+$$
+Where $1$ is the current packet and $0$ is the previous packet from the same flow. The implementation handles field wrap-around (20 bits for bytes, 24 bits for time).
+
+### 3.1.2. INT Header Structure
+The INT header contains per-hop telemetry data. Each hop inserts an `IntHop` structure:
+*   **lineRate** (encoded): The link capacity.
+*   **time** (24 bits): Timestamp.
+*   **bytes** (20 bits): Cumulative transmitted bytes (scaled by `byteUnit=128`).
+*   **qlen** (17 bits): Queue length (scaled by `qlenUnit=80`).
+
+**Code Snippet (`IntHop` struct):**
+```cpp
+// simulation/src/network/utils/int-header.h
+struct IntHop {
+    uint64_t lineRate: ...;
+    uint64_t time: 24;
+    uint64_t bytes: 20;
+    uint64_t qlen: 17;
+    // ...
+    uint64_t GetBytesDelta(IntHop &b) { ... } // Handles wrap-around
+    uint64_t GetTimeDelta(IntHop &b) { ... }  // Handles wrap-around
+};
 ```
 
 ### 3.2. Order of Operations: Max vs. Smooth
