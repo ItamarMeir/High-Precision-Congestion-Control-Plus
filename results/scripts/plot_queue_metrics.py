@@ -270,7 +270,7 @@ def _plot_int_queue_depth(int_times, int_qlen, out_path, schedules=None, clip_by
     ax.set_ylim(0, clip_bytes)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Queue Depth (bytes)")
-    ax.set_title(f"INT Instantaneous Queue Depth (clipped at {clip_bytes} B)")
+    ax.set_title(f"Switch Queue Depth (clipped at {clip_bytes} B)")
     ax.grid(True, alpha=0.3)
     # Finer time ticks
     import numpy as np
@@ -374,8 +374,19 @@ def main():
     if args.config:
         schedules = _parse_schedules(args.config)
 
-    # Parse INT queue depth CSV if provided
-    int_times, int_qlen = _parse_queue_depth_csv(args.queue_depth_csv)
+    # Fallback to global simulation/queue_depth.csv if not provided or missing
+    q_csv = args.queue_depth_csv
+    if q_csv is None or not os.path.exists(q_csv):
+        # Infer root from script location
+        script_dir = Path(__file__).parent.resolve()
+        root_dir = script_dir.parent.parent
+        fallback_csv = root_dir / "simulation" / "queue_depth.csv"
+        if fallback_csv.exists():
+            q_csv = str(fallback_csv)
+            print(f"Using fallback global queue depth CSV: {q_csv}")
+
+    # Parse INT queue depth CSV
+    int_times, int_qlen = _parse_queue_depth_csv(q_csv)
 
     # Prioritize INT queue depth data for the new CDF analysis
     if int_times and int_qlen:
@@ -391,12 +402,12 @@ def main():
             
         ax1.set_xlabel("Time (s)")
         ax1.set_ylabel("Queue Depth (bytes)")
-        ax1.set_title("Instantaneous Queue Depth (INT Data)")
+        ax1.set_title("Switch Queue Depth (INT Data)")
         ax1.grid(True, alpha=0.3)
         
         # Plot 2: CDF of INT Data
         xs_cdf, ys_cdf = _cdf_from_avg(int_qlen) # Reuse cdf_from_avg on list of values
-        _plot_cdf(xs_cdf, ys_cdf, ax=ax2, title="Queue Depth CDF (INT Data)")
+        _plot_cdf(xs_cdf, ys_cdf, ax=ax2, title="Switch Queue Depth CDF (INT Data)")
         
         plt.tight_layout()
         cdf_path = os.path.join(args.out_dir, "switch_queue_depth_cdf.png")

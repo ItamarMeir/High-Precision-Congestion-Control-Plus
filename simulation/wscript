@@ -102,14 +102,14 @@ def print_module_names(names):
     # Print the list of module names in 3 columns.
     i = 1
     for name in names:
-        print name.ljust(25),
+        print(name.ljust(25), end='')
         if i == 3:
-                print
+                print()
                 i = 0
         i = i+1
 
     if i != 1:
-        print
+        print()
 
 def options(opt):
     # options provided by the modules
@@ -546,7 +546,7 @@ class SuidBuild_task(Task.Task):
 
 
     def run(self):
-        print >> sys.stderr, 'setting suid bit on executable ' + self.filename
+        print('setting suid bit on executable ' + self.filename, file=sys.stderr)
         if subprocess.Popen(['sudo', 'chown', 'root', self.filename]).wait():
             return 1
         if subprocess.Popen(['sudo', 'chmod', 'u+s', self.filename]).wait():
@@ -871,7 +871,7 @@ def shutdown(ctx):
     if (env['PRINT_BUILT_MODULES_AT_END']):
 
         # Print the list of built modules.
-        print
+        print()
         print('Modules built:')
         names_without_prefix = []
         for name in env['NS3_ENABLED_MODULES']:
@@ -880,13 +880,13 @@ def shutdown(ctx):
                 name1 += " (no Python)"
             names_without_prefix.append(name1)
         print_module_names(names_without_prefix)
-        print
+        print()
 
         # Print the list of enabled modules that were not built.
         if env['MODULES_NOT_BUILT']:
             print('Modules not built (see ns-3 tutorial for explanation):')
             print_module_names(env['MODULES_NOT_BUILT'])
-            print
+            print()
 
         # Set this so that the lists won't be printed until the next
         # build is done.
@@ -1120,7 +1120,7 @@ class Ns3SphinxContext(Context.Context):
     cmd = 'sphinx'
 
     def sphinx_build(self, path):
-        print
+        print()
         print("[waf] Building sphinx docs for " + path)
         if subprocess.Popen(["make", "SPHINXOPTS=-N", "-k",
                              "html", "singlehtml", "latexpdf" ],

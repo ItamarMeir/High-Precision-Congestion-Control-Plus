@@ -160,7 +160,7 @@ def plot_queue_depth(csv_path, config_path, out_path):
     shapes = [{'type': 'line', 'x0': t, 'x1': t, 'y0': 0, 'y1': 1, 'yref': 'paper', 'line': {'dash': 'dot', 'color': 'gray'}, 'xref': 'x1'} for t, _ in schedules]
     
     layout = {
-        'title': 'INT Queue Depth: Time-Series & CDF',
+        'title': 'Switch Queue Depth: Time-Series & CDF',
         'xaxis': {'title': 'Time (s)', 'domain': [0, 0.45], 'rangeslider': {'visible': True}},
         'yaxis': {'title': 'Queue Depth (bytes)'},
         'xaxis2': {'title': 'Queue Depth (bytes)', 'domain': [0.55, 1]},
@@ -168,7 +168,7 @@ def plot_queue_depth(csv_path, config_path, out_path):
         'shapes': shapes, 'template': 'plotly_white', 'hovermode': 'x unified',
         'legend': {'orientation': 'h', 'y': -0.2}
     }
-    generate_plotly_html(traces, layout, out_path, "INT Queue Depth & CDF")
+    generate_plotly_html(traces, layout, out_path, "Switch Queue Depth & CDF")
 
 def plot_cwnd_rtt(cwnd_path, config_path, out_path, rtt_ymax=None):
     """Interactive CWND/Rate/RTT 3-panel dashboard."""
@@ -417,7 +417,11 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
     
     # INT Queue Depth
-    q_csv = root_dir / "simulation" / "queue_depth.csv"
+    q_csv = Path(args.data_dir) / "queue_depth.csv"
+    if not q_csv.exists():
+         # Fallback to global if not in data dir (though run_all_plots should handle copying or setup)
+         q_csv = root_dir / "simulation" / "queue_depth.csv"
+
     if q_csv.exists():
         plot_queue_depth(str(q_csv), args.config, os.path.join(args.out_dir, "int_queue_depth.html"))
 

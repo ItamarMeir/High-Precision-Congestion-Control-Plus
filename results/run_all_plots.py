@@ -435,14 +435,21 @@ def run_plot_script(script_name, description, data_files):
              if exp_names:
                  for exp_name in sorted(exp_names):
                      config_name = f"config_{exp_name}.txt"
-                     config_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                     # Search order: local config/, local configs/, global
+                     config_candidates = [
+                         RESULTS_DIR / "config" / config_name,
+                         RESULTS_DIR / "configs" / config_name,
+                         DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+                     ]
+                     
+                     config_file = next((p for p in config_candidates if p.exists()), None)
                      
                      cmd = [sys.executable, str(script_path), 
                             "--data-dir", str(DATA_DIR),
                             "--out-dir", str(INTERACTIVE_PLOTS_DIR),
                             "--exp-name", exp_name]
                      
-                     if config_file.exists():
+                     if config_file:
                          cmd.extend(["--config", str(config_file)])
                          
                      print(f"Command: {' '.join(cmd)}")
