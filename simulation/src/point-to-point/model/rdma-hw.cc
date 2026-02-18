@@ -224,6 +224,7 @@ void RdmaHw::Setup(QpCompleteCallback cb){
 	}
 	m_rxPullEvents.resize(m_nic.size());
 	m_rxPullActive.assign(m_nic.size(), false);
+	m_rxBytesTotal.assign(m_nic.size(), 0);
 	// setup qp complete callback
 	m_qpCompleteCallback = cb;
 }
@@ -286,7 +287,7 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 		qp->tmly.m_curRate = m_bps;
 	}else if (m_cc_mode == 10){
 		qp->hpccPint.m_curRate = m_bps;
-	}else if (m_cc_mode == 11){
+	}else if (m_cc_mode == 11 || m_cc_mode == 12){
 		qp->hpccPlus.m_curRate = m_bps;
 		qp->hpccPlus.m_c_host = m_bps.GetBitRate(); // init C_host with line rate
 	}
@@ -359,6 +360,19 @@ int RdmaHw::ReceiveUdp(Ptr<Packet> p, CustomHeader &ch){
 
 	int x = ReceiverCheckSeq(ch.udp.seq, rxQp, payload_size);
 	if (x == 1 || x == 2){ //generate ACK or NACK
+		// HPCC-Plus: push host INT hop before copying INT to ACK
+		if (m_cc_mode == 11 || m_cc_mode == 12) {
+			uint32_t nic_idx = GetNicIdxOfRxQp(rxQp);
+			Ptr<QbbNetDevice> dev = m_nic[nic_idx].dev;
+			m_rxBytesTotal[nic_idx] += p->GetSize();
+			uint32_t rxQlen = dev->GetRdmaIngressQueue()->GetNBytesTotal();
+			ch.udp.ih.PushHop(
+				Simulator::Now().GetTimeStep(),
+				m_rxBytesTotal[nic_idx],
+				rxQlen,
+				dev->GetDataRate().GetBitRate()
+			);
+		}
 		qbbHeader seqh;
 		seqh.SetSeq(rxQp->ReceiverNextExpectedSeq);
 		seqh.SetPG(ch.udp.pg);
@@ -428,6 +442,8 @@ int RdmaHw::ReceiveCnp(Ptr<Packet> p, CustomHeader &ch){
 			qp->tmly.m_curRate = dev->GetDataRate();
 		}else if (m_cc_mode == 10){
 			qp->hpccPint.m_curRate = dev->GetDataRate();
+		}else if (m_cc_mode == 11 || m_cc_mode == 12){
+			qp->hpccPlus.m_curRate = dev->GetDataRate();
 		}
 	}
 	return 0;
@@ -1248,9 +1264,7 @@ double RdmaHw::GetCurrentRxPullRate(){
  ********************/
 void RdmaHw::HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
 	uint32_t ack_seq = ch.ack.seq;
-	if (ack_seq > qp->hpccPlus.m_lastUpdateSeq){
-		UpdateRateHpPlus(qp, p, ch, false);
-	}else 	if (ack_seq > qp->hpccPlus.m_lastUpdateSeq){
+	if (ack_seq > qp->hpccPlus.m_lastUpdateSeq){ // full RTT update
 		if (m_cc_mode == 12) {
 			UpdateRateHpPlusQOnly(qp, p, ch, false);
 		} else {
@@ -1265,6 +1279,7 @@ void RdmaHw::UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomH
 	IntHeader &ih = ch.ack.ih;
 	uint32_t next_seq = qp->snd_nxt;
 	
+	// First RTT: store INT hops, return without computing
 	if (qp->hpccPlus.m_lastUpdateSeq == 0){
 		qp->hpccPlus.m_lastUpdateSeq = next_seq;
 		if (ih.nhop > IntHeader::maxHop) {
@@ -1283,10 +1298,14 @@ void RdmaHw::UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomH
 	double U = 0;
 	uint64_t dt = 0;
 	bool updated_any = false;
-	double last_hop_q_term_num = 0;
 
-	// 1. Calculate switch hops utilization (standard HPCC)
-	for (uint32_t i = 0; i < ih.nhop; i++){
+	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
+	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
+
+	// 1. Process switch hops (all except last) — standard HPCC logic
+	for (uint32_t i = 0; i < nhop; i++){
+		if (i == nhop - 1) break; // skip host hop in this loop
+
 		if (m_sampleFeedback && ih.hop[i].GetQlen() == 0 && fast_react)
 			continue;
 
@@ -1294,24 +1313,14 @@ void RdmaHw::UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomH
 		if (tau == 0) continue;
 		updated_any = true;
 
-		// Capture last hop queue info
-		if (i == ih.nhop - 1) {
-			last_hop_q_term_num = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0;
-		}
-
 		double duration = tau * 1e-9;
-		double txRate = (ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i])) * 8 / duration;
-		
-		// Corrected scaling: (q_bytes * 8) / (C * RTT_base * 1e-9)
-		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
+		double txRate = ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i]) * 8.0 / duration;
+		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
 		double u = txRate / ih.hop[i].GetLineRate() + q_term;
-		
-		// If it's a switch hop (not last hop), update max_u
-		if (i < ih.nhop - 1) {
-			if (u > U){
-				U = u;
-				dt = tau;
-			}
+
+		if (u > U){
+			U = u;
+			dt = tau;
 		}
 		qp->hpccPlus.hop[i] = ih.hop[i];
 	}
@@ -1321,32 +1330,46 @@ void RdmaHw::UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomH
 		if (dt > qp->m_baseRtt)
 			dt = qp->m_baseRtt;
 		qp->hpccPlus.u = (qp->hpccPlus.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
-		max_u = qp->hpccPlus.u; 
+		max_u = qp->hpccPlus.u;
 	}
 
-	// 3. Host Hop Logic (Q-Only)
-	double bits_delivered = (next_seq - qp->hpccPlus.m_lastUpdateSeq) * 8.0;
-	double delivered_rate = bits_delivered / (qp->m_baseRtt * 1e-9);
+	// 3. Host hop (last hop) — TS-HPCC+ Q-Only logic
+	if (nhop > 0) {
+		uint32_t host_idx = nhop - 1;
 
-	// ALWAYS update C_host EWMA
-	if (!fast_react) {
-		qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * delivered_rate;
-	}
+		if (m_sampleFeedback && ih.hop[host_idx].GetQlen() == 0 && fast_react) {
+			// skip host hop if qlen == 0 during fast react
+		} else {
+			uint64_t tau_host = ih.hop[host_idx].GetTimeDelta(qp->hpccPlus.hop[host_idx]);
+			if (tau_host > 0) {
+				// Compute R_delivered from host INT deltas (like switch txRate)
+				double duration_host = tau_host * 1e-9;
+				double R_delivered = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
+				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 
-	// Only calculate u_host if qlen > 0
-	if (last_hop_q_term_num > 0) {
-		// If qlen > 0, use special formula: u = 1 + qlen / (C_host * BaseRTT)
-		double u_host = 1.0; // Implicitly "1.0 + ..." means utilization is at least 100% capacity if queue builds
-                            // Wait, user said u_host = 1 + ...
-                            // But usually u = rate/C ... here rate term is replaced by "1"?
-                            // User request: "u_host = 1 + qlen/(C_host x BaseRTT)"
-                            // Let's implement EXACTLY as requested.
-		if (qp->hpccPlus.m_c_host > 1.0) {
-			u_host += last_hop_q_term_num / (qp->hpccPlus.m_c_host * qp->m_baseRtt * 1e-9);
+				// Conditional C_host update (only during full RTT update)
+				if (!fast_react) {
+					if (rxQlen > 0) {
+						// Queue building → R_delivered reflects true capacity
+						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+					} else if (R_delivered > qp->hpccPlus.m_c_host) {
+						// No queue but higher rate → capacity is at least this much
+						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+					}
+					// else: no queue, R_delivered <= C_host → keep C_host unchanged
+				}
+
+				// Q-Only: only react to host congestion if queue > 0
+				if (rxQlen > 0) {
+					double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
+					double u_host = R_delivered / c_host + rxQlen / (c_host * qp->m_baseRtt * 1e-9);
+					if (u_host > max_u) max_u = u_host;
+				}
+				// If qlen == 0, host hop is ignored (max_u determined by switches only)
+			}
 		}
-		if (u_host > max_u) max_u = u_host;
+		qp->hpccPlus.hop[host_idx] = ih.hop[host_idx];
 	}
-	// If qlen == 0, we IGNORE the host hop completely (max_u remains determined by switches)
 
 	// 4. Rate allocation
 	double max_c = max_u / m_targetUtil;
@@ -1374,6 +1397,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 	IntHeader &ih = ch.ack.ih;
 	uint32_t next_seq = qp->snd_nxt;
 	
+	// First RTT: store INT hops, return without computing
 	if (qp->hpccPlus.m_lastUpdateSeq == 0){
 		qp->hpccPlus.m_lastUpdateSeq = next_seq;
 		if (ih.nhop > IntHeader::maxHop) {
@@ -1392,10 +1416,14 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 	double U = 0;
 	uint64_t dt = 0;
 	bool updated_any = false;
-	double last_hop_q_term_num = 0; // Numerator for last hop queue term
 
-	// 1. Calculate switch hops utilization (following HPCC base logic)
-	for (uint32_t i = 0; i < ih.nhop; i++){
+	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
+	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
+
+	// 1. Process switch hops (all except last) — standard HPCC logic
+	for (uint32_t i = 0; i < nhop; i++){
+		if (i == nhop - 1) break; // skip host hop in this loop
+
 		if (m_sampleFeedback && ih.hop[i].GetQlen() == 0 && fast_react)
 			continue;
 
@@ -1403,18 +1431,11 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 		if (tau == 0) continue;
 		updated_any = true;
 
-		// Capture last hop queue info before updating state
-		if (i == ih.nhop - 1) {
-			last_hop_q_term_num = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0;
-		}
-
 		double duration = tau * 1e-9;
-		double txRate = (ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i])) * 8 / duration;
-		
-		// Corrected scaling: (q_bytes * 8) / (C * RTT_base * 1e-9)
-		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
+		double txRate = ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i]) * 8.0 / duration;
+		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
 		double u = txRate / ih.hop[i].GetLineRate() + q_term;
-		
+
 		if (u > U){
 			U = u;
 			dt = tau;
@@ -1422,7 +1443,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 		qp->hpccPlus.hop[i] = ih.hop[i];
 	}
 
-	// 2. Aggregate switch utilization (EWMA as per HPCC base logic)
+	// 2. Aggregate switch utilization (EWMA)
 	if (updated_any){
 		if (dt > qp->m_baseRtt)
 			dt = qp->m_baseRtt;
@@ -1430,25 +1451,40 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 		max_u = qp->hpccPlus.u;
 	}
 
-	// 3. Host Hop Logic (HPCC+ addition)
-	double bits_delivered = (next_seq - qp->hpccPlus.m_lastUpdateSeq) * 8.0;
-	double delivered_rate = bits_delivered / (qp->m_baseRtt * 1e-9); // rate over one RTT
-	
-	// Update C_host EWMA (only during full RTT update to avoid per-packet underestimation)
-	if (!fast_react) {
-		qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * delivered_rate;
+	// 3. Host hop (last hop) — HPCC+ with INT-based R_delivered and conditional C_host
+	if (nhop > 0) {
+		uint32_t host_idx = nhop - 1;
+
+		if (m_sampleFeedback && ih.hop[host_idx].GetQlen() == 0 && fast_react) {
+			// skip host hop if qlen == 0 during fast react
+		} else {
+			uint64_t tau_host = ih.hop[host_idx].GetTimeDelta(qp->hpccPlus.hop[host_idx]);
+			if (tau_host > 0) {
+				// Compute R_delivered from host INT deltas (like switch txRate)
+				double duration_host = tau_host * 1e-9;
+				double R_delivered = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
+				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
+
+				// Conditional C_host update (only during full RTT update)
+				if (!fast_react) {
+					if (rxQlen > 0) {
+						// Queue building → R_delivered reflects true capacity
+						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+					} else if (R_delivered > qp->hpccPlus.m_c_host) {
+						// No queue but higher rate → capacity is at least this much
+						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+					}
+					// else: no queue, R_delivered <= C_host → keep C_host unchanged
+				}
+
+				// Host utilization: u_host = R_delivered/C_host + qlen/(C_host * BaseRTT)
+				double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
+				double u_host = R_delivered / c_host + rxQlen / (c_host * qp->m_baseRtt * 1e-9);
+				if (u_host > max_u) max_u = u_host;
+			}
+		}
+		qp->hpccPlus.hop[host_idx] = ih.hop[host_idx];
 	}
-	
-	// Host hop utilization: u = Rate/MaxRate + Q/(C_host * BaseRTT)
-	// We use MaxRate for the throughput signal to allow additive increase (probing)
-	// but keep C_host for the queue signal to keep it sensitive (precision).
-	double u_host = delivered_rate / qp->m_max_rate.GetBitRate();
-	// Add queue term if valid
-	if (qp->hpccPlus.m_c_host > 1.0) {
-		u_host += last_hop_q_term_num / (qp->hpccPlus.m_c_host * qp->m_baseRtt * 1e-9);
-	}
-	
-	if (u_host > max_u) max_u = u_host;
 
 	// 4. Rate allocation (matching HPCC base logic)
 	double max_c = max_u / m_targetUtil;
@@ -1473,8 +1509,14 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 }
 
 void RdmaHw::FastReactHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
-	if (m_fast_react)
-		UpdateRateHpPlus(qp, p, ch, true);
+	if (m_fast_react) {
+		if (m_cc_mode == 12) {
+			UpdateRateHpPlusQOnly(qp, p, ch, true);
+		} else {
+			UpdateRateHpPlus(qp, p, ch, true);
+		}
+	}
 }
 
 } /* namespace ns3 */
+

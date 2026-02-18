@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   hpcc:
     image: hpcc-plus-dev:latest

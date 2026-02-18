@@ -2,86 +2,109 @@
 
 ## Overview
 
-HPCC_Plus is an extension of the High Precision Congestion Control (HPCC) algorithm, designed to improve performance in environments with significant host-side congestion or specific receiver constraints. It leverages In-band Network Telemetry (INT) to obtain precise link utilization feedback, similar to HPCC, but introduces a specialized mechanism for the last hop (Host INT) to better handle receiver-side limitations.
+HPCC_Plus extends the HPCC algorithm to handle **host-side congestion** by treating the receiver as a virtual switch hop. The receiver inserts its own INT telemetry (timestamp, cumulative RxBytes, RX queue length, line rate) into each packet, which the sender processes alongside switch INT hops.
 
 ## Key Differences from HPCC
 
-The standard HPCC algorithm treats all hops (switches and the final link to the host) uniformly, using the link utilization ($U$) and queue length ($q$) to calculate a congestion signal.
-
-**HPCC_Plus** differentiates the **last hop** (the path from the ToR switch to the destination host) from the rest of the network fabric. It introduces a **Pulling Rate** based estimation for the host's capacity, which is useful when the bottleneck is at the receiver's processing capability or a specific "pull" mechanism (like in some RDMA implementations or storage systems).
+| | Standard HPCC | HPCC+ (CC_MODE 11) | TS-HPCC+ (CC_MODE 12) |
+|:--|:--|:--|:--|
+| **INT Hops** | Switch hops only | Switch hops + Host hop | Switch hops + Host hop |
+| **Host Capacity** | N/A | Conditional EWMA ($C_{host}$) | Conditional EWMA ($C_{host}$) |
+| **Host Utilization** | N/A | Always computed | Only when RX queue > 0 |
 
 ## Algorithm Details
 
-### 1. Host Capacity Estimation ($C_{host}$)
-Instead of assuming a static link capacity for the receiver, HPCC_Plus estimates the effective "Pulling Rate" of the receiver using an Exponential Weighted Moving Average (EWMA) of the **delivered rate**.
+### 1. Receiver-Side: Host INT Insertion
 
-$$ C_{host} = (1 - g) \times C_{host_{prev}} + g \times R_{delivered} $$
+When a data packet arrives at the receiver NIC and an ACK is generated (in `ReceiveUdp`), the receiver pushes a **host INT hop** onto the packet's INT header before copying it to the ACK:
 
-Where:
-- $g$ is the EWMA gain (configured via `EWMA_GAIN`, default 0.99 in `config_hpcc_plus`).
-- $R_{delivered}$ is the rate measured over the last RTT:
-  $$ R_{delivered} = \frac{\Delta Bytes_{acked}}{BaseRTT} $$
+```
+PushHop(timestamp, m_rxBytesTotal[nic], rxQueueLength, lineRate)
+```
 
-*Note: This update only happens once per RTT (when `!fast_react`) to ensure stability.*
+- **`m_rxBytesTotal`**: Cumulative bytes pulled from the RX buffer (analogous to switch `m_txBytes`)
+- **`rxQueueLength`**: Current RX ingress buffer occupancy
+- **`lineRate`**: Physical NIC rate
 
-### 2. Enhanced Congestion Signal ($u_{host}$)
-For the last hop (Host INT), the normalized congestion signal $u$ uses a **Dual-Capacity Approach**:
+This makes the receiver behave identically to a switch from the INT perspective.
 
-1.  **Throughput Term**: Uses **Line Rate** ($C_{max}$) as the capacity. This allows the sender to probe for available bandwidth up to the physical link speed.
-2.  **Queue Term**: Uses **Estimated Capacity** ($C_{host}$) as the capacity. This makes the queue signal sensitive to the receiver's actual processing speed (e.g., if the receiver pulls slowly, a small queue builds up fast in relative terms).
+### 2. Sender-Side: R_delivered from INT Deltas
 
-$$ u_{host} = \frac{R_{delivered}}{C_{max}} + \frac{qlen}{C_{host} \times BaseRTT} $$
+The sender computes `R_delivered` from the host hop using the standard INT delta mechanism — identical to how it computes switch throughput:
 
-### 3. Fast React Mechanism
-HPCC_Plus enables `FAST_REACT`, which allows the pacer to adjust its rate on **every ACK** to handle transient congestion immediately, while maintaining stable control state.
+$$ R_{delivered} = \frac{\Delta RxBytes \times 8}{\Delta Timestamp} $$
 
-- **Per-Packet (Fast React)**:
-    - Calculates $u$ and determines the target rate.
-    - Immediately updates the hardware Pacing Rate.
-    - **Does NOT** update the protocol's internal `m_curRate` anchor or `incStage`.
-- **Per-RTT (Full Update)**:
-    - Updates $C_{host}$ estimation.
-    - Commit the new rate to `m_curRate`.
-    - Updates `incStage` (Additive Increase counter).
+Where $\Delta RxBytes$ and $\Delta Timestamp$ are computed from two adjacent ACKs using `GetBytesDelta()` and `GetTimeDelta()` with wrap-around handling.
 
-This hybrid approach provides the responsiveness of per-packet reaction with the stability of RTT-based control loops.
+### 3. Conditional C_host Estimation
 
-For all other hops (switches), the standard HPCC formula is used:
-$$ u_{switch} = \frac{R_{tx}}{C_{link}} + \frac{qlen}{C_{link} \times BaseRTT} $$
+$C_{host}$ is estimated via EWMA, but **only updated when evidence is reliable**:
 
-### 4. Rate Adjustment
-The maximum $u$ ($U_{max}$) along the path is used to adjust the sending rate:
-$$ R_{new} = \frac{R_{current}}{U_{max} / U_{target}} + R_{ai} $$
+```
+if (rxQlen > 0):
+    C_host = (1 - g) × C_host + g × R_delivered    // Queue → R_delivered ≈ true capacity
+else if (R_delivered > C_host):
+    C_host = (1 - g) × C_host + g × R_delivered    // Higher rate observed
+else:
+    C_host unchanged                                 // Don't underestimate
+```
 
-Where $U_{target}$ is the target utilization (e.g., 0.95).
+**Why conditional?** When the sender sends below receiver capacity, `R_delivered` is limited by the sender, not the receiver. Unconditionally updating `C_host` would create a probing deadlock where `R_delivered ≈ C_host ≈ 1.0`, preventing rate increase.
+
+**Initialization**: $C_{host}$ starts at the physical line rate and converges down as measurements arrive.
+
+### 4. Host Utilization
+
+**HPCC+ (CC_MODE 11)** — always considers the host hop:
+
+$$ u_{host} = \frac{R_{delivered}}{C_{host}} + \frac{qlen}{C_{host} \times BaseRTT} $$
+
+**TS-HPCC+ (CC_MODE 12)** — only reacts to host congestion when queue builds:
+
+$$ u_{host} = \frac{R_{delivered}}{C_{host}} + \frac{qlen}{C_{host} \times BaseRTT} \quad \text{(only if } qlen > 0\text{)} $$
+
+Both terms use $C_{host}$ as the capacity reference.
+
+### 5. Rate Adjustment
+
+The maximum utilization across all hops determines the new rate:
+
+$$ U_{max} = \max(u_{switch\_ewma}, u_{host}) $$
+$$ R_{new} = \frac{R_{current}}{U_{max} / \eta} + R_{AI} $$
+
+Where $\eta$ is the target utilization (e.g., 0.95).
+
+### 6. Fast React
+
+When `FAST_REACT` is enabled, the sender adjusts its pacing rate on **every ACK** (intermediate packets) but only commits state changes (C_host, incStage, curRate, lastUpdateSeq) during **full RTT updates**.
 
 ## Implementation
 
-The implementation is integrated into the ns-3 simulation framework, specifically within the `point-to-point` module's RDMA model.
-
 ### Files Modified
-- **`rdma-queue-pair.h`**: Added `hpccPlus` struct to `RdmaQueuePair` to track `m_c_host`, `m_curRate`, and other HPCC-Plus state.
-- **`rdma-hw.h`**: Added `HandleAckHpPlus`, `UpdateRateHpPlus`, and `FastReactHpPlus` method declarations.
-- **`rdma-hw.cc`**: 
-    - Implemented `UpdateRateHpPlus` which iterates through INT hops.
-    - Differentiates the last hop (`i == nhop - 1`) to apply the HPCC_Plus logic.
-    - Updates `C_host` and calculates `u_host`.
-- **`switch-node.cc`**: Updated to ensure `CC_MODE 11` enables INT header insertion (same as standard HPCC).
-- **`run.py` / Configs**: Added `CC_MODE 11` support.
+- **`rdma-hw.h`**: Added `m_rxBytesTotal` (per-NIC cumulative RX bytes for host INT)
+- **`rdma-hw.cc`**:
+  - `ReceiveUdp`: Pushes host INT hop before ACK generation
+  - `HandleAckHpPlus`: Fixed dead-code bug, dispatches CC_MODE 12 → `UpdateRateHpPlusQOnly`
+  - `UpdateRateHpPlus`: INT-based R_delivered + conditional C_host
+  - `UpdateRateHpPlusQOnly`: Same, but host hop ignored when qlen == 0
+  - `FastReactHpPlus`: Dispatches to correct function per CC_MODE
+  - `AddQueuePair` / `ReceiveCnp`: Init CC_MODE 12 state
+- **`switch-node.cc`**: CC_MODE 12 added to INT insertion condition
 
-## Running HPCC_Plus
+## Running
 
-To run a simulation with HPCC_Plus:
-
-1.  **Configuration**: Use a config file with `CC_MODE 11`.
-    ```
-    CC_MODE 11
-    ```
-2.  **Parameters**:
-    - `EWMA_GAIN`: Controls stability of host capacity estimation.
-    - `RX_PULL_RATE`: Can be configured to simulate dynamic receiver throttling.
-
-### Example Command
-```bash
-./build/scratch/third mix/configs/config_hpcc_plus_dynamic.txt
+**CC_MODE 11** (HPCC+):
 ```
+CC_MODE 11
+```
+
+**CC_MODE 12** (TS-HPCC+):
+```
+CC_MODE 12
+```
+
+**Key Parameters**:
+- `EWMA_GAIN`: Controls C_host convergence speed
+- `RX_PULL_RATE` / `RX_PULL_RATE_SCHEDULE`: Simulates dynamic receiver throttling
+- `MI_THRESH`: Multiplicative increase threshold
+- `FAST_REACT`: Enable per-ACK fast reaction

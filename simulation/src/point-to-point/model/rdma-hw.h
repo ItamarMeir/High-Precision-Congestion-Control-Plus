@@ -45,6 +45,7 @@ public:
 	std::unordered_map<uint32_t, std::vector<int> > m_rtTable; // map from ip address (u32) to possible ECMP port (index of dev)
 	std::vector<EventId> m_rxPullEvents;
 	std::vector<bool> m_rxPullActive;
+	std::vector<uint64_t> m_rxBytesTotal; // cumulative bytes pulled from RX buffer, per NIC (for host INT)
 
 	struct PullRateEvent {
 		Time time;

@@ -2,11 +2,11 @@ APPNAME = 'ns'
 AR = '/usr/bin/ar'
 ARFLAGS = 'rcs'
 BINDIR = '/usr/local/bin'
-BUILD_PROFILE = 'debug'
-BUILD_SUFFIX = '-debug'
+BUILD_PROFILE = 'optimized'
+BUILD_SUFFIX = '-optimized'
 CC = ['/usr/bin/gcc']
-CCDEFINES = ['_DEBUG']
-CCFLAGS = ['-O0', '-ggdb', '-g3', '-O0', '-ggdb', '-g3', '-std=gnu++11', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing']
+CCDEFINES = []
+CCFLAGS = ['-O3', '-g', '-O3', '-g', '-std=gnu++11', '-march=native', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing']
 CCFLAGS_PTHREAD = '-pthread'
 CCLNK_SRC_F = []
 CCLNK_TGT_F = ['-o']
@@ -20,8 +20,8 @@ COMPILER_CC = 'gcc'
 COMPILER_CXX = 'g++'
 CPPPATH_ST = '-I%s'
 CXX = ['/usr/bin/g++']
-CXXDEFINES = ['_DEBUG']
-CXXFLAGS = ['-O0', '-ggdb', '-g3', '-std=gnu++11', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing']
+CXXDEFINES = []
+CXXFLAGS = ['-O3', '-g', '-std=gnu++11', '-march=native', '-Wno-error=deprecated-declarations', '-fstrict-aliasing', '-Wstrict-aliasing']
 CXXFLAGS_MACBUNDLE = ['-fPIC']
 CXXFLAGS_PTHREAD = '-pthread'
 CXXFLAGS_cxxshlib = ['-fPIC']
@@ -32,7 +32,7 @@ CXX_SRC_F = []
 CXX_TGT_F = ['-c', '-o']
 DATADIR = '/usr/local/share'
 DATAROOTDIR = '/usr/local/share'
-DEFINES = ['NS3_ASSERT_ENABLE', 'NS3_LOG_ENABLE', 'HAVE_PACKET_H=1', 'HAVE_IF_TUN_H=1']
+DEFINES = ['HAVE_PACKET_H=1', 'HAVE_IF_TUN_H=1']
 DEFINES_ST = '-D%s'
 DEST_BINFMT = 'elf'
 DEST_CPU = 'x86_64'
