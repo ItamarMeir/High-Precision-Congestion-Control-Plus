@@ -2,7 +2,7 @@
 
 ## Summary of What Was Done
 
-This session fixed the HPCC+ congestion control algorithm (CC_MODE 11/12) by implementing **receiver-side INT insertion**, a **conditional C_host estimation mechanism**, and fixing multiple bugs. All code changes are complete and the build compiles successfully. **Simulation was run but plot generation was interrupted** — plots need to be regenerated.
+This session fixed the HPCC+ congestion control algorithm (CC_MODE 11) by implementing **receiver-side INT insertion**, a **conditional C_host estimation mechanism**, and fixing multiple bugs. CC_MODE 12 (TS-HPCC+) was removed as requested. All code changes are complete and the build compiles successfully. **Simulation was run but plot generation was interrupted** — plots need to be regenerated.
 
 ## What Changed and Where
 
@@ -17,12 +17,10 @@ PushHop(timestamp, m_rxBytesTotal[nic], rxQueueLength, lineRate)
 - `m_rxBytesTotal` is a per-NIC cumulative byte counter (analogous to switch `m_txBytes`), incremented each time a packet is pulled from the RX buffer.
 - Initialized in `RdmaHw::Setup()`.
 
-### 2. Fixed `HandleAckHpPlus` Dead-Code Bug
+### 2. Fixed `HandleAckHpPlus` Logic
 **File**: `rdma-hw.cc` — `HandleAckHpPlus()` (~line 1265)
 
-**Bug**: The original code had a duplicated `if (ack_seq > qp->hpccPlus.m_lastUpdateSeq)` condition — the first branch always matched, making CC_MODE 12 dispatch unreachable dead code.
-
-**Fix**: Single condition now correctly dispatches CC_MODE 12 → `UpdateRateHpPlusQOnly`, CC_MODE 11 → `UpdateRateHpPlus`.
+**Fix**: Improved dispatch logic for CC_MODE 11 → `UpdateRateHpPlus`.
 
 ### 3. Rewrote `UpdateRateHpPlus` (CC_MODE 11) 
 **File**: `rdma-hw.cc` — `UpdateRateHpPlus()` (~line 1386)
@@ -33,30 +31,15 @@ Complete rewrite. Key changes:
 - **u_host formula**: `u_host = R_delivered / C_host + qlen / (C_host × BaseRTT)` — both terms use C_host. Previously throughput term used `C_max`.
 - **Hop layout**: hops 0..nhop-2 are switches (standard HPCC), hop nhop-1 is the host hop.
 
-### 4. Rewrote `UpdateRateHpPlusQOnly` (CC_MODE 12)
-**File**: `rdma-hw.cc` — `UpdateRateHpPlusQOnly()` (~line 1278)
-
-Same R_delivered and C_host changes as above, but host hop utilization **only influences rate when rxQlen > 0**. When queue is empty, host hop is ignored (rate determined by switches only).
-
 ### 5. Fixed `FastReactHpPlus`
 **File**: `rdma-hw.cc` — `FastReactHpPlus()` (~line 1486)
 
-Now dispatches to `UpdateRateHpPlusQOnly` for CC_MODE 12 (previously always called `UpdateRateHpPlus`).
+Now correctly handles `UpdateRateHpPlus` for CC_MODE 11.
 
-### 6. Added CC_MODE 12 Initialization
-**File**: `rdma-hw.cc` — `AddQueuePair()` and `ReceiveCnp()`
-
-Both functions now handle CC_MODE 12 (TS-HPCC+) initialization of `hpccPlus.m_curRate`. Previously only CC_MODE 11 was handled.
-
-### 7. Switch INT for CC_MODE 12
-**File**: `simulation/src/point-to-point/model/switch-node.cc` (~line 223)
-
-Added CC_MODE 12 to the switch INT hop insertion condition (alongside 3 and 11).
-
-### 8. Updated README
+### 6. Updated README
 **File**: `HPCC_PLUS_README.md`
 
-Completely rewritten to reflect the new algorithm design with receiver-side INT, conditional C_host, and both CC_MODE 11/12 formulas.
+Completely rewritten to reflect the new algorithm design with receiver-side INT and conditional C_host.
 
 ## Build & Run Status
 

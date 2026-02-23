@@ -23,6 +23,8 @@ public:
 	uint16_t m_ipid;
 	uint32_t m_win; // bound of on-the-fly packets
 	uint64_t m_baseRtt; // base RTT of this qp
+	uint64_t m_lastRtt; // instantaneous RTT of the most recent ACK
+	uint32_t m_lastAckSeq; // sequence number of the most recent ACK
 	DataRate m_max_rate; // max rate
 	bool m_var_win; // variable window size
 	Time m_nextAvail;	//< Soonest time of next send

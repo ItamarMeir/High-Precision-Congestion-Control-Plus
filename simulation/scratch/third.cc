@@ -253,7 +253,7 @@ void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 
 void trace_qp_rate(FILE* fout, Ptr<RdmaQueuePair> q, uint64_t rate, uint64_t win){
 	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
-	fprintf(fout, "%lu %u %u %u %u %lu %lu\n", Simulator::Now().GetTimeStep(), sid, did, q->sport, q->dport, rate, win);
+	fprintf(fout, "%lu %u %u %u %u %lu %lu %lu %u\n", Simulator::Now().GetTimeStep(), sid, did, q->sport, q->dport, rate, win, q->m_lastRtt, q->m_lastAckSeq);
 	fflush(fout);
 }
 
@@ -847,7 +847,13 @@ int main(int argc, char *argv[])
 	Config::SetDefault("ns3::RdmaHw::RxPullRate", DoubleValue(rx_pull_rate));
 
 	// set int_multi
+	// HPCC_Plus (mode 11): the receiver appends a host INT hop at the end of the hop list.
+	// This consumes one slot, so we add 1 to int_multi to ensure the config value
+	// represents the number of *switch* hops (the host hop is always in addition to that).
+	if (cc_mode == 11)
+		int_multi += 1;
 	IntHop::multi = int_multi;
+	std::cout << "INT_MULTI (effective)\t\t\t" << int_multi << '\n';
 	// IntHeader::mode
 	if (cc_mode == 7) // timely, use ts
 		IntHeader::mode = IntHeader::TS;
@@ -855,6 +861,8 @@ int main(int argc, char *argv[])
 		IntHeader::mode = IntHeader::NORMAL;
 	else if (cc_mode == 10) // hpcc-pint
 		IntHeader::mode = IntHeader::PINT;
+	else if (cc_mode == 11) // hpcc-plus, use int (same structure as NORMAL)
+		IntHeader::mode = IntHeader::NORMAL;
 	else // others, no extra header
 		IntHeader::mode = IntHeader::NONE;
 

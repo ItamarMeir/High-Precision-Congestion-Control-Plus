@@ -48,11 +48,12 @@ PLOT_SCRIPTS = [
     ("plot_fct.py", "Flow Completion Time Analysis"),
     ("plot_rx_buffer.py", "RX Buffer Occupancy"),
     ("plot_packet_drops.py", "Packet Drop Analysis"),
+    ("plot_ack_analysis.py", "ACK Analysis Dashboard"),
     ("plot_cwnd_rtt_analysis.py", "CWND Analysis Dashboard"),
-    ("plot_queue_metrics.py", "Queue Metrics"),
     ("plot_switch_throughput.py", "Switch Throughput"),
     ("plot_dashboard.py", "Comprehensive Dashboard"),
     ("plot_interactive_dashboard.py", "Interactive Dashboard"),
+    ("plot_ack_analysis_interactive.py", "Interactive ACK Analysis Dashboard"),
 ]
 
 INTERACTIVE_PLOTS_DIR = RESULTS_DIR / "interactive_plots"
@@ -216,6 +217,49 @@ def run_plot_script(script_name, description, data_files):
                         cmd.append(str(config_file))
                     if topo_file.exists():
                         cmd.append(str(topo_file))
+                    
+                    print(f"Command: {' '.join(cmd)}")
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    
+                    if result.returncode == 0:
+                        print(f"✓ {description} ({cwnd_file.name}) completed successfully")
+                        if result.stdout:
+                            print(result.stdout)
+                    else:
+                        print(f"✗ {description} ({cwnd_file.name}) failed")
+                        if result.stderr:
+                            print(f"Error: {result.stderr[:300]}")
+                        return False
+                return True
+            else:
+                print(f"⚠️  Skipping {description}: No CWND data file found")
+                return False
+
+        elif "plot_ack_analysis" in script_name:
+            # Shared logic for static and interactive ack analysis
+            cwnd_files = list(DATA_DIR.glob("cwnd_*.txt"))
+            
+            if cwnd_files:
+                for cwnd_file in cwnd_files:
+                    exp_name = cwnd_file.stem.replace("cwnd_", "")
+                    config_name = f"config_{exp_name}.txt"
+                    
+                    config_candidates = [
+                        RESULTS_DIR / "config" / config_name,
+                        RESULTS_DIR / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name,
+                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
+                    ]
+                    config_file = next((p for p in config_candidates if p.exists()), None)
+                    
+                    ext = ".html" if "interactive" in script_name else ".png"
+                    out_dir = INTERACTIVE_PLOTS_DIR if "interactive" in script_name else PLOTS_DIR
+                    out_file = out_dir / f"ack_analysis_{exp_name}{ext}"
+                    
+                    cmd = [sys.executable, str(script_path), str(cwnd_file), str(out_file)]
+                    
+                    if config_file:
+                        cmd.append(str(config_file))
                     
                     print(f"Command: {' '.join(cmd)}")
                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)

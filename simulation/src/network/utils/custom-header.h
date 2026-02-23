@@ -107,6 +107,7 @@ public:
 		  // SeqTsHeader
 		  uint16_t pg;
 		  uint32_t seq;
+		  uint64_t ts;
 		  IntHeader ih;
 	  } udp;
 	  // CnHeader
@@ -123,6 +124,7 @@ public:
 		  uint16_t flags;
 		  uint16_t pg;
 		  uint32_t seq; // the qbb sequence number.
+		  uint64_t ts;
 		  IntHeader ih;
 	  } ack;
 	  // PauseHeader

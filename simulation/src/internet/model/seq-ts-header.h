@@ -47,6 +47,10 @@ public:
    */
   uint32_t GetSeq (void) const;
   /**
+   * \param ts the time stamp
+   */
+  void SetTs(Time ts);
+  /**
    * \return the time stamp
    */
   Time GetTs (void) const;
@@ -65,6 +69,7 @@ private:
 
   uint32_t m_seq;
   uint16_t m_pg;
+  uint64_t m_ts;
 public:
   IntHeader ih;
 };

@@ -7,6 +7,7 @@ uint32_t IntHop::multi = 1;
 
 IntHeader::Mode IntHeader::mode = NONE;
 int IntHeader::pint_bytes = 2;
+const uint32_t IntHeader::maxHop;
 
 IntHeader::IntHeader() : nhop(0) {
 	for (uint32_t i = 0; i < maxHop; i++)

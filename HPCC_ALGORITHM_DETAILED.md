@@ -43,17 +43,20 @@ $$
 W_{eff}(t) = W_{base} \times \frac{R(t)}{R_{max}}
 $$
 
-**Code Snippet (`RdmaQueuePair::HpGetCurWin`):**
+**Code Snippet (`RdmaQueuePair::GetWin`):**
 ```cpp
 // simulation/src/point-to-point/model/rdma-queue-pair.cc
+// GetWin() is what the utilization formula actually calls.
 if (m_var_win){
-    // Scale window by current rate ratio
-    w = m_win * hp.m_curRate.GetBitRate() / m_max_rate.GetBitRate();
+    // Scale window by *current pacing rate* ratio
+    w = m_win * m_rate.GetBitRate() / m_max_rate.GetBitRate();
 } else {
-    // Fixed window (BDP)
-    w = m_win; 
+    // Fixed window (BDP) — default when VarWin=false
+    w = m_win;
 }
 ```
+> [!NOTE]
+> `HpGetCurWin()` (uses `hp.m_curRate`) also exists and is used for window-bound checking during HPCC updates, but the utilization formula on line 930 calls `GetWin()` (uses `m_rate`).
 
 ---
 
@@ -75,19 +78,20 @@ In this implementation, $T_{ramp}$ corresponds to the **Base RTT** ($RTT_{base}$
 
 **Code Snippet (`RdmaHw::UpdateRateHp`):**
 ```cpp
-// simulation/src/point-to-point/model/rdma-hw.cc
+// simulation/src/point-to-point/model/rdma-hw.cc (line 929-930)
+
+double txRate = (ih.hop[i].GetBytesDelta(qp->hp.hop[i])) * 8 / duration;
 
 // Term 1: Throughput Utilization (TxRate / LineRate)
-double term1 = txRate / ih.hop[i].GetLineRate();
-
-// Term 2: Queue Utilization (Qlen / (Capacity * BaseRTT))
-// Note: m_win is set to BDP (Capacity * BaseRTT) during init.
-// Therefore: (Qlen * MaxRate) / LineRate / m_win => Qlen / (Capacity * BaseRTT)
-double term2 = (double)ih.hop[i].GetQlen() * qp->m_max_rate.GetBitRate() 
-             / ih.hop[i].GetLineRate() / qp->m_win;
-
-double u = term1 + term2;
+// Term 2: Queue Utilization. Uses std::min(current_qlen, prev_qlen) to reduce noise.
+//         GetWin() = m_win when VarWin=false (default) = BDP = C * RTT_base
+//         => term2 = min(Q_curr, Q_prev) / (C/MaxRate * Win) ≈ Q / (C * RTT_base)
+double u = txRate / ih.hop[i].GetLineRate()
+         + (double)std::min(ih.hop[i].GetQlen(), qp->hp.hop[i].GetQlen())
+           * qp->m_max_rate.GetBitRate() / ih.hop[i].GetLineRate() / qp->GetWin();
 ```
+> [!NOTE]
+> The queue term uses `std::min(qlen_current, qlen_previous)` — a noise-reduction measure not explicitly stated in the original HPCC paper. It prevents overreacting to transient queue spikes.
 
 ### 3.1.1. TxRate Calculation
 The `TxRate` is calculated by the receiver (or sender, based on INT data) using the delta of cumulative transmitted bytes and timestamps found in the INT header.
@@ -109,15 +113,18 @@ The INT header contains per-hop telemetry data. Each hop inserts an `IntHop` str
 ```cpp
 // simulation/src/network/utils/int-header.h
 struct IntHop {
-    uint64_t lineRate: ...;
-    uint64_t time: 24;
-    uint64_t bytes: 20;
-    uint64_t qlen: 17;
+    uint64_t lineRate: 3;  // 3-bit INDEX into lineRateValues[8] lookup table
+    uint64_t time:     24; // bits
+    uint64_t bytes:    20; // bits (stores bytes / byteUnit)
+    uint64_t qlen:     17; // bits (stores qlen / qlenUnit)
     // ...
-    uint64_t GetBytesDelta(IntHop &b) { ... } // Handles wrap-around
-    uint64_t GetTimeDelta(IntHop &b) { ... }  // Handles wrap-around
+    uint64_t GetLineRate() { return lineRateValues[lineRate]; } // Lookup actual bps
+    uint64_t GetBytesDelta(IntHop &b) { ... } // Handles 20-bit wrap-around
+    uint64_t GetTimeDelta(IntHop &b) { ... }  // Handles 24-bit wrap-around
 };
 ```
+> [!NOTE]
+> `lineRate` is a **3-bit index** (0–7) into a fixed lookup table (`lineRateValues`), supporting rates: 1G, 10G, 25G, 50G, 100G, 200G, 400G bps. Call `GetLineRate()` to get the actual bits-per-second value.
 
 ### 3.2. Order of Operations: Max vs. Smooth
 
@@ -181,6 +188,8 @@ $$
 max\_c = \frac{U_{path}}{T_u} \quad \text{(where } U_{path} = qp->hp.u \text{)}
 $$
 
+$T_u$ (`m_targetUtil`, default `0.95`) is the **target link utilization** — the desired steady-state fraction of link capacity. It sets the operating point: $max\_c < 1$ means the link is below target (safe to increase), $max\_c \ge 1$ means at or above target (must decrease). Setting $T_u < 1$ provides a stability margin so the algorithm begins to back off *before* the link is fully saturated.
+
 $$
 R_{new} = \begin{cases} 
 \frac{R_{curr}}{max\_c} + R_{AI} & \text{if } max\_c \ge 1 \text{ or } \eta \ge \theta_{MI} \\
@@ -232,7 +241,7 @@ The following parameters (defined in `rdma-hw.cc`) control the behavior of the H
 | **MultiRate** | `true` | `m_multipleRate` | Enable **Per-Hop Rate Control**. If true, tracks rate candidates for every hop. If false, tracks single aggregate rate. |
 | **FastReact** | `true` | `m_fast_react` | Enable **Fast Reaction**. If true, sender adjusts pacing rate immediately on every ACK with fresh INT data. |
 | **VarWin** | `false` | `m_var_win` | Enable **Variable Window**. If true, window scales with rate ($W \propto R$). If false, window is fixed ($W = BDP$). |
-| **MinRate** | `100Mb/s` | `m_minRate` | Minimum flow rate floor. Prevents the rate from dropping to zero during severe congestion. |
+| **MinRate** | `1Kbps` | `m_minRate` | Minimum flow rate floor. Prevents the rate from dropping to zero during severe congestion. Note: the attribute declaration shows `100Mb/s` but the constructor overrides it to `1Kbps`. |
 | **RateBound** | `true` | `m_rateBound` | Enforces rate pacing. If false, packets are pushed as fast as the window allows (window-based only). |
 | **PintSmplThresh** | `65536` | `pint_smpl_thresh` | PINT sampling threshold. Controls probability of INT header insertion by switches (Mode 10 only). |
 | **RateHAI** | `50Mb/s` | `m_rhai` | Hyper-Additive Increase step. (Used primarily in DCQCN, but available in param list). |

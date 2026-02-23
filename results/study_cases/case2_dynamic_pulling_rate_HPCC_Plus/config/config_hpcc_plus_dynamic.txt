@@ -1,0 +1,81 @@
+ENABLE_QCN 0 {0: disable, 1: enable}
+USE_DYNAMIC_PFC_THRESHOLD 0 {0: disable, 1: enable}
+
+PACKET_PAYLOAD_SIZE 1000 {packet size (bytes)}
+
+RX_BUFFER_SIZE 8388608 {NIC RX buffer size (bytes) - default for all nodes}
+RX_BUFFER_PER_QUEUE 1048576 {NIC RX per-queue buffer size (bytes) - default for all nodes}
+RX_PULL_MODE 1 {0: immediate, 1: fixed-rate pull - default for all nodes}
+RX_PULL_RATE 1.0 {fixed-rate pull as fraction of line rate - default for all nodes}
+
+# Per-node overrides: senders (nodes 0,1) immediate pull; receiver (node 2) fixed-rate pull
+RX_PULL_MODE_NODE 0 0 {sender 0: immediate mode}
+RX_PULL_MODE_NODE 1 0 {sender 1: immediate mode}
+RX_PULL_MODE_NODE 2 1 {receiver: fixed-rate pull}
+RX_PULL_RATE_NODE 0 1.0
+RX_PULL_RATE_NODE 1 1.0
+RX_PULL_RATE_NODE 2 0.1 {receiver: start with 10% rate}
+
+TOPOLOGY_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/config/topology_two_senders.txt
+FLOW_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/config/flow_two_senders_long.txt
+TRACE_FILE mix/inputs/trace.txt
+
+# Main Outputs
+TRACE_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/mix_hpcc_plus_dynamic.tr
+FCT_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/fct_hpcc_plus_dynamic.txt
+PFC_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/pfc_hpcc_plus_dynamic.txt
+CWND_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/cwnd_hpcc_plus_dynamic.txt
+RXBUF_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/rxbuf_hpcc_plus_dynamic.txt
+
+# Queue Length Monitoring
+QLEN_MON_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/qlen_hpcc_plus_dynamic.txt
+QLEN_MON_START 0
+QLEN_MON_END 6000000000 # 6 seconds
+
+# Algorithm Parameters
+LINK_DOWN 0 0 0 {time (us), node A, node B (node B needs to be larger than node A)}
+SIMULATOR_STOP_TIME 6.0
+CC_MODE 11 {1: DCQCN, 3: HPCC, 7: TIMELY, 8: DCTCP, 10: HPCC-PINT, 11: HPCC-PLUS}
+RATE_AI 50Mb/s
+RATE_HAI 100Mb/s
+MIN_RATE 100Mb/s
+
+# Other params
+MI_THRESH 5 {inc stage threshold to use AI}
+INT_MULTI 1 {INT info carrying 1 hop info}
+U_TARGET 0.95 {target utilization}
+FAST_REACT 1 {0: disable, 1: enable}
+ENABLE_CS 0 {0: disable, 1: enable}
+HAS_WIN 1 {0: no window, 1: has a window}
+GLOBAL_T 1 {0: per-pair RTT, 1: global max RTT}
+VAR_WIN 1 {0: fixed window, 1: variable window}
+FAST_REACT 1 {0: react per RTT, 1: react per ACK}
+U_TARGET 0.95 {for HPCC: target utilization}
+MULTI_RATE 0 {for HPCC: 0: single rate, 1: per hop}
+SAMPLE_FEEDBACK 0 {for HPCC: 0: per packet, 1: per RTT or qlen>0}
+PINT_LOG_BASE 1.05 {for HPCC-PINT: log base}
+PINT_PROB 1.0 {for HPCC-PINT: sampling probability}
+
+RATE_BOUND 1 {0: no rate limiter, 1: use rate limiter}
+
+ACK_HIGH_PRIO 0 {0: same priority as data, 1: prioritize ACK}
+
+# Dynamic Pull Rate Schedule
+# Format: RX_PULL_RATE_SCHEDULE [node_id] [count] [time1] [rate1] [time2] [rate2] ...
+# Times in seconds, rates as fraction of line rate (e.g., 0.5 = 5Gbps on 10Gbps link)
+# Node 2 is the receiver in topology_two_senders.txt
+
+RX_PULL_RATE_SCHEDULE 2 4 1 0.05 1.2 0.2 1.4 0.5 1.6 1.0 
+
+# Logging
+ENABLE_TRACE 1
+ENABLE_CWND_TRACE 1
+
+# Hardware Params
+KMAX_MAP 7 1000000000 16 10000000000 160 20000000000 320 25000000000 400 50000000000 800 100000000000 1600 100000000000 1600
+KMIN_MAP 7 1000000000 4 10000000000 40 20000000000 80 25000000000 100 50000000000 200 100000000000 400 100000000000 400
+PMAX_MAP 7 1000000000 0.2 10000000000 0.2 20000000000 0.2 25000000000 0.2 50000000000 0.2 100000000000 0.2 100000000000 0.2
+BUFFER_SIZE 32
+L2_ACK_INTERVAL 1
+
+EWMA_GAIN 1.0

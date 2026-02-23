@@ -177,7 +177,7 @@ public:
 	 ********************/
 	void HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
 	void UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
-	void UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
+
 	void FastReactHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
 };
 

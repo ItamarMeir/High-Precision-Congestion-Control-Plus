@@ -67,6 +67,7 @@ private:
   uint16_t flags;
   uint16_t m_pg;
   uint32_t m_seq; // the qbb sequence number.
+  uint64_t m_ts;
   IntHeader ih;
   
 };

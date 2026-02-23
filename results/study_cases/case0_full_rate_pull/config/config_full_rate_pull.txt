@@ -5,7 +5,7 @@ PACKET_PAYLOAD_SIZE 1000 {packet size (bytes)}
 
 RX_BUFFER_SIZE 8388608 {NIC RX buffer size (bytes) - default for all nodes}
 RX_BUFFER_PER_QUEUE 1048576 {NIC RX per-queue buffer size (bytes) - default for all nodes}
-RX_PULL_MODE 1 {0: immediate, 1: fixed-rate pull - default for all nodes}
+RX_PULL_MODE 0 {0: immediate, 1: fixed-rate pull - default for all nodes}
 RX_PULL_RATE 1.0 {fixed-rate pull as fraction of line rate - default for all nodes}
 
 # Per-node overrides: senders (nodes 0,1) immediate pull; receiver (node 2) fixed-rate pull
@@ -31,9 +31,9 @@ CLAMP_TARGET_RATE 0 {for DCQCN: reduce target rate on consecutive decrease}
 RP_TIMER 900 {for DCQCN: interval of rate increase}
 EWMA_GAIN 0.00390625 {for DCQCN/DCTCP: EWMA gain}
 FAST_RECOVERY_TIMES 1 {for DCQCN: number of fast recovery increases}
-RATE_AI 5Mb/s {additive increase (not for DCTCP)}
-RATE_HAI 10Mb/s {hyper additive increase}
-MIN_RATE 10Mb/s {minimum rate}
+RATE_AI 50Mb/s {additive increase (not for DCTCP)}
+RATE_HAI 100Mb/s {hyper additive increase}
+MIN_RATE 100Mb/s {minimum rate}
 DCTCP_RATE_AI 1000Mb/s {additive increase for DCTCP}
 
 ERROR_RATE_PER_LINK 0.0000 {error rate of each link}

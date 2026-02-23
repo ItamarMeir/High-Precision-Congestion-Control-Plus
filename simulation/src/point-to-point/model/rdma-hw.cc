@@ -287,7 +287,7 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 		qp->tmly.m_curRate = m_bps;
 	}else if (m_cc_mode == 10){
 		qp->hpccPint.m_curRate = m_bps;
-	}else if (m_cc_mode == 11 || m_cc_mode == 12){
+	}else if (m_cc_mode == 11){
 		qp->hpccPlus.m_curRate = m_bps;
 		qp->hpccPlus.m_c_host = m_bps.GetBitRate(); // init C_host with line rate
 	}
@@ -361,7 +361,7 @@ int RdmaHw::ReceiveUdp(Ptr<Packet> p, CustomHeader &ch){
 	int x = ReceiverCheckSeq(ch.udp.seq, rxQp, payload_size);
 	if (x == 1 || x == 2){ //generate ACK or NACK
 		// HPCC-Plus: push host INT hop before copying INT to ACK
-		if (m_cc_mode == 11 || m_cc_mode == 12) {
+		if (m_cc_mode == 11) {
 			uint32_t nic_idx = GetNicIdxOfRxQp(rxQp);
 			Ptr<QbbNetDevice> dev = m_nic[nic_idx].dev;
 			m_rxBytesTotal[nic_idx] += p->GetSize();
@@ -378,6 +378,7 @@ int RdmaHw::ReceiveUdp(Ptr<Packet> p, CustomHeader &ch){
 		seqh.SetPG(ch.udp.pg);
 		seqh.SetSport(ch.udp.dport);
 		seqh.SetDport(ch.udp.sport);
+		seqh.SetTs(ch.udp.ts);
 		seqh.SetIntHeader(ch.udp.ih);
 		if (ecnbits)
 			seqh.SetCnp();
@@ -442,8 +443,10 @@ int RdmaHw::ReceiveCnp(Ptr<Packet> p, CustomHeader &ch){
 			qp->tmly.m_curRate = dev->GetDataRate();
 		}else if (m_cc_mode == 10){
 			qp->hpccPint.m_curRate = dev->GetDataRate();
-		}else if (m_cc_mode == 11 || m_cc_mode == 12){
+		}else if (m_cc_mode == 11){
 			qp->hpccPlus.m_curRate = dev->GetDataRate();
+			// Initialize C_host to line rate
+			qp->hpccPlus.m_c_host = (double)dev->GetDataRate().GetBitRate();
 		}
 	}
 	return 0;
@@ -459,6 +462,13 @@ int RdmaHw::ReceiveAck(Ptr<Packet> p, CustomHeader &ch){
 	if (qp == NULL){
 		std::cout << "ERROR: " << "node:" << (m_node ? m_node->GetId() : -1) << ' ' << (ch.l3Prot == 0xFC ? "ACK" : "NACK") << " NIC cannot find the flow\n";
 		return 0;
+	}
+
+	// Capture per-packet RTT globally for plotting
+	if (ch.ack.ts > 0) {
+		qp->m_lastRtt = Simulator::Now().GetTimeStep() - ch.ack.ts;
+		qp->m_lastAckSeq = seq;
+		m_traceQpRate(qp, qp->m_rate.GetBitRate(), GetQpWinForTrace(qp));
 	}
 
 	uint32_t nic_idx = GetNicIdxOfQp(qp);
@@ -495,8 +505,6 @@ int RdmaHw::ReceiveAck(Ptr<Packet> p, CustomHeader &ch){
 	}else if (m_cc_mode == 10){
 		HandleAckHpPint(qp, p, ch);
 	}else if (m_cc_mode == 11){
-		HandleAckHpPlus(qp, p, ch);
-	}else if (m_cc_mode == 12){
 		HandleAckHpPlus(qp, p, ch);
 	}
 	// ACK may advance the on-the-fly window, allowing more packets to send
@@ -1265,133 +1273,12 @@ double RdmaHw::GetCurrentRxPullRate(){
 void RdmaHw::HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
 	uint32_t ack_seq = ch.ack.seq;
 	if (ack_seq > qp->hpccPlus.m_lastUpdateSeq){ // full RTT update
-		if (m_cc_mode == 12) {
-			UpdateRateHpPlusQOnly(qp, p, ch, false);
-		} else {
-			UpdateRateHpPlus(qp, p, ch, false);
-		}
+		UpdateRateHpPlus(qp, p, ch, false);
 	}else if (m_fast_react){
 		FastReactHpPlus(qp, p, ch);
 	}
 }
 
-void RdmaHw::UpdateRateHpPlusQOnly(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react){
-	IntHeader &ih = ch.ack.ih;
-	uint32_t next_seq = qp->snd_nxt;
-	
-	// First RTT: store INT hops, return without computing
-	if (qp->hpccPlus.m_lastUpdateSeq == 0){
-		qp->hpccPlus.m_lastUpdateSeq = next_seq;
-		if (ih.nhop > IntHeader::maxHop) {
-			static bool warned = false;
-			if (!warned) {
-				std::cout << "WARNING: nhop (" << ih.nhop << ") > maxHop (" << IntHeader::maxHop << "). Truncating." << std::endl;
-				warned = true;
-			}
-		}
-		for (uint32_t i = 0; i < ih.nhop && i < IntHeader::maxHop; i++)
-			qp->hpccPlus.hop[i] = ih.hop[i];
-		return;
-	}
-
-	double max_u = 0;
-	double U = 0;
-	uint64_t dt = 0;
-	bool updated_any = false;
-
-	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
-	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
-
-	// 1. Process switch hops (all except last) — standard HPCC logic
-	for (uint32_t i = 0; i < nhop; i++){
-		if (i == nhop - 1) break; // skip host hop in this loop
-
-		if (m_sampleFeedback && ih.hop[i].GetQlen() == 0 && fast_react)
-			continue;
-
-		uint64_t tau = ih.hop[i].GetTimeDelta(qp->hpccPlus.hop[i]);
-		if (tau == 0) continue;
-		updated_any = true;
-
-		double duration = tau * 1e-9;
-		double txRate = ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i]) * 8.0 / duration;
-		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
-		double u = txRate / ih.hop[i].GetLineRate() + q_term;
-
-		if (u > U){
-			U = u;
-			dt = tau;
-		}
-		qp->hpccPlus.hop[i] = ih.hop[i];
-	}
-
-	// 2. Aggregate switch utilization (EWMA)
-	if (updated_any){
-		if (dt > qp->m_baseRtt)
-			dt = qp->m_baseRtt;
-		qp->hpccPlus.u = (qp->hpccPlus.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
-		max_u = qp->hpccPlus.u;
-	}
-
-	// 3. Host hop (last hop) — TS-HPCC+ Q-Only logic
-	if (nhop > 0) {
-		uint32_t host_idx = nhop - 1;
-
-		if (m_sampleFeedback && ih.hop[host_idx].GetQlen() == 0 && fast_react) {
-			// skip host hop if qlen == 0 during fast react
-		} else {
-			uint64_t tau_host = ih.hop[host_idx].GetTimeDelta(qp->hpccPlus.hop[host_idx]);
-			if (tau_host > 0) {
-				// Compute R_delivered from host INT deltas (like switch txRate)
-				double duration_host = tau_host * 1e-9;
-				double R_delivered = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
-				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
-
-				// Conditional C_host update (only during full RTT update)
-				if (!fast_react) {
-					if (rxQlen > 0) {
-						// Queue building → R_delivered reflects true capacity
-						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
-					} else if (R_delivered > qp->hpccPlus.m_c_host) {
-						// No queue but higher rate → capacity is at least this much
-						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
-					}
-					// else: no queue, R_delivered <= C_host → keep C_host unchanged
-				}
-
-				// Q-Only: only react to host congestion if queue > 0
-				if (rxQlen > 0) {
-					double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
-					double u_host = R_delivered / c_host + rxQlen / (c_host * qp->m_baseRtt * 1e-9);
-					if (u_host > max_u) max_u = u_host;
-				}
-				// If qlen == 0, host hop is ignored (max_u determined by switches only)
-			}
-		}
-		qp->hpccPlus.hop[host_idx] = ih.hop[host_idx];
-	}
-
-	// 4. Rate allocation
-	double max_c = max_u / m_targetUtil;
-	DataRate new_rate;
-	if (max_c >= 1.0 || qp->hpccPlus.m_incStage >= m_miThresh){
-		new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() / max_c + m_rai.GetBitRate());
-		if (!fast_react) qp->hpccPlus.m_incStage = 0;
-	} else {
-		new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() + m_rai.GetBitRate());
-		if (!fast_react) qp->hpccPlus.m_incStage++;
-	}
-
-	// 5. Bounding
-	if (new_rate > qp->m_max_rate) new_rate = qp->m_max_rate;
-	if (new_rate < m_minRate) new_rate = m_minRate;
-
-	if (!fast_react) {
-		qp->hpccPlus.m_curRate = new_rate;
-		qp->hpccPlus.m_lastUpdateSeq = next_seq;
-	}
-	ChangeRate(qp, new_rate);
-}
 
 void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react){
 	IntHeader &ih = ch.ack.ih;
@@ -1466,20 +1353,44 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 
 				// Conditional C_host update (only during full RTT update)
+				// Because R_delivered is computed from a shared aggregate counter (rxBytesTotal),
+				// all flows will converge their C_host estimates to the true aggregate pull rate.
 				if (!fast_react) {
 					if (rxQlen > 0) {
 						// Queue building → R_delivered reflects true capacity
 						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
-					} else if (R_delivered > qp->hpccPlus.m_c_host) {
-						// No queue but higher rate → capacity is at least this much
-						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+					} else {
+						// No queue → Receiver is uncongested. Probe for available capacity!
+						if (R_delivered > qp->hpccPlus.m_c_host) {
+							// If delivering faster than current estimate, jump up via EWMA
+							qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+						} else {
+							// Otherwise, gently additive-increase C_host to probe for more bandwidth
+							// Use same additive increase step as the rate algorithm (m_rai)
+							qp->hpccPlus.m_c_host += m_rai.GetBitRate();
+						}
+						
+						// C_host can never logically exceed the physical link capacity
+						double nic_line_rate = ih.hop[host_idx].GetLineRate();
+						if (qp->hpccPlus.m_c_host > nic_line_rate) {
+							qp->hpccPlus.m_c_host = nic_line_rate;
+						}
 					}
-					// else: no queue, R_delivered <= C_host → keep C_host unchanged
 				}
 
-				// Host utilization: u_host = R_delivered/C_host + qlen/(C_host * BaseRTT)
+				// Host utilization: use the estimated aggregate pull rate (m_c_host)
 				double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
-				double u_host = R_delivered / c_host + rxQlen / (c_host * qp->m_baseRtt * 1e-9);
+				double u_host;
+				if (rxQlen > 0) {
+					// Queue is building: arrival rate > pull rate. Signal full utilization
+					// plus the queue pressure so senders keep reducing until queue drains to 0.
+					u_host = 1.0 + rxQlen / (c_host * qp->m_baseRtt * 1e-9);
+				} else {
+					// No queue: normal throughput-based utilization.
+					// Since C_host ≈ R_delivered in steady state when P < C_link, this stays near 1.0
+					// preventing the massive max_c drop that triggers unfair Multiplicative Increase.
+					u_host = R_delivered / c_host;
+				}
 				if (u_host > max_u) max_u = u_host;
 			}
 		}
@@ -1510,11 +1421,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 
 void RdmaHw::FastReactHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
 	if (m_fast_react) {
-		if (m_cc_mode == 12) {
-			UpdateRateHpPlusQOnly(qp, p, ch, true);
-		} else {
-			UpdateRateHpPlus(qp, p, ch, true);
-		}
+		UpdateRateHpPlus(qp, p, ch, true);
 	}
 }
 
