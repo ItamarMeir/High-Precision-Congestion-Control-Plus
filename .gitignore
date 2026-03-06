@@ -10,17 +10,33 @@ simulation/build/
 netanim/
 pybindgen/
 
-# Plots and generated images
 results/plots/
 results/data/*.png
 results/data/*.xml
 **/*.png
 
-# Allow study cases
+# Study Cases configuration
 !results/study_cases/
+results/study_cases/**/data/
+results/study_cases/**/interactive_plots/
+!results/study_cases/**/*.png
+!results/study_cases/**/config/
+
+# Simulation build and logs
+simulation/.lock-waf*
+simulation/.waf-*/
+simulation/.waf3-*/
+simulation/*.log
+simulation/*.txt
+simulation/*.pyc
+!simulation/README.md
+!simulation/AUTHORS
+!simulation/LICENSE
+!simulation/VERSION
 
 # Simulation outputs
 simulation/mix/*.tr
+simulation/mix/configs
 simulation/mix/*.png
 simulation/mix/qlen*.txt
 simulation/mix/fct*.txt
