@@ -40,9 +40,39 @@ def parse_schedules(config_path):
     return schedules
 
 
-def parse_queue_depth_csv(csv_path):
+def parse_int_hop_metadata(config_path):
+    """Return CC mode and configured switch-hop count from a config file."""
+    meta = {'cc_mode': None, 'switch_hops': None}
+    if not config_path or not os.path.exists(config_path):
+        return meta
+    with open(config_path) as f:
+        for raw in f:
+            line = raw.strip()
+            if line.startswith('#') or not line:
+                continue
+            parts = line.split()
+            if not parts:
+                continue
+            if parts[0] == 'CC_MODE' and len(parts) > 1:
+                try:
+                    meta['cc_mode'] = int(parts[1])
+                except ValueError:
+                    pass
+            elif parts[0] == 'INT_MULTI' and len(parts) > 1:
+                try:
+                    meta['switch_hops'] = int(parts[1])
+                except ValueError:
+                    pass
+    return meta
+
+
+def parse_queue_depth_csv(csv_path, config_path=None):
     """Parse queue_depth.csv and return per-QP time series."""
     qp_data = defaultdict(lambda: {'times': [], 'qlens': []})
+    hop_meta = parse_int_hop_metadata(config_path)
+    allowed_hops = None
+    if hop_meta.get('cc_mode') == 11 and hop_meta.get('switch_hops') is not None:
+        allowed_hops = set(range(hop_meta['switch_hops']))
     
     with open(csv_path, 'r') as f:
         reader = csv.reader(f)
@@ -54,6 +84,8 @@ def parse_queue_depth_csv(csv_path):
                 t = float(row[0])
                 qp_id = row[1]
                 hop = int(row[2])
+                if allowed_hops is not None and hop not in allowed_hops:
+                    continue
                 qlen = int(row[3])
                 key = f"QP {qp_id} Hop {hop}"
                 qp_data[key]['times'].append(t)
@@ -217,7 +249,7 @@ def main():
     output = args.out or os.path.splitext(args.input)[0] + "_interactive.html"
     
     schedules = parse_schedules(args.config)
-    qp_data, combined_times, combined_qlens = parse_queue_depth_csv(args.input)
+    qp_data, combined_times, combined_qlens = parse_queue_depth_csv(args.input, args.config)
     generate_html(qp_data, combined_times, combined_qlens, schedules, output)
 
 

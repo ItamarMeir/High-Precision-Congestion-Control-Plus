@@ -127,6 +127,32 @@ def parse_schedules(config_path):
                     except: pass
     return schedules
 
+
+def parse_int_hop_metadata(config_path):
+    """Return CC mode and configured switch-hop count from a config file."""
+    meta = {'cc_mode': None, 'switch_hops': None}
+    if not config_path or not os.path.exists(config_path):
+        return meta
+    with open(config_path, 'r') as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if not parts:
+                continue
+            if parts[0] == 'CC_MODE' and len(parts) > 1:
+                try:
+                    meta['cc_mode'] = int(parts[1])
+                except ValueError:
+                    pass
+            elif parts[0] == 'INT_MULTI' and len(parts) > 1:
+                try:
+                    meta['switch_hops'] = int(parts[1])
+                except ValueError:
+                    pass
+    return meta
+
 # --- Plot Specific Functions ---
 
 def plot_queue_depth(csv_path, config_path, out_path):
@@ -135,13 +161,20 @@ def plot_queue_depth(csv_path, config_path, out_path):
     max_bins = defaultdict(int)
     all_qlens = []
     bin_s = 0.0001
+    hop_meta = parse_int_hop_metadata(config_path)
+    allowed_hops = None
+    if hop_meta.get('cc_mode') == 11 and hop_meta.get('switch_hops') is not None:
+        allowed_hops = set(range(hop_meta['switch_hops']))
     
     with open(csv_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:
+                hop = int(row['Hop'])
+                if allowed_hops is not None and hop not in allowed_hops:
+                    continue
                 t, q = float(row['Time']), int(row['Qlen'])
-                key = f"QP {row['QpId']} Hop {row['Hop']}"
+                key = f"QP {row['QpId']} Hop {hop}"
                 qp_data[key]['t'].append(t)
                 qp_data[key]['q'].append(q)
                 all_qlens.append(q)

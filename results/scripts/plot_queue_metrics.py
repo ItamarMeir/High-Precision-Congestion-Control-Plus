@@ -128,6 +128,34 @@ def _cdf_from_avg(avgs: List[float]):
 
 from pathlib import Path
 
+
+def _parse_int_hop_metadata(config_file):
+    """Return metadata needed to separate switch INT hops from the HPCC+ host hop."""
+    meta = {"cc_mode": None, "switch_hops": None}
+    if not config_file or not Path(config_file).exists():
+        return meta
+
+    with open(config_file, 'r') as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if not parts:
+                continue
+            key = parts[0]
+            if key == 'CC_MODE' and len(parts) > 1:
+                try:
+                    meta['cc_mode'] = int(parts[1])
+                except ValueError:
+                    pass
+            elif key == 'INT_MULTI' and len(parts) > 1:
+                try:
+                    meta['switch_hops'] = int(parts[1])
+                except ValueError:
+                    pass
+    return meta
+
 def _parse_schedules(config_file):
     """Parse config file to extract RX_PULL_RATE_SCHEDULE."""
     schedules = {}
@@ -168,7 +196,7 @@ def _draw_lines(ax, schedules):
                         verticalalignment='top', fontsize=8, color='black', alpha=0.7)
 
 
-def _parse_queue_depth_csv(csv_path):
+def _parse_queue_depth_csv(csv_path, allowed_hops=None):
     """Parse queue_depth.csv (INT per-packet data) and return time-binned max Qlen.
 
     Returns (times_s, max_qlen_bytes) aggregated into 1ms bins.
@@ -186,6 +214,9 @@ def _parse_queue_depth_csv(csv_path):
                 continue
             try:
                 t = float(row[0])
+                hop = int(row[2])
+                if allowed_hops is not None and hop not in allowed_hops:
+                    continue
                 qlen = int(row[3])
                 b = int(t / bin_s)
                 if qlen > raw[b]:
@@ -371,8 +402,10 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
     
     schedules = {}
+    hop_meta = {"cc_mode": None, "switch_hops": None}
     if args.config:
         schedules = _parse_schedules(args.config)
+        hop_meta = _parse_int_hop_metadata(args.config)
 
     # Fallback to global simulation/queue_depth.csv if not provided or missing
     q_csv = args.queue_depth_csv
@@ -386,7 +419,13 @@ def main():
             print(f"Using fallback global queue depth CSV: {q_csv}")
 
     # Parse INT queue depth CSV
-    int_times, int_qlen = _parse_queue_depth_csv(q_csv)
+    allowed_hops = None
+    if hop_meta.get("cc_mode") == 11 and hop_meta.get("switch_hops") is not None:
+        # In HPCC+, the receiver host hop is appended after all switch hops.
+        # Keep only the original switch-hop indices for plots labeled as switch depth.
+        allowed_hops = set(range(hop_meta["switch_hops"]))
+
+    int_times, int_qlen = _parse_queue_depth_csv(q_csv, allowed_hops=allowed_hops)
 
     # Prioritize INT queue depth data for the new CDF analysis
     if int_times and int_qlen:
