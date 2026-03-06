@@ -16,26 +16,26 @@ RX_PULL_RATE_NODE 0 1.0
 RX_PULL_RATE_NODE 1 1.0
 RX_PULL_RATE_NODE 2 0.1 {receiver: start with 10% rate}
 
-TOPOLOGY_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/config/topology_two_senders.txt
-FLOW_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/config/flow_two_senders_long.txt
+TOPOLOGY_FILE ../results/study_cases/case4_utilization_check/config/topology_two_senders.txt
+FLOW_FILE ../results/study_cases/case4_utilization_check/config/flow_two_senders_long.txt
 TRACE_FILE mix/inputs/trace.txt
 
 # Main Outputs
-TRACE_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/mix_hpcc_plus_dynamic_6.tr
-FCT_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/fct_hpcc_plus_dynamic_6.txt
-PFC_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/pfc_hpcc_plus_dynamic_6.txt
-CWND_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/cwnd_hpcc_plus_dynamic_6.txt
-UTILIZATION_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/utilization_hpcc_plus_dynamic_6.txt
-RXBUF_OUTPUT_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/rxbuf_hpcc_plus_dynamic_6.txt
+TRACE_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/mix_hpcc_plus_dynamic_check.tr
+FCT_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/fct_hpcc_plus_dynamic_check.txt
+PFC_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/pfc_hpcc_plus_dynamic_check.txt
+CWND_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/cwnd_hpcc_plus_dynamic_check.txt
+UTILIZATION_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/utilization_hpcc_plus_dynamic_check.txt
+RXBUF_OUTPUT_FILE ../results/study_cases/case4_utilization_check/data/rxbuf_hpcc_plus_dynamic_check.txt
 
 # Queue Length Monitoring
-QLEN_MON_FILE ../results/study_cases/case6_pull_100_90_70_50_10_HPCC_Plus/data/qlen_hpcc_plus_dynamic_6.txt
+QLEN_MON_FILE ../results/study_cases/case4_utilization_check/data/qlen_hpcc_plus_dynamic_check.txt
 QLEN_MON_START 0
 QLEN_MON_END 6000000000 # 6 seconds
 
 # Algorithm Parameters
 LINK_DOWN 0 0 0 {time (us), node A, node B (node B needs to be larger than node A)}
-SIMULATOR_STOP_TIME 15.0
+SIMULATOR_STOP_TIME 6.0
 CC_MODE 11 {1: DCQCN, 3: HPCC, 7: TIMELY, 8: DCTCP, 10: HPCC-PINT, 11: HPCC-PLUS}
 RATE_AI 50Mb/s
 RATE_HAI 100Mb/s
@@ -57,7 +57,6 @@ SAMPLE_FEEDBACK 0 {for HPCC: 0: per packet, 1: per RTT or qlen>0}
 PINT_LOG_BASE 1.05 {for HPCC-PINT: log base}
 PINT_PROB 1.0 {for HPCC-PINT: sampling probability}
 INT_PER_PACKET 1 {0: no INT telemetry, 1: per-packet telemetry (triggers queue_depth.csv output)}
-INT_PER_PACKET 1 {0: no INT telemetry, 1: per-packet telemetry (triggers queue_depth.csv output)}
 
 RATE_BOUND 1 {0: no rate limiter, 1: use rate limiter}
 
@@ -68,7 +67,7 @@ ACK_HIGH_PRIO 0 {0: same priority as data, 1: prioritize ACK}
 # Times in seconds, rates as fraction of line rate (e.g., 0.5 = 5Gbps on 10Gbps link)
 # Node 2 is the receiver in topology_two_senders.txt
 
-RX_PULL_RATE_SCHEDULE 2 5 1 1.0 1.2 0.9 1.4 0.7 1.6 0.5 1.8 0.1 
+RX_PULL_RATE_SCHEDULE 2 5 1 1.0 1.2 0.05 1.4 0.2 1.6 0.5 1.8 1.0 
 
 # Logging
 ENABLE_TRACE 1

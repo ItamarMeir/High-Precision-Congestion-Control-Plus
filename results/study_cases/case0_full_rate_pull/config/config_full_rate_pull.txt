@@ -20,6 +20,7 @@ TRACE_OUTPUT_FILE ../results/data/mix_full_rate_pull.tr {output file: packet-lev
 FCT_OUTPUT_FILE ../results/data/fct_full_rate_pull.txt {output file: flow completion time}
 PFC_OUTPUT_FILE ../results/data/pfc_full_rate_pull.txt {output file: PFC}
 CWND_OUTPUT_FILE ../results/data/cwnd_full_rate_pull.txt {output file: qp rate/window trace}
+UTILIZATION_OUTPUT_FILE ../results/data/utilization_full_rate_pull.txt {output file: compact utilization trace}
 RXBUF_OUTPUT_FILE ../results/data/rxbuf_full_rate_pull.txt {output file: NIC RX buffer bytes}
 
 SIMULATOR_STOP_TIME 6.00 {simulation stop time}

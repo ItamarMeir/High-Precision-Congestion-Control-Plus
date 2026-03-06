@@ -53,3 +53,4 @@ pybindgen/
 .DS_Store
 *.html
 *.tr
+*.csv

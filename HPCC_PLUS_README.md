@@ -63,7 +63,7 @@ ih.PushHop(
 ```
 
 This mirrors exactly what a switch does, using the receiver's own NIC as the "port":
-- **`m_rxBytesTotal`** accumulates every byte received at the NIC's ingress (equivalent to switch `txBytes`). This is an **aggregate counter shared across all flows** on that NIC.
+- **`m_rxBytesTotal`** accumulates every byte dequeued from the NIC RX ingress queue by the receiver pull path. This is an **aggregate counter shared across all flows** on that NIC.
 - **`rxQlen`** reflects how many bytes are currently sitting in the RX ingress buffer waiting to be processed.
 
 The INT hop list now has: `[switch_0, switch_1, ..., switch_N−1, host]`
@@ -211,9 +211,9 @@ The host hop is always the **last** element (`index nhop - 1`). The sender detec
 
 | File | Change |
 |:--|:--|
-| `rdma-hw.h` | Added `m_rxBytesTotal` vector (per-NIC cumulative RX bytes) |
+| `rdma-hw.h` | Added `m_rxBytesTotal` vector (per-NIC cumulative RX-buffer dequeued bytes) |
 | `rdma-hw.cc` — `ReceiveUdp()` | Pushes host INT hop before generating ACK |
-| `rdma-hw.cc` — `UpdateRateHpPlus()` | Implements Steps 3–7 above; uses `ih.hop[host_idx].GetLineRate()` as $C_{host}$ |
+| `rdma-hw.cc` — `UpdateRateHpPlus()` | Implements Steps 3–7 above; computes $R_{delivered}$ from host INT deltas and maintains an estimated $C_{host}$ |
 | `rdma-hw.cc` — `HandleAckHpPlus()` | Dispatches to full-RTT or fast-react update |
 | `rdma-hw.cc` — `FastReactHpPlus()` | Calls `UpdateRateHpPlus()` with `fast_react=true` |
 | `rdma-hw.cc` — `AddQueuePair()` | Initializes `hpccPlus.m_curRate` to line rate |

@@ -56,6 +56,7 @@ std::string fct_output_file = "fct.txt";
 std::string pfc_output_file = "pfc.txt";
 std::string cwnd_output_file = "cwnd.txt";
 std::string rxbuf_output_file = "rxbuf.txt";
+std::string utilization_output_file;
 std::string drop_output_file = "drop.txt";
 
 double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0;
@@ -254,6 +255,25 @@ void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 void trace_qp_rate(FILE* fout, Ptr<RdmaQueuePair> q, uint64_t rate, uint64_t win){
 	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
 	fprintf(fout, "%lu %u %u %u %u %lu %lu %lu %u\n", Simulator::Now().GetTimeStep(), sid, did, q->sport, q->dport, rate, win, q->m_lastRtt, q->m_lastAckSeq);
+	fflush(fout);
+}
+
+void trace_qp_utilization(FILE* fout, Ptr<RdmaQueuePair> q, uint32_t cc_mode, bool fast_react,
+		double u_max, double r_delivered, double c_host, double u_host){
+	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
+	fprintf(fout, "%lu %u %u %u %u %u %u %.9lf %.3lf %.3lf %.9lf\n",
+			Simulator::Now().GetTimeStep(),
+			q->GetHash(),
+			sid,
+			did,
+			q->sport,
+			q->dport,
+			cc_mode,
+			u_max,
+			r_delivered,
+			c_host,
+			u_host);
+	(void)fast_react;
 	fflush(fout);
 }
 
@@ -690,6 +710,9 @@ int main(int argc, char *argv[])
 			}else if (key.compare("CWND_OUTPUT_FILE") == 0){
 				conf >> cwnd_output_file;
 				std::cout << "CWND_OUTPUT_FILE\t\t\t" << cwnd_output_file << '\n';
+			}else if (key.compare("UTILIZATION_OUTPUT_FILE") == 0){
+				conf >> utilization_output_file;
+				std::cout << "UTILIZATION_OUTPUT_FILE\t\t" << utilization_output_file << '\n';
 			}else if (key.compare("RXBUF_OUTPUT_FILE") == 0){
 				conf >> rxbuf_output_file;
 				std::cout << "RXBUF_OUTPUT_FILE\t\t\t" << rxbuf_output_file << '\n';
@@ -1117,8 +1140,14 @@ int main(int argc, char *argv[])
 
 	#if ENABLE_QP
 	FILE *fct_output = fopen(fct_output_file.c_str(), "w");
+	FILE *utilization_output = NULL;
 	if (enable_cwnd_trace)
 		cwnd_output = fopen(cwnd_output_file.c_str(), "w");
+	if (!utilization_output_file.empty()){
+		utilization_output = fopen(utilization_output_file.c_str(), "w");
+		if (utilization_output)
+			fprintf(utilization_output, "time_ns qp_id src dst sport dport cc_mode u_max r_delivered_bps c_host_bps u_host\n");
+	}
 	//
 	// install RDMA driver
 	//
@@ -1181,6 +1210,8 @@ int main(int argc, char *argv[])
 			rdma->TraceConnectWithoutContext("QpComplete", MakeBoundCallback (qp_finish, fct_output));
 			if (enable_cwnd_trace && cwnd_output)
 				rdmaHw->TraceConnectWithoutContext("QpRate", MakeBoundCallback(trace_qp_rate, cwnd_output));
+			if (utilization_output)
+				rdmaHw->TraceConnectWithoutContext("QpUtilization", MakeBoundCallback(trace_qp_utilization, utilization_output));
 		}
 	}
 	#endif

@@ -14,6 +14,7 @@ TRACE_OUTPUT_FILE mix/outputs/trace/mix_{topo}_{trace}_{cc}{failure}.tr {{output
 FCT_OUTPUT_FILE mix/outputs/fct/fct_{topo}_{trace}_{cc}{failure}.txt {{output file: flow completion time}}
 PFC_OUTPUT_FILE mix/outputs/pfc/pfc_{topo}_{trace}_{cc}{failure}.txt {{output file: PFC}}
 CWND_OUTPUT_FILE mix/outputs/cwnd/cwnd_{topo}_{trace}_{cc}{failure}.txt {{output file: qp rate/window trace}}
+UTILIZATION_OUTPUT_FILE mix/outputs/utilization_{topo}_{trace}_{cc}{failure}.txt {{output file: compact utilization trace}}
 
 SIMULATOR_STOP_TIME 4.00 {{simulation stop time}}
 

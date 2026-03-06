@@ -28,6 +28,7 @@ TRACE_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/mi
 FCT_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/fct_dynamic_pull_HPCC_3.txt {output file: flow completion time}
 PFC_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/pfc_dynamic_pull_HPCC_3.txt {output file: PFC}
 CWND_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/cwnd_dynamic_pull_HPCC_3.txt {output file: qp rate/window trace}
+UTILIZATION_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/utilization_dynamic_pull_HPCC_3.txt {output file: compact utilization trace}
 RXBUF_OUTPUT_FILE ../results/study_cases/case3_pull_100_5_20_50_100_HPCC/data/rxbuf_dynamic_pull_HPCC_3.txt {output file: NIC RX buffer bytes}
 
 SIMULATOR_STOP_TIME 6.00 {simulation stop time}

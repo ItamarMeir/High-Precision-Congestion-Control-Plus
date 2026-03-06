@@ -57,6 +57,8 @@ public:
 
 	// trace: rate/window updates per qp
 	TracedCallback<Ptr<RdmaQueuePair>, uint64_t, uint64_t> m_traceQpRate;
+	// trace: compact control-state utilization updates per qp
+	TracedCallback<Ptr<RdmaQueuePair>, uint32_t, bool, double, double, double, double> m_traceUtilization;
 
 	// qp complete callback
 	typedef Callback<void, Ptr<RdmaQueuePair> > QpCompleteCallback;

@@ -49,6 +49,8 @@ PLOT_SCRIPTS = [
     ("plot_rx_buffer.py", "RX Buffer Occupancy"),
     ("plot_packet_drops.py", "Packet Drop Analysis"),
     ("plot_queue_metrics.py", "Queue Metrics Analysis"),
+    ("plot_utilization_metrics.py", "Utilization Metrics Analysis"),
+    ("plot_utilization_metrics_interactive.py", "Interactive Utilization Metrics Analysis"),
     ("plot_ack_analysis.py", "ACK Analysis Dashboard"),
     ("plot_cwnd_rtt_analysis.py", "CWND Analysis Dashboard"),
     ("plot_switch_throughput.py", "Switch Throughput"),
@@ -327,6 +329,43 @@ def run_plot_script(script_name, description, data_files):
             else:
                  print(f"⚠️  Skipping {description}: No qlen files found")
                  return False
+
+        elif "utilization_metrics" in script_name:
+            utilization_files = list(DATA_DIR.glob("utilization_*.txt"))
+
+            if utilization_files:
+                for utilization_file in utilization_files:
+                    exp_name = utilization_file.stem.replace("utilization_", "")
+                    config_file = find_config_file(exp_name)
+                    if "interactive" in script_name:
+                        cmd = [sys.executable, str(script_path), str(utilization_file),
+                               str(INTERACTIVE_PLOTS_DIR / f"utilization_{exp_name}.html")]
+                    else:
+                        cmd = [sys.executable, str(script_path), str(utilization_file),
+                               "--out", str(PLOTS_DIR / f"utilization_{exp_name}.png")]
+
+                    if config_file:
+                        if "interactive" in script_name:
+                            cmd.append(str(config_file))
+                        else:
+                            cmd.extend(["--config", str(config_file)])
+
+                    print(f"Command: {' '.join(cmd)}")
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+
+                    if result.returncode == 0:
+                        print(f"✓ {description} ({utilization_file.name}) completed successfully")
+                        if result.stdout:
+                            print(result.stdout)
+                    else:
+                        print(f"✗ {description} ({utilization_file.name}) failed")
+                        if result.stderr:
+                            print(f"Error: {result.stderr[:300]}")
+                        return False
+                return True
+            else:
+                print(f"⚠️  Skipping {description}: No utilization trace file found")
+                return False
         
         elif "plot_rx_buffer" in script_name or "rx_buffer" in script_name:
             # This script needs RX buffer trace

@@ -195,6 +195,9 @@ TypeId RdmaHw::GetTypeId (void)
 		.AddTraceSource("QpRate",
 				"Queue pair rate/window updates",
 				MakeTraceSourceAccessor(&RdmaHw::m_traceQpRate))
+		.AddTraceSource("QpUtilization",
+				"Compact queue pair utilization/control-state updates",
+				MakeTraceSourceAccessor(&RdmaHw::m_traceUtilization))
 		;
 	return tid;
 }
@@ -290,6 +293,10 @@ void RdmaHw::AddQueuePair(uint64_t size, uint16_t pg, Ipv4Address sip, Ipv4Addre
 	}else if (m_cc_mode == 11){
 		qp->hpccPlus.m_curRate = m_bps;
 		qp->hpccPlus.m_c_host = m_bps.GetBitRate(); // init C_host with line rate
+		if (m_multipleRate){
+			for (uint32_t i = 0; i < IntHeader::maxHop; i++)
+				qp->hpccPlus.hopState[i].Rc = m_bps;
+		}
 	}
 
 	// trace initial rate/window
@@ -447,6 +454,10 @@ int RdmaHw::ReceiveCnp(Ptr<Packet> p, CustomHeader &ch){
 			qp->hpccPlus.m_curRate = dev->GetDataRate();
 			// Initialize C_host to line rate
 			qp->hpccPlus.m_c_host = (double)dev->GetDataRate().GetBitRate();
+			if (m_multipleRate){
+				for (uint32_t i = 0; i < IntHeader::maxHop; i++)
+					qp->hpccPlus.hopState[i].Rc = dev->GetDataRate();
+			}
 		}
 	}
 	return 0;
@@ -914,6 +925,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 		IntHeader &ih = ch.ack.ih;
 		if (ih.nhop <= IntHeader::maxHop){
 			double max_c = 0;
+			double trace_u_max = -1.0;
 			bool inStable = false;
 			#if PRINT_LOG
 			if (print)
@@ -967,6 +979,7 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 					if (dt > qp->m_baseRtt)
 						dt = qp->m_baseRtt;
 					qp->hp.u = (qp->hp.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
+					trace_u_max = qp->hp.u;
 					max_c = qp->hp.u / m_targetUtil;
 
 					if (max_c >= 1 || qp->hp.m_incStage >= m_miThresh){
@@ -994,6 +1007,8 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 				new_rate = qp->m_max_rate;
 				for (uint32_t i = 0; i < ih.nhop; i++){
 					if (updated[i]){
+						if (qp->hp.hopState[i].u > trace_u_max)
+							trace_u_max = qp->hp.hopState[i].u;
 						double c = qp->hp.hopState[i].u / m_targetUtil;
 						if (c >= 1 || qp->hp.hopState[i].incStage >= m_miThresh){
 							new_rate_per_hop[i] = qp->hp.hopState[i].Rc / c + m_rai;
@@ -1029,6 +1044,9 @@ void RdmaHw::UpdateRateHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch
 			}
 			if (updated_any)
 				ChangeRate(qp, new_rate);
+			if (!fast_react && updated_any){
+				m_traceUtilization(qp, m_cc_mode, fast_react, trace_u_max, -1.0, -1.0, -1.0);
+			}
 			if (!fast_react){
 				if (updated_any){
 					qp->hp.m_curRate = new_rate;
@@ -1306,6 +1324,9 @@ void RdmaHw::HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader 
 void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react){
 	IntHeader &ih = ch.ack.ih;
 	uint32_t next_seq = qp->snd_nxt;
+	double trace_r_delivered = -1.0;
+	double trace_c_host = -1.0;
+	double trace_u_host = -1.0;
 	
 	// First RTT: store INT hops, return without computing
 	if (qp->hpccPlus.m_lastUpdateSeq == 0){
@@ -1324,13 +1345,15 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 
 	double max_u = 0;
 	double U = 0;
+	double trace_u_max = -1.0;
 	uint64_t dt = 0;
+	bool updated[IntHeader::maxHop] = {false};
 	bool updated_any = false;
 
 	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
 	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
 
-	// 1. Process switch hops (all except last) — standard HPCC logic
+	// 1. Process switch hops (all except last)
 	for (uint32_t i = 0; i < nhop; i++){
 		if (i == nhop - 1) break; // skip host hop in this loop
 
@@ -1339,29 +1362,27 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 
 		uint64_t tau = ih.hop[i].GetTimeDelta(qp->hpccPlus.hop[i]);
 		if (tau == 0) continue;
-		updated_any = true;
+		updated[i] = updated_any = true;
 
 		double duration = tau * 1e-9;
 		double txRate = ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i]) * 8.0 / duration;
 		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
 		double u = txRate / ih.hop[i].GetLineRate() + q_term;
 
-		if (u > U){
-			U = u;
-			dt = tau;
+		if (!m_multipleRate){
+			if (u > U){
+				U = u;
+				dt = tau;
+			}
+		}else {
+			if (tau > qp->m_baseRtt)
+				tau = qp->m_baseRtt;
+			qp->hpccPlus.hopState[i].u = (qp->hpccPlus.hopState[i].u * (qp->m_baseRtt - tau) + u * tau) / double(qp->m_baseRtt);
 		}
 		qp->hpccPlus.hop[i] = ih.hop[i];
 	}
 
-	// 2. Aggregate switch utilization (EWMA)
-	if (updated_any){
-		if (dt > qp->m_baseRtt)
-			dt = qp->m_baseRtt;
-		qp->hpccPlus.u = (qp->hpccPlus.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
-		max_u = qp->hpccPlus.u;
-	}
-
-	// 3. Host hop (last hop) — HPCC+ with INT-based R_delivered and conditional C_host
+	// 2. Host hop (last hop) — HPCC+ with INT-based R_delivered and conditional C_host
 	if (nhop > 0) {
 		uint32_t host_idx = nhop - 1;
 
@@ -1370,10 +1391,12 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 		} else {
 			uint64_t tau_host = ih.hop[host_idx].GetTimeDelta(qp->hpccPlus.hop[host_idx]);
 			if (tau_host > 0) {
+				updated[host_idx] = updated_any = true;
 				// Compute R_delivered from host INT deltas (like switch txRate)
 				double duration_host = tau_host * 1e-9;
 				double R_delivered = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
+				trace_r_delivered = R_delivered;
 
 				// Conditional C_host update (only during full RTT update)
 				// Because R_delivered is computed from a shared aggregate counter (rxBytesTotal),
@@ -1403,6 +1426,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 
 				// Host utilization: use the estimated aggregate pull rate (m_c_host)
 				double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
+				trace_c_host = c_host;
 				double u_host;
 				if (rxQlen > 0) {
 					// Queue is building: arrival rate > pull rate. Signal full utilization
@@ -1414,32 +1438,101 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 					// preventing the massive max_c drop that triggers unfair Multiplicative Increase.
 					u_host = R_delivered / c_host;
 				}
-				if (u_host > max_u) max_u = u_host;
+				trace_u_host = u_host;
+
+				if (!m_multipleRate){
+					if (u_host > U){
+						U = u_host;
+						dt = tau_host;
+					}
+				}else {
+					uint64_t host_tau = tau_host;
+					if (host_tau > qp->m_baseRtt)
+						host_tau = qp->m_baseRtt;
+					qp->hpccPlus.hopState[host_idx].u = (qp->hpccPlus.hopState[host_idx].u * (qp->m_baseRtt - host_tau) + u_host * host_tau) / double(qp->m_baseRtt);
+				}
 			}
 		}
 		qp->hpccPlus.hop[host_idx] = ih.hop[host_idx];
 	}
 
-	// 4. Rate allocation (matching HPCC base logic)
-	double max_c = max_u / m_targetUtil;
 	DataRate new_rate;
-	if (max_c >= 1.0 || qp->hpccPlus.m_incStage >= m_miThresh){
-		new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() / max_c + m_rai.GetBitRate());
-		if (!fast_react) qp->hpccPlus.m_incStage = 0;
-	} else {
-		new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() + m_rai.GetBitRate());
-		if (!fast_react) qp->hpccPlus.m_incStage++;
+	if (!m_multipleRate){
+		// 3. Aggregate smoothing across all hops, including host
+		if (updated_any){
+			if (dt > qp->m_baseRtt)
+				dt = qp->m_baseRtt;
+			qp->hpccPlus.u = (qp->hpccPlus.u * (qp->m_baseRtt - dt) + U * dt) / double(qp->m_baseRtt);
+			trace_u_max = max_u = qp->hpccPlus.u;
+
+			double max_c = qp->hpccPlus.u / m_targetUtil;
+			if (max_c >= 1.0 || qp->hpccPlus.m_incStage >= m_miThresh){
+				new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() / max_c + m_rai.GetBitRate());
+				if (!fast_react)
+					qp->hpccPlus.m_incStage = 0;
+			}else {
+				new_rate = DataRate(qp->hpccPlus.m_curRate.GetBitRate() + m_rai.GetBitRate());
+				if (!fast_react)
+					qp->hpccPlus.m_incStage++;
+			}
+		}
+	}else {
+		// 3. Per-hop smoothing/rate control across all hops, including host
+		new_rate = qp->m_max_rate;
+		for (uint32_t i = 0; i < nhop; i++){
+			if (updated[i]){
+				if (qp->hpccPlus.hopState[i].u > trace_u_max)
+					trace_u_max = qp->hpccPlus.hopState[i].u;
+				double c = qp->hpccPlus.hopState[i].u / m_targetUtil;
+				DataRate candidate_rate;
+				uint32_t candidate_inc_stage;
+				if (c >= 1.0 || qp->hpccPlus.hopState[i].incStage >= m_miThresh){
+					candidate_rate = DataRate(qp->hpccPlus.hopState[i].Rc.GetBitRate() / c + m_rai.GetBitRate());
+					candidate_inc_stage = 0;
+				}else {
+					candidate_rate = DataRate(qp->hpccPlus.hopState[i].Rc.GetBitRate() + m_rai.GetBitRate());
+					candidate_inc_stage = qp->hpccPlus.hopState[i].incStage + 1;
+				}
+
+				if (candidate_rate > qp->m_max_rate)
+					candidate_rate = qp->m_max_rate;
+				if (candidate_rate < m_minRate)
+					candidate_rate = m_minRate;
+
+				if (candidate_rate < new_rate)
+					new_rate = candidate_rate;
+
+				if (!fast_react){
+					qp->hpccPlus.hopState[i].Rc = candidate_rate;
+					qp->hpccPlus.hopState[i].incStage = candidate_inc_stage;
+				}
+			}else {
+				if (qp->hpccPlus.hopState[i].Rc < new_rate)
+					new_rate = qp->hpccPlus.hopState[i].Rc;
+			}
+		}
+		if (trace_u_max >= 0)
+			max_u = trace_u_max;
 	}
 
-	// 5. Bounding
-	if (new_rate > qp->m_max_rate) new_rate = qp->m_max_rate;
-	if (new_rate < m_minRate) new_rate = m_minRate;
+	// 4. Bounding
+	if (updated_any){
+		if (new_rate > qp->m_max_rate) new_rate = qp->m_max_rate;
+		if (new_rate < m_minRate) new_rate = m_minRate;
+	}
 
-	if (!fast_react) {
+	if (!fast_react && updated_any) {
+		if (trace_u_max < 0)
+			trace_u_max = max_u;
+		m_traceUtilization(qp, m_cc_mode, fast_react, max_u, trace_r_delivered, trace_c_host, trace_u_host);
+	}
+
+	if (!fast_react && updated_any) {
 		qp->hpccPlus.m_curRate = new_rate;
 		qp->hpccPlus.m_lastUpdateSeq = next_seq;
 	}
-	ChangeRate(qp, new_rate);
+	if (updated_any)
+		ChangeRate(qp, new_rate);
 }
 
 void RdmaHw::FastReactHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){

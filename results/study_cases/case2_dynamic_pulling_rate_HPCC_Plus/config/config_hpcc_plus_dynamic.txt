@@ -25,6 +25,7 @@ TRACE_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/da
 FCT_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/fct_hpcc_plus_dynamic.txt
 PFC_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/pfc_hpcc_plus_dynamic.txt
 CWND_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/cwnd_hpcc_plus_dynamic.txt
+UTILIZATION_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/utilization_hpcc_plus_dynamic.txt
 RXBUF_OUTPUT_FILE ../results/study_cases/case2_dynamic_pulling_rate_HPCC_Plus/data/rxbuf_hpcc_plus_dynamic.txt
 
 # Queue Length Monitoring

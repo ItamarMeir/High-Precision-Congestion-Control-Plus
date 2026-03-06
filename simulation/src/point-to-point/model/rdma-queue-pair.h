@@ -86,8 +86,13 @@ public:
 		DataRate m_curRate;
 		uint32_t m_incStage;
 		double m_c_host; // host capacity EWMA
-		double u; // aggregate switch utilization EWMA
+		double u; // aggregate smoothed utilization EWMA
 		IntHop hop[IntHeader::maxHop]; // store previous INT for delta calculation
+		struct {
+			double u;
+			DataRate Rc;
+			uint32_t incStage;
+		}hopState[IntHeader::maxHop];
 	}hpccPlus;
 
 	/***********
