@@ -21,11 +21,12 @@ if [ ! -f "./waf" ]; then
     exit 1
 fi
 
-echo -e "${BLUE}Building simulation...${NC}"
+echo -e "${BLUE}Building simulation (via waf_bypass.py)...${NC}"
 echo ""
 
-# Run waf build
-./waf build
+# Configure and build using the vendored waflib (Python 3)
+python3 waf_bypass.py configure --disable-python
+python3 waf_bypass.py build
 
 echo ""
 echo -e "${GREEN}✓ Build successful!${NC}"

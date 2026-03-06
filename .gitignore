@@ -1,5 +1,5 @@
 # Build artifacts
-simulation/build/
+/simulation/build/
 **/*.o
 **/*.a
 **/*.so
@@ -7,8 +7,8 @@ simulation/build/
 **/__pycache__/
 
 # NetAnim build/output
-netanim/
-pybindgen/
+/netanim/
+/pybindgen/
 
 results/plots/
 results/data/*.png
@@ -28,7 +28,6 @@ simulation/.waf-*/
 simulation/.waf3-*/
 simulation/*.log
 simulation/*.txt
-simulation/*.pyc
 !simulation/README.md
 !simulation/AUTHORS
 !simulation/LICENSE

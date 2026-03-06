@@ -21,6 +21,65 @@ def parse_config(config_file):
         pass
     return config
 
+def _parse_schedules(config_file):
+    """Parse config file to extract RX_PULL_RATE_SCHEDULE."""
+    schedules = {}
+    if not config_file or not os.path.exists(config_file):
+        return schedules
+    
+    with open(config_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            if 'RX_PULL_RATE_SCHEDULE' in line:
+                parts = line.split()
+                if len(parts) < 2 or parts[0] != 'RX_PULL_RATE_SCHEDULE':
+                    continue
+                
+                # New format: node:time,rate;time,rate...
+                if ':' in parts[1]:
+                    try:
+                        node_id_str, sched_str = parts[1].split(':', 1)
+                        node_id = int(node_id_str)
+                        sched = []
+                        for entry in sched_str.split(';'):
+                            if ',' in entry:
+                                t_str, r_str = entry.split(',', 1)
+                                t = float(t_str)
+                                if t > 1000000: t /= 1e9
+                                sched.append((t, float(r_str)))
+                        schedules[node_id] = sched
+                    except: pass
+                # Old format: node count time1 rate1 ...
+                elif len(parts) >= 4:
+                    try:
+                        node_id = int(parts[1])
+                        count = int(parts[2])
+                        sched = []
+                        idx = 3
+                        for _ in range(count):
+                            if idx + 1 < len(parts):
+                                t = float(parts[idx])
+                                if t > 1000000: t /= 1e9
+                                sched.append((t, float(parts[idx+1])))
+                                idx += 2
+                        schedules[node_id] = sched
+                    except: pass
+    return schedules
+
+def _draw_lines(ax, schedules):
+    """Draw vertical lines for pull rate schedules."""
+    ylim = ax.get_ylim()
+    ymax = ylim[1]
+    for node_id, schedule in schedules.items():
+        for time, rate in schedule:
+            ax.axvline(x=time, color='gray', linestyle=':', alpha=0.8, linewidth=1.5)
+            # Using transform=ax.get_xaxis_transform() pins the text to the top relative to current y-axis
+            ax.text(time, 0.98, f' t={time}s\nRate={rate}', rotation=90, 
+                    transform=ax.get_xaxis_transform(),
+                    verticalalignment='top', fontsize=8, color='black', alpha=0.7)
+
 def _select_file(base_dir, preferred, fallback):
     preferred_path = os.path.join(base_dir, preferred)
     if os.path.exists(preferred_path):
@@ -118,12 +177,22 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
     
     # Config Logic
     config_path = _select_file_in(base_dir, 'configs', 'config_fat_k4.txt', 'config.txt')
-    # Try to deduce config from FCT filename if provided
-    if fct_file and not config_path:
-        # heuristic...
-        pass 
-    
+    # Use provided fct_file or qlen_file to find config in same directory if not found in root
+    if not config_path or not os.path.exists(config_path):
+        search_dirs = []
+        if fct_file: search_dirs.append(os.path.dirname(os.path.dirname(fct_file))) # Assuming results/caseX/data/fct.txt -> results/caseX/
+        if qlen_file: search_dirs.append(os.path.dirname(os.path.dirname(qlen_file)))
+        
+        for d in search_dirs:
+            cfg = _select_file(os.path.join(d, 'config'), 'config_dynamic_pull_HPCC.txt', 'config_hpcc_plus_dynamic.txt')
+            if not cfg:
+                cfg = _select_file(d, 'config.txt', 'config_fat_k4.txt')
+            if cfg:
+                config_path = cfg
+                break
+
     config = parse_config(config_path) if config_path else {}
+    schedules = _parse_schedules(config_path) if config_path else {}
     
     # ... rest of plotting code ...
     
@@ -168,6 +237,7 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
         ax_qlen.set_title('Max Queue Length Over Time')
         ax_qlen.grid(True, alpha=0.3)
         ax_qlen.fill_between(qlen_times, qlen_values, alpha=0.2)
+        if schedules: _draw_lines(ax_qlen, schedules)
     
     if fct_data:
         # FCT vs Flow Size (middle-left)
@@ -207,6 +277,7 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
         ax_timeline.set_ylabel('Flow ID')
         ax_timeline.set_title('Flow Timeline')
         ax_timeline.grid(True, alpha=0.3, axis='x')
+        if schedules: _draw_lines(ax_timeline, schedules)
         
         # Statistics (bottom-left)
         ax_stats = fig.add_subplot(gs[2, 0])
@@ -258,7 +329,8 @@ if __name__ == '__main__':
     parser.add_argument("--out", default=None, help="Output PNG path")
     parser.add_argument("--fct", default=None, help="Explicit path to FCT file")
     parser.add_argument("--qlen", default=None, help="Explicit path to qlen file")
+    parser.add_argument("--config", default=None, help="Path to config file for schedule lines")
     args = parser.parse_args()
 
     # Pass args to main func using kwargs since signature is positional
-    plot_dashboard(args.base_dir, args.out, fct_file=args.fct, qlen_file=args.qlen)
+    plot_dashboard(args.base_dir, args.out, fct_file=args.fct, qlen_file=args.qlen, config=args.config)

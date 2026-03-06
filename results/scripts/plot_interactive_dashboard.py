@@ -47,6 +47,13 @@ class Trace(ctypes.LittleEndianStructure):
 
 # --- Helper Functions ---
 
+def _subsample(x, y, max_points=10000):
+    """Subsample data to maintain performance."""
+    if len(x) <= max_points:
+        return x, y
+    step = len(x) // max_points
+    return x[::step], y[::step]
+
 def generate_plotly_html(traces, layout, output_path, title="Interactive Plot", extra_html="", extra_script=""):
     """Generic Plotly HTML generator."""
     config = {'responsive': True, 'displayModeBar': True, 'scrollZoom': True}
@@ -92,15 +99,32 @@ def parse_schedules(config_path):
             if not line or line.startswith('#'): continue
             if 'RX_PULL_RATE_SCHEDULE' in line:
                 parts = line.split()
-                try:
-                    idx = parts.index('RX_PULL_RATE_SCHEDULE') + 2 # Skip keyword and node_id
-                    count = int(parts[idx])
-                    idx += 1
-                    for _ in range(count):
-                        t, r = float(parts[idx]), float(parts[idx+1])
-                        schedules.append((t, r))
-                        idx += 2
-                except (ValueError, IndexError): continue
+                if len(parts) < 2 or parts[0] != 'RX_PULL_RATE_SCHEDULE':
+                    continue
+                
+                # New format: node:time,rate;time,rate...
+                if ':' in parts[1]:
+                    try:
+                        _, sched_str = parts[1].split(':', 1)
+                        for entry in sched_str.split(';'):
+                            if ',' in entry:
+                                t_str, r_str = entry.split(',', 1)
+                                t = float(t_str)
+                                if t > 1000000: t /= 1e9
+                                schedules.append((t, float(r_str)))
+                    except: pass
+                # Old format: node count time1 rate1 ...
+                elif len(parts) >= 4:
+                    try:
+                        count = int(parts[2])
+                        idx = 3
+                        for _ in range(count):
+                            if idx + 1 < len(parts):
+                                t = float(parts[idx])
+                                if t > 1000000: t /= 1e9
+                                schedules.append((t, float(parts[idx+1])))
+                                idx += 2
+                    except: pass
     return schedules
 
 # --- Plot Specific Functions ---
@@ -136,8 +160,9 @@ def plot_queue_depth(csv_path, config_path, out_path):
         })
     
     for key, data in qp_data.items():
+        xs, qs = _subsample(data['t'], data['q'], 5000)
         traces.append({
-            'x': data['t'], 'y': data['q'], 'name': key, 
+            'x': xs, 'y': qs, 'name': key, 
             'visible': 'legendonly', 'xaxis': 'x1', 'yaxis': 'y1'
         })
 
@@ -195,12 +220,22 @@ def plot_cwnd_rtt(cwnd_path, config_path, out_path, rtt_ymax=None):
     traces = []
     # Panel 1: Rate, Panel 2: Window, Panel 3: RTT
     for key, data in flows.items():
+        # Subsample for interactivity
+        t, r, w, rtt = _subsample(data['t'], data['rate']), _subsample(data['t'], data['win']), _subsample(data['t'], data['rtt']), data['rtt'] # Simplified subsample
+        # Actually need to subsample all together to keep t aligned
+        idx = list(range(len(data['t'])))
+        idx_sub = idx[::max(1, len(idx)//10000)]
+        t_sub = [data['t'][i] for i in idx_sub]
+        r_sub = [data['rate'][i] for i in idx_sub]
+        w_sub = [data['win'][i] for i in idx_sub]
+        rtt_sub = [data['rtt'][i] for i in idx_sub]
+
         # Rate
-        traces.append({'x': data['t'], 'y': data['rate'], 'name': f"{key} Rate (Gbps)", 'xaxis': 'x1', 'yaxis': 'y1'})
+        traces.append({'x': t_sub, 'y': r_sub, 'name': f"{key} Rate (Gbps)", 'xaxis': 'x1', 'yaxis': 'y1'})
         # Window
-        traces.append({'x': data['t'], 'y': data['win'], 'name': f"{key} Window (KB)", 'xaxis': 'x2', 'yaxis': 'y2'})
+        traces.append({'x': t_sub, 'y': w_sub, 'name': f"{key} Window (KB)", 'xaxis': 'x2', 'yaxis': 'y2'})
         # RTT
-        traces.append({'x': data['t'], 'y': data['rtt'], 'name': f"{key} RTT (us)", 'xaxis': 'x3', 'yaxis': 'y3'})
+        traces.append({'x': t_sub, 'y': rtt_sub, 'name': f"{key} RTT (us)", 'xaxis': 'x3', 'yaxis': 'y3'})
 
     schedules = parse_schedules(config_path)
     shapes = []
@@ -299,7 +334,10 @@ def plot_rx_buffer(rxbuf_path, config_path, out_path):
                 data[f"Node {node} IF {p[2]}"]['b'].append(b / 1000)
             except ValueError: continue
 
-    traces = [{'x': d['t'], 'y': d['b'], 'name': k} for k, d in data.items()]
+    traces = []
+    for k, d in data.items():
+        xs, bs = _subsample(d['t'], d['b'], 10000)
+        traces.append({'x': xs, 'y': bs, 'name': k})
     schedules = parse_schedules(config_path)
     shapes = [{'type': 'line', 'x0': t, 'x1': t, 'y0': 0, 'y1': 1, 'yref': 'paper', 'line': {'dash': 'dot', 'color': 'gray'}} for t, _ in schedules]
 

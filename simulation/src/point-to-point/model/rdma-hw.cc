@@ -1195,7 +1195,19 @@ void RdmaHw::HandleAckDctcp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &
 void RdmaHw::SetPintSmplThresh(double p){
        pint_smpl_thresh = (uint32_t)(65536 * p);
 }
+
 void RdmaHw::HandleAckHpPint(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
+       if (!queue_depth_log.is_open()) {
+           queue_depth_log.open("queue_depth.csv", std::ios_base::app);
+           queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
+       }
+       IntHeader &ih_log = ch.ack.ih;
+       for (uint32_t i = 0; i < ih_log.nhop; i++) {
+           queue_depth_log << Simulator::Now().GetSeconds() << "," 
+                          << qp->GetHash() << "," 
+                          << i << "," 
+                          << ih_log.hop[i].GetQlen() << std::endl;
+       }
        uint32_t ack_seq = ch.ack.seq;
        if (rand() % 65536 >= pint_smpl_thresh)
                return;
@@ -1271,6 +1283,17 @@ double RdmaHw::GetCurrentRxPullRate(){
  * HPCC-PLUS
  ********************/
 void RdmaHw::HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
+       if (!queue_depth_log.is_open()) {
+           queue_depth_log.open("queue_depth.csv", std::ios_base::app);
+           queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
+       }
+       IntHeader &ih_log = ch.ack.ih;
+       for (uint32_t i = 0; i < ih_log.nhop; i++) {
+           queue_depth_log << Simulator::Now().GetSeconds() << "," 
+                          << qp->GetHash() << "," 
+                          << i << "," 
+                          << ih_log.hop[i].GetQlen() << std::endl;
+       }
 	uint32_t ack_seq = ch.ack.seq;
 	if (ack_seq > qp->hpccPlus.m_lastUpdateSeq){ // full RTT update
 		UpdateRateHpPlus(qp, p, ch, false);

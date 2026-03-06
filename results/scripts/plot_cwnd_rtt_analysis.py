@@ -237,23 +237,42 @@ def _parse_schedules(config_file):
     with open(config_file, 'r') as f:
         for line in f:
             line = line.strip()
-            if line.startswith('#'): continue
+            if not line or line.startswith('#'):
+                continue
             if 'RX_PULL_RATE_SCHEDULE' in line:
                 parts = line.split()
-                if len(parts) >= 3 and parts[0] == 'RX_PULL_RATE_SCHEDULE':
+                if len(parts) < 2 or parts[0] != 'RX_PULL_RATE_SCHEDULE':
+                    continue
+                
+                # New format: node:time,rate;time,rate...
+                if ':' in parts[1]:
+                    try:
+                        node_id_str, sched_str = parts[1].split(':', 1)
+                        node_id = int(node_id_str)
+                        sched = []
+                        for entry in sched_str.split(';'):
+                            if ',' in entry:
+                                t_str, r_str = entry.split(',', 1)
+                                t = float(t_str)
+                                if t > 1000000: t /= 1e9
+                                sched.append((t, float(r_str)))
+                        schedules[node_id] = sched
+                    except: pass
+                # Old format: node count time1 rate1 ...
+                elif len(parts) >= 4:
                     try:
                         node_id = int(parts[1])
                         count = int(parts[2])
-                        schedule = []
+                        sched = []
                         idx = 3
                         for _ in range(count):
                             if idx + 1 < len(parts):
                                 t = float(parts[idx])
-                                r = float(parts[idx+1])
-                                schedule.append((t, r))
+                                if t > 1000000: t /= 1e9
+                                sched.append((t, float(parts[idx+1])))
                                 idx += 2
-                        schedules[node_id] = schedule
-                    except ValueError: pass
+                        schedules[node_id] = sched
+                    except: pass
     return schedules
 
 # helper for plotting lines

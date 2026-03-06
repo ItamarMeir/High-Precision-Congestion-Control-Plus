@@ -48,6 +48,7 @@ PLOT_SCRIPTS = [
     ("plot_fct.py", "Flow Completion Time Analysis"),
     ("plot_rx_buffer.py", "RX Buffer Occupancy"),
     ("plot_packet_drops.py", "Packet Drop Analysis"),
+    ("plot_queue_metrics.py", "Queue Metrics Analysis"),
     ("plot_ack_analysis.py", "ACK Analysis Dashboard"),
     ("plot_cwnd_rtt_analysis.py", "CWND Analysis Dashboard"),
     ("plot_switch_throughput.py", "Switch Throughput"),
@@ -58,18 +59,47 @@ PLOT_SCRIPTS = [
 
 INTERACTIVE_PLOTS_DIR = RESULTS_DIR / "interactive_plots"
 INTERACTIVE_PLOTS_DIR.mkdir(exist_ok=True)
-
 def find_data_files():
     """Find all relevant data files in the data directory"""
     data_files = {}
     
-    # Look for key data files
-    for file in DATA_DIR.glob("*.txt"):
-        if "fat" in file.name or "topology" in file.name:
-            continue
-        data_files[file.name] = file
+    # Look for key data files (.txt, .tr, .csv)
+    for ext in ["*.txt", "*.tr", "*.csv"]:
+        for file in DATA_DIR.glob(ext):
+            if "fat" in file.name or "topology" in file.name:
+                continue
+            data_files[file.name] = file
     
     return data_files
+
+def find_config_file(exp_name=None):
+    """Find configuration file for an experiment with robust fallback logic."""
+    # 1. Direct match based on experiment name
+    if exp_name:
+        config_name = f"config_{exp_name}.txt"
+        candidates = [
+            RESULTS_DIR / "config" / config_name,
+            RESULTS_DIR / "configs" / config_name,
+            DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
+        ]
+        for c in candidates:
+            if c.exists(): return c
+
+    # 2. Fallback: Any .txt file in the local config/ or configs/ directory
+    for subdir in ["config", "configs"]:
+        cfg_dir = RESULTS_DIR / subdir
+        if cfg_dir.exists():
+            txt_files = list(cfg_dir.glob("*.txt"))
+            if txt_files:
+                # Filter out obvious non-configs if necessary, or just pick the first
+                return txt_files[0]
+                
+    # 3. Global default
+    global_default = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
+    if global_default.exists():
+        return global_default
+        
+    return None
 
 def run_plot_script(script_name, description, data_files):
     """Run a single plot script with available data files"""
@@ -109,7 +139,7 @@ def run_plot_script(script_name, description, data_files):
                 else:
                     print(f"Generating topology analysis (Full view only)...")
 
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                 
                 if result.returncode == 0:
                     if result.stdout:
@@ -151,16 +181,7 @@ def run_plot_script(script_name, description, data_files):
                         
                         # Infer config file (strip "mix_" prefix added by trace naming)
                         config_exp = exp_name.replace("mix_", "", 1) if exp_name.startswith("mix_") else exp_name
-                        config_name = f"config_{config_exp}.txt"
-                        
-                        # Search order: local config/, local configs/, global
-                        config_candidates = [
-                            RESULTS_DIR / "config" / config_name,
-                            RESULTS_DIR / "configs" / config_name,
-                            DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                        ]
-                        
-                        config_file = next((p for p in config_candidates if p.exists()), None)
+                        config_file = find_config_file(config_exp)
                         
                         if config_file:
                             cmd.extend(["--config", str(config_file)])
@@ -171,7 +192,7 @@ def run_plot_script(script_name, description, data_files):
                              cmd.extend(["--flows", str(flows_file)])
                         
                         print(f"Command: {' '.join(cmd)}")
-                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300) # Increased timeout for big traces
+                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=900) # Large timeout for big traces (1.2GB)
                         
                         if result.returncode == 0:
                             print(f"✓ {description} ({trace_file.name}) completed successfully")
@@ -195,16 +216,7 @@ def run_plot_script(script_name, description, data_files):
             if cwnd_files:
                 for cwnd_file in cwnd_files:
                     exp_name = cwnd_file.stem.replace("cwnd_", "")
-                    
-                    config_name = f"config_{exp_name}.txt"
-                    
-                    config_candidates = [
-                        RESULTS_DIR / "config" / config_name,
-                        RESULTS_DIR / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
-                    ]
-                    config_file = next((p for p in config_candidates if p.exists()), None)
+                    config_file = find_config_file(exp_name)
 
                     # Default topo
                     topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
@@ -219,7 +231,7 @@ def run_plot_script(script_name, description, data_files):
                         cmd.append(str(topo_file))
                     
                     print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900) # Increased default timeout for large traces
                     
                     if result.returncode == 0:
                         print(f"✓ {description} ({cwnd_file.name}) completed successfully")
@@ -242,15 +254,7 @@ def run_plot_script(script_name, description, data_files):
             if cwnd_files:
                 for cwnd_file in cwnd_files:
                     exp_name = cwnd_file.stem.replace("cwnd_", "")
-                    config_name = f"config_{exp_name}.txt"
-                    
-                    config_candidates = [
-                        RESULTS_DIR / "config" / config_name,
-                        RESULTS_DIR / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / "config_two_senders_per_node.txt"
-                    ]
-                    config_file = next((p for p in config_candidates if p.exists()), None)
+                    config_file = find_config_file(exp_name)
                     
                     ext = ".html" if "interactive" in script_name else ".png"
                     out_dir = INTERACTIVE_PLOTS_DIR if "interactive" in script_name else PLOTS_DIR
@@ -262,7 +266,7 @@ def run_plot_script(script_name, description, data_files):
                         cmd.append(str(config_file))
                     
                     print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)  # Large timeout for big cwnd files
                     
                     if result.returncode == 0:
                         print(f"✓ {description} ({cwnd_file.name}) completed successfully")
@@ -289,14 +293,8 @@ def run_plot_script(script_name, description, data_files):
                     pfc_file = DATA_DIR / f"pfc_{exp_name}.txt"
                     
                     # Infer config file
-                    config_name = f"config_{exp_name}.txt"
-                    
-                    config_candidates = [
-                        RESULTS_DIR / "config" / config_name,
-                        RESULTS_DIR / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                    ]
-                    config_file = next((p for p in config_candidates if p.exists()), None)
+                    exp_name = qlen_file.stem.replace("qlen_", "")
+                    config_file = find_config_file(exp_name)
 
                     cmd = [sys.executable, str(script_path), 
                            "--qlen", str(qlen_file),
@@ -314,7 +312,7 @@ def run_plot_script(script_name, description, data_files):
                         cmd.extend(["--queue-depth-csv", str(queue_depth_csv)])
                         
                     print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                     
                     if result.returncode == 0:
                         print(f"✓ {description} ({qlen_file.name}) completed successfully")
@@ -340,14 +338,7 @@ def run_plot_script(script_name, description, data_files):
                     # Infer config file
                     # rxbuf_dynamic_pull.txt -> config_dynamic_pull.txt
                     exp_name = rxbuf_file.stem.replace("rxbuf_", "")
-                    config_name = f"config_{exp_name}.txt"
-                    
-                    config_candidates = [
-                        RESULTS_DIR / "config" / config_name,
-                        RESULTS_DIR / "configs" / config_name,
-                        DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                    ]
-                    config_file = next((p for p in config_candidates if p.exists()), None)
+                    config_file = find_config_file(exp_name)
                     
                     cmd = [sys.executable, str(script_path), str(rxbuf_file),
                            "--out", str(PLOTS_DIR / f"rx_buffer_{exp_name}.png")]
@@ -356,7 +347,7 @@ def run_plot_script(script_name, description, data_files):
                         cmd.extend(["--config", str(config_file)])
                         
                     print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                     if result.returncode == 0:
                         print(f"✓ {description} ({rxbuf_file.name}) completed successfully")
                         if result.stdout:
@@ -381,7 +372,7 @@ def run_plot_script(script_name, description, data_files):
                      cmd = [sys.executable, str(script_path), str(fct_file),
                             "--out", str(PLOTS_DIR / f"fct_{exp_name}.png")]
                      print(f"Command: {' '.join(cmd)}")
-                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                      if result.returncode == 0:
                          print(f"✓ {description} ({fct_file.name}) completed successfully")
                          if result.stdout:
@@ -414,7 +405,7 @@ def run_plot_script(script_name, description, data_files):
                         cmd.extend(["--pfc", str(pfc_file)])
                         
                     print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                     if result.returncode == 0:
                         print(f"✓ {description} ({drop_file.name}) completed successfully")
                         if result.stdout:
@@ -446,7 +437,7 @@ def run_plot_script(script_name, description, data_files):
                          cmd.extend(["--qlen", str(qlen_file)])
                          
                      print(f"Command: {' '.join(cmd)}")
-                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                      
                      if result.returncode == 0:
                          print(f"✓ {description} ({exp_name}) completed successfully")
@@ -478,15 +469,7 @@ def run_plot_script(script_name, description, data_files):
              
              if exp_names:
                  for exp_name in sorted(exp_names):
-                     config_name = f"config_{exp_name}.txt"
-                     # Search order: local config/, local configs/, global
-                     config_candidates = [
-                         RESULTS_DIR / "config" / config_name,
-                         RESULTS_DIR / "configs" / config_name,
-                         DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "configs" / config_name
-                     ]
-                     
-                     config_file = next((p for p in config_candidates if p.exists()), None)
+                     config_file = find_config_file(exp_name)
                      
                      cmd = [sys.executable, str(script_path), 
                             "--data-dir", str(DATA_DIR),
@@ -497,7 +480,7 @@ def run_plot_script(script_name, description, data_files):
                          cmd.extend(["--config", str(config_file)])
                          
                      print(f"Command: {' '.join(cmd)}")
-                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
                      
                      if result.returncode == 0:
                          print(f"✓ {description} ({exp_name}) completed successfully")
@@ -513,7 +496,7 @@ def run_plot_script(script_name, description, data_files):
         # Default behavior: try to find matching data file
         for data_file in sorted(data_files):
             cmd = [sys.executable, str(script_path), str(DATA_DIR / data_file)]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
             
             if result.returncode == 0:
                 print(f"✓ {description} completed successfully")
@@ -524,7 +507,7 @@ def run_plot_script(script_name, description, data_files):
         # If no data files worked, try running without arguments
         print("Attempting to run without arguments...")
         result = subprocess.run([sys.executable, str(script_path)], 
-                              capture_output=True, text=True, timeout=60)
+                              capture_output=True, text=True, timeout=900)
         
         if result.returncode == 0:
             print(f"✓ {description} completed successfully")

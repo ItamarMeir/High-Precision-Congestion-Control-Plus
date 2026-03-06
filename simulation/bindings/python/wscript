@@ -163,8 +163,11 @@ def configure(conf):
                                 "import pybindgen.version; "
                                 "print '.'.join([str(x) for x in pybindgen.version.__version__])"],
                                 stdout=subprocess.PIPE).communicate()[0]
+        # Python 2/3 compatible handling of subprocess output
+        if not isinstance(out, str):
+            out = out.decode()
         pybindgen_version_str = out.strip()
-        pybindgen_version = tuple([int(x) for x in pybindgen_version_str.split('.')])
+        pybindgen_version = tuple(int(x) for x in pybindgen_version_str.split('.'))
         conf.msg('Checking for pybindgen version', pybindgen_version_str)
         if not (pybindgen_version == REQUIRED_PYBINDGEN_VERSION):
             Logs.warn("pybindgen (found %s), (need %s)" %
@@ -425,18 +428,25 @@ class gen_ns3_compat_pymod_task(Task.Task):
     def run(self):
         assert len(self.outputs) == 1
         outfile = open(self.outputs[0].abspath(), "w")
-        print >> outfile, "import warnings"
-        print >> outfile, 'warnings.warn("the ns3 module is a compatibility layer '\
-              'and should not be used in newly written code", DeprecationWarning, stacklevel=2)'
-        print >> outfile
-        for module in self.bld.env['PYTHON_MODULES_BUILT']:
-            print >> outfile, "from ns.%s import *" % (module.replace('-', '_'))
+        print("import warnings", file=outfile)
+        print('warnings.warn("the ns3 module is a compatibility layer '
+              'and should not be used in newly written code", DeprecationWarning, stacklevel=2)',
+              file=outfile)
+        print("", file=outfile)
+        modules = self.bld.env['PYTHON_MODULES_BUILT'] if 'PYTHON_MODULES_BUILT' in self.bld.env else []
+        for module in modules:
+            print("from ns.%s import *" % (module.replace('-', '_')), file=outfile)
         outfile.close()
         return 0
 
 
 
 def build(bld):
+    """
+    Disabled Python bindings build for this environment.
+    Core C++ simulator does not require ns-3 Python modules.
+    """
+    return
     if Options.options.python_disable:
         return
 

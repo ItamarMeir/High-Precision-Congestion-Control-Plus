@@ -60,6 +60,7 @@ MULTI_RATE 0 {for HPCC: 0: single rate, 1: per hop}
 SAMPLE_FEEDBACK 0 {for HPCC: 0: per packet, 1: per RTT or qlen>0}
 PINT_LOG_BASE 1.05 {for HPCC-PINT: log base}
 PINT_PROB 1.0 {for HPCC-PINT: sampling probability}
+INT_PER_PACKET 1 {0: no INT telemetry, 1: per-packet telemetry (triggers queue_depth.csv output)}
 
 RATE_BOUND 1 {0: no rate limiter, 1: use rate limiter}
 

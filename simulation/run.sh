@@ -116,6 +116,15 @@ echo ""
 echo ""
 echo -e "${GREEN}✓ Simulation completed!${NC}"
 echo ""
+
+# Move SW queue depth data to results directory if it exists
+if [ -f "queue_depth.csv" ]; then
+    echo -e "${BLUE}Saving switch queue depth data...${NC}"
+    mv queue_depth.csv /workspace/results/data/
+    echo -e "${GREEN}✓ Switch queue depth saved to /workspace/results/data/queue_depth.csv${NC}"
+    echo ""
+fi
+
 echo "Results saved to: /workspace/results/data/"
 echo ""
 echo "Next step: Generate plots with:"
