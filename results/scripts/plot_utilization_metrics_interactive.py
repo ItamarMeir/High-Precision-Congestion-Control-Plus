@@ -215,6 +215,7 @@ def build_interactive_plot(trace_file, output_file, config_file=None):
             'title': ylabel,
             'domain': domain,
             'autorange': True,
+            'rangemode': 'tozero',
         }
 
     extra_html = """

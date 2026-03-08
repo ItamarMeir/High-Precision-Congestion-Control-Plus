@@ -52,7 +52,7 @@ GLOBAL_T 1 {0: per-pair RTT, 1: global max RTT}
 VAR_WIN 1 {0: fixed window, 1: variable window}
 FAST_REACT 1 {0: react per RTT, 1: react per ACK}
 U_TARGET 0.95 {for HPCC: target utilization}
-MULTI_RATE 0 {for HPCC: 0: single rate, 1: per hop}
+MULTI_RATE 1 {for HPCC: 0: single rate, 1: per hop}
 SAMPLE_FEEDBACK 0 {for HPCC: 0: per packet, 1: per RTT or qlen>0}
 PINT_LOG_BASE 1.05 {for HPCC-PINT: log base}
 PINT_PROB 1.0 {for HPCC-PINT: sampling probability}

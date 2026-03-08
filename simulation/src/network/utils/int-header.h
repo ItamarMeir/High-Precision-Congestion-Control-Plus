@@ -79,7 +79,7 @@ public:
 
 class IntHeader{
 public:
-	static const uint32_t maxHop = 5;
+	static const uint32_t maxHop = 6;
 	enum Mode{
 		NORMAL = 0,
 		TS = 1,

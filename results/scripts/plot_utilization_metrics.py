@@ -128,6 +128,7 @@ def plot_trace(trace_file, out_path, config_file=None):
         title = "HPCC Utilization Metric"
 
     for axis, (field, ylabel, scale) in zip(axes, metric_specs):
+        max_y = 0
         for qp_id, qp_rows in sorted(grouped.items()):
             sampled = _subsample(qp_rows)
             times = [row["time_ns"] / 1e9 for row in sampled]
@@ -141,11 +142,16 @@ def plot_trace(trace_file, out_path, config_file=None):
                 values.append(value * scale)
             if not filtered_times:
                 continue
+            max_y = max(max_y, max(values))
             axis.plot(filtered_times, values, linewidth=1.2, label=_label(qp_rows))
 
         axis.set_ylabel(ylabel)
         axis.grid(True, alpha=0.3)
         axis.set_xlim(min_time_s, max_time_s)
+        if max_y > 0:
+            axis.set_ylim(bottom=0, top=max_y * 1.05)
+        else:
+            axis.set_ylim(bottom=0)
         if schedules:
             _draw_schedule_lines(axis, schedules)
 
