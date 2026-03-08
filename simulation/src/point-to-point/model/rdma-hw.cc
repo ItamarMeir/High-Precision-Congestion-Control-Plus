@@ -157,6 +157,11 @@ TypeId RdmaHw::GetTypeId (void)
 				BooleanValue(false),
 				MakeBooleanAccessor(&RdmaHw::m_sampleFeedback),
 				MakeBooleanChecker())
+		.AddAttribute("RDeliveredGain",
+				"EWMA gain for R_delivered pre-smoothing in HPCC+ (1.0 = no smoothing, lower = smoother)",
+				DoubleValue(1.0),
+				MakeDoubleAccessor(&RdmaHw::m_rDeliveredGain),
+				MakeDoubleChecker<double>())
 		.AddAttribute("TimelyAlpha",
 				"Alpha of TIMELY",
 				DoubleValue(0.875),
@@ -1394,7 +1399,11 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				updated[host_idx] = updated_any = true;
 				// Compute R_delivered from host INT deltas (like switch txRate)
 				double duration_host = tau_host * 1e-9;
-				double R_delivered = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
+				double R_delivered_raw = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
+				// Apply R_delivered pre-smoothing EWMA (m_rDeliveredGain=1.0 = no smoothing, preserves current behaviour)
+				qp->hpccPlus.m_r_delivered_smooth = (1.0 - m_rDeliveredGain) * qp->hpccPlus.m_r_delivered_smooth
+				                                    + m_rDeliveredGain * R_delivered_raw;
+				double R_delivered = qp->hpccPlus.m_r_delivered_smooth;
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 				trace_r_delivered = R_delivered;
 

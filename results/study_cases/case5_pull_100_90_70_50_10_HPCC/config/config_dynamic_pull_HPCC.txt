@@ -31,7 +31,7 @@ CWND_OUTPUT_FILE ../results/study_cases/case5_pull_100_90_70_50_10_HPCC/data/cwn
 UTILIZATION_OUTPUT_FILE ../results/study_cases/case5_pull_100_90_70_50_10_HPCC/data/utilization_dynamic_pull_HPCC_5.txt {output file: compact utilization trace}
 RXBUF_OUTPUT_FILE ../results/study_cases/case5_pull_100_90_70_50_10_HPCC/data/rxbuf_dynamic_pull_HPCC_5.txt {output file: NIC RX buffer bytes}
 
-SIMULATOR_STOP_TIME 6.00 {simulation stop time}
+SIMULATOR_STOP_TIME 15.00 {simulation stop time}
 
 CC_MODE 3 {1: DCQCN, 3: HPCC, 7: TIMELY, 8: DCTCP, 10: HPCC-PINT}
 ALPHA_RESUME_INTERVAL 1 {for DCQCN: interval of update alpha}

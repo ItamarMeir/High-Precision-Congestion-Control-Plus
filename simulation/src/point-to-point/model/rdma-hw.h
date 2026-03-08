@@ -177,6 +177,7 @@ public:
 	/*********************
 	 * HPCC-PLUS
 	 ********************/
+	double m_rDeliveredGain; // EWMA gain for R_delivered pre-smoothing (1.0 = no smoothing)
 	void HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch);
 	void UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch, bool fast_react);
 

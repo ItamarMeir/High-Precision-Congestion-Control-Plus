@@ -85,8 +85,9 @@ public:
 		uint32_t m_lastUpdateSeq;
 		DataRate m_curRate;
 		uint32_t m_incStage;
-		double m_c_host; // host capacity EWMA
-		double u; // aggregate smoothed utilization EWMA
+		double m_c_host;            // host capacity EWMA
+		double m_r_delivered_smooth; // EWMA-smoothed R_delivered
+		double u;                   // aggregate smoothed utilization EWMA
 		IntHop hop[IntHeader::maxHop]; // store previous INT for delta calculation
 		struct {
 			double u;

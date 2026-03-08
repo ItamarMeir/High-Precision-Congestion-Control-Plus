@@ -59,7 +59,7 @@ std::string rxbuf_output_file = "rxbuf.txt";
 std::string utilization_output_file;
 std::string drop_output_file = "drop.txt";
 
-double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0;
+double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0, r_delivered_gain = 1.0;
 double rate_decrease_interval = 4;
 uint32_t fast_recovery_times = 5;
 std::string rate_ai, rate_hai, min_rate = "100Mb/s";
@@ -626,6 +626,13 @@ int main(int argc, char *argv[])
 				ewma_gain = v;
 				std::cout << "EWMA_GAIN\t\t\t" << ewma_gain << "\n";
 			}
+			else if (key.compare("R_DELIVERED_GAIN") == 0)
+			{
+				double v;
+				conf >> v;
+				r_delivered_gain = v;
+				std::cout << "R_DELIVERED_GAIN\t\t\t" << r_delivered_gain << "\n";
+			}
 			else if (key.compare("FAST_RECOVERY_TIMES") == 0)
 			{
 				uint32_t v;
@@ -1160,6 +1167,8 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("RPTimer", DoubleValue(rp_timer));
 			rdmaHw->SetAttribute("FastRecoveryTimes", UintegerValue(fast_recovery_times));
 			rdmaHw->SetAttribute("EwmaGain", DoubleValue(ewma_gain));
+			rdmaHw->SetAttribute("RDeliveredGain", DoubleValue(r_delivered_gain));
+
 			rdmaHw->SetAttribute("RateAI", DataRateValue(DataRate(rate_ai)));
 			rdmaHw->SetAttribute("RateHAI", DataRateValue(DataRate(rate_hai)));
 			rdmaHw->SetAttribute("L2BackToZero", BooleanValue(l2_back_to_zero));

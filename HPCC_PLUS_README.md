@@ -190,6 +190,70 @@ The host hop is always the **last** element (`index nhop - 1`). The sender detec
 
 ---
 
+## Smoothing Modes
+
+HPCC+ applies **three distinct smoothing mechanisms** to reduce estimation noise and improve rate stability. Understanding these is important for tuning behavior.
+
+### 1 — Per-Hop baseRTT Rolling Average (Switch Hops)
+
+For each switch hop, the instantaneous utilization $u_i$ is not used directly. Instead it is blended into a running estimate proportional to how much of the baseRTT the measurement window represents:
+
+$$\hat{u}_i \leftarrow \frac{\hat{u}_i \cdot (BaseRTT - \tau_i) + u_i \cdot \tau_i}{BaseRTT}$$
+
+Where $\tau_i$ is the measurement window (capped at $BaseRTT$). This is **self-normalizing**: a larger measurement window gets more weight, so timing jitter in ACK arrival does not distort the utilization estimate.
+
+**In MULTI_RATE=0 (aggregate mode):** This rolling average is applied **once globally** using the bottleneck hop's tau. All switch hops compete for the global maximum, and only the winner feeds into the single global $\hat{u}_{switch}$.
+
+**In MULTI_RATE=1 (per-hop mode):** Each hop maintains its **own independent** rolling-average $\hat{u}_i$, updated with its own $\tau_i$. The minimum across per-hop rates becomes the final rate.
+
+This smoothing is **fixed and not configurable**.
+
+---
+
+### 2 — R_delivered Pre-Smoothing EWMA (Host Hop, Configurable)
+
+The host hop's raw $R_{delivered}$ measurement is highly sensitive to timing jitter because it is computed as a byte-delta over a variable time window — the same Taylor-series sensitivity as switch hops, but **without** the baseRTT rolling average applied automatically.
+
+A configurable pre-smoothing EWMA is applied before $R_{delivered}$ reaches any other calculation:
+
+$$\hat{R}_{delivered} \leftarrow (1 - g_R) \cdot \hat{R}_{delivered} + g_R \cdot R_{delivered}^{raw}$$
+
+The smoothed $\hat{R}_{delivered}$ is then used in place of the raw value for all downstream calculations (Step 5 above).
+
+| Config Key | Parameter | Default | Meaning |
+|:--|:--|:--|:--|
+| `R_DELIVERED_GAIN` | $g_R$ | `1.0` | `1.0` = no smoothing (instantaneous); lower = stronger smoothing |
+
+**Effect:** Reduces the frame-to-frame noise in the $R_{delivered}$ metric, which in turn reduces noise propagated into $C_{host}$ and $u_{host}$.
+
+---
+
+### 3 — C_host Tracking EWMA (Host Hop, Configurable)
+
+The estimated host capacity $C_{host}$ is updated each full RTT using an EWMA of $\hat{R}_{delivered}$ (or applying additive increase when uncongested — see Step 5):
+
+$$C_{host} \leftarrow (1 - g) \cdot C_{host} + g \cdot \hat{R}_{delivered}$$
+
+This controls how quickly $C_{host}$ tracks changes in the receiver's actual pull rate.
+
+| Config Key | Parameter | Default | Meaning |
+|:--|:--|:--|:--|
+| `EWMA_GAIN` | $g$ | `1.0/16` | Higher = faster tracking, more noisy; lower = smoother, slower reaction |
+
+---
+
+### Smoothing Interaction by Mode
+
+| Smoothing | Switch Hops | Host Hop (`MULTI_RATE=0`) | Host Hop (`MULTI_RATE=1`) |
+|:--|:--|:--|:--|
+| baseRTT rolling avg | ✓ (per-hop) | ✓ (global, after max selection) | ✓ (per-hop, before rate computation) |
+| R_delivered pre-EWMA | — | ✓ (`R_DELIVERED_GAIN`) | ✓ (`R_DELIVERED_GAIN`) |
+| C_host EWMA | — | ✓ (`EWMA_GAIN`) | ✓ (`EWMA_GAIN`) |
+
+> **Note:** In `MULTI_RATE=0`, the host hop competes directly against switch hops for the global maximum **after** the R_delivered pre-EWMA is applied but **before** the global baseRTT rolling average. This means the host hop effectively gets two smoothing passes (pre-EWMA + global rolling avg) while switch hops only get one. For symmetric smoothing behavior, prefer `MULTI_RATE=1`.
+
+---
+
 ## Configuration Parameters
 
 | Parameter | Config Key | Default | Description |
@@ -202,8 +266,11 @@ The host hop is always the **last** element (`index nhop - 1`). The sender detec
 | MI threshold | `MI_THRESH` | `5` | AI stages before switching to multiplicative mode |
 | Fast react | `FAST_REACT` | `1` | `1` = react per ACK, `0` = react per RTT only |
 | Sample feedback | `SAMPLE_FEEDBACK` | `0` | `1` = skip hops with zero queue during fast react |
+| Multiple rates | `MULTI_RATE` | `1` | `1` = per-hop rates (recommended), `0` = aggregate single rate |
 | RX pull mode | `RX_PULL_MODE` | `1` | `0` = immediate drain, `1` = fixed-rate drain |
 | RX pull rate | `RX_PULL_RATE` | `1.0` | Fraction of line rate for RX pull (in mode 1) |
+| C_host tracking gain | `EWMA_GAIN` | `1/16` | EWMA gain $g$ for $C_{host}$ updates (higher = faster, nosier) |
+| R_delivered smoothing | `R_DELIVERED_GAIN` | `1.0` | Pre-smoothing EWMA gain $g_R$ on raw $R_{delivered}$ (`1.0` = off) |
 
 
 
