@@ -48,6 +48,7 @@ results/data/fct*.txt
 results/data/pfc*.txt
 # Third-party dependencies
 pybindgen/
+latex_reports/
 # Misc
 *.log
 .DS_Store

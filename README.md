@@ -11,15 +11,9 @@ This is a fork of the original HPCC Alibaba repository that explores improvement
 
 1. **End-host Congestion Model** - A model that accounts for congestion at the receiver end-host, complementing the fabric-centric approach of original HPCC.
 
-2. **HPCC_ecwnd** - HPCC variant where end-hosts advertise explicit congestion window (`ecwnd`) based on local receiver congestion. The effective window is `min(ecwnd, fcwnd)` where:
-   - `ecwnd` = end-host congestion window (receiver-side)
-   - `fcwnd` = fabric congestion window (regular HPCC window based on fabric telemetry)
+2. **HPCC_Plus** - Treats end-host congestion as a virtual switch and applies regular HPCC congestion control principles, providing a unified approach to fabric and end-host congestion. The receiver NIC RX buffer is modeled as an additional INT hop, allowing the sender to incorporate receiver-side utilization into its rate decisions.
 
-3. **HPCC_Plus** - Treats end-host congestion as a virtual switch with modifications and applies regular HPCC congestion control principles, providing a unified approach to fabric and end-host congestion.
-
-These extensions aim to improve performance in scenarios where end-host (receiver) congestion is a bottleneck, potentially achieving better flow completion times and overall network utilization.
-
-4. **Dynamic Pulling Rate** - Allows the receiver's pulling rate to be dynamically scheduled during the simulation. This is useful for simulating varying receiver processing capabilities over time.
+3. **Dynamic Pulling Rate** - Allows the receiver's pulling rate to be dynamically scheduled during the simulation. This is useful for simulating varying receiver processing capabilities over time.
    - Configured via `RX_PULL_RATE_SCHEDULE` in the simulation configuration file.
 
 

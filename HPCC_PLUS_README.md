@@ -86,13 +86,10 @@ $$txRate_i = \frac{(txBytes_i^{new} - txBytes_i^{old}) \times 8}{\tau_i \times 1
 
 $$u_i = \frac{txRate_i}{C_{link,i}} + \frac{\min(qlen_i^{new}, qlen_i^{old}) \times 8}{C_{link,i} \times BaseRTT \times 10^{-9}}$$
 
-The **bottleneck utilization** $U$ is the maximum across all switch hops, and the EWMA-smoothed aggregate $\hat{u}_{switch}$ is updated:
+The handling of these $u_i$ values depends entirely on the `MULTI_RATE` setting (see **Smoothing Modes** below). Note that the EWMA smoothing weight $w$ is dynamically defined as $w = \frac{\tau}{BaseRTT}$.
 
-$$\hat{u}_{switch} \leftarrow \frac{\hat{u}_{switch} \cdot (BaseRTT - \tau_{max}) + U \cdot \tau_{max}}{BaseRTT}$$
-
-Where $\tau_{max}$ is the time interval at the bottleneck hop (capped at $BaseRTT$).
-
----
+*   **If `MULTI_RATE=0`:** The sender finds the maximum $u_i$ and smooths it into a single flow-level $U_{curr}$ state.
+*   **If `MULTI_RATE=1`:** Each hop natively smooths its $u_i$ into its own distinct $U_{curr, i}$ state.
 
 ### Step 4 — Sender Processes the Host Hop
 
@@ -122,6 +119,10 @@ $$C_{host} \leftarrow \begin{cases}
 (1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
 \min(C_{host} + R_{AI}, \ C_{link,host}) & \text{otherwise}
 \end{cases}$$
+
+**Why Additively Increase $C_{host}$ when uncongested?**
+$C_{host}$ estimates the application's maximum pulling rate. If the senders are perfectly paced to match the current $C_{host}$, the receiver's queue stays empty (`qlen_{rx} == 0`). However, if the receiver application suddenly becomes capable of pulling *faster*, the senders won't know—they are still artificially capped by the old $C_{host}$ value. Because they don't send any faster, $R_{delivered}$ remains equal to the old $C_{host}$ and never grows. 
+By continuously probing upwards via $+ R_{AI}$ when uncongested, the senders gently "test the waters". If the application can handle the extra rate, throughput increases. If it can't, a small queue builds up, which immediately switches the algorithm back to the EWMA tracking state to push $C_{host}$ back down to match reality.
 
 Once $C_{host}$ is estimating the bottleneck, the host utilization $u_{host}$ is computed:
 
@@ -196,17 +197,27 @@ HPCC+ applies **three distinct smoothing mechanisms** to reduce estimation noise
 
 ### 1 — Per-Hop baseRTT Rolling Average (Switch Hops)
 
-For each switch hop, the instantaneous utilization $u_i$ is not used directly. Instead it is blended into a running estimate proportional to how much of the baseRTT the measurement window represents:
+For each switch hop $h$, we first calculate its **instantaneous utilization** $u_h$:
+$$u_h = \frac{txRate_h}{C_{link,h}} + \frac{qlen_h}{C_{link,h} \times BaseRTT}$$
 
-$$\hat{u}_i \leftarrow \frac{\hat{u}_i \cdot (BaseRTT - \tau_i) + u_i \cdot \tau_i}{BaseRTT}$$
+Then, depending on the `MULTI_RATE` config, HPCC+ applies an Exponentially Weighted Moving Average (EWMA). The weight $w$ is defined proportionally to the measurement window $\tau$ (capped at $BaseRTT$): 
+$$w = \frac{\tau}{BaseRTT}$$
 
-Where $\tau_i$ is the measurement window (capped at $BaseRTT$). This is **self-normalizing**: a larger measurement window gets more weight, so timing jitter in ACK arrival does not distort the utilization estimate.
+This makes the filter **self-normalizing**: timing jitter in ACK arrival does not distort the utilization estimate.
 
-**In MULTI_RATE=0 (aggregate mode):** This rolling average is applied **once globally** using the bottleneck hop's tau. All switch hops compete for the global maximum, and only the winner feeds into the single global $\hat{u}_{switch}$.
+#### Mode 0: Aggregate Rate (`MULTI_RATE = 0`)
+1. **Find Max Instantaneous Utilization:** The sender finds the single highest instantaneous utilization across all switch hops.
+   $$U_{inst\_max} = \max_h \{ u_h \}$$
+2. **Smooth the Bottleneck:** This single maximum is then fed into the flow's global EWMA state $U_{curr}$, using the time delta $\tau_{max}$ from the bottleneck hop:
+   $$U_{next} = (1 - w_{max}) \cdot U_{curr} + w_{max} \cdot U_{inst\_max}$$
+   *(The C++ codebase expands this to avoid floating-point division: $U_{next} = \frac{U_{curr} \cdot (BaseRTT - \tau_{max}) + U_{inst\_max} \cdot \tau_{max}}{BaseRTT}$)*
 
-**In MULTI_RATE=1 (per-hop mode):** Each hop maintains its **own independent** rolling-average $\hat{u}_i$, updated with its own $\tau_i$. The minimum across per-hop rates becomes the final rate.
+#### Mode 1: Per-Hop Rate (`MULTI_RATE = 1`, Recommended)
+1. **Smooth Per Hop:** Each hop $h$ maintains its own independent EWMA state $U_{curr, h}$, and is smoothed using its own time delta $\tau_h$:
+   $$U_{next, h} = (1 - w_h) \cdot U_{curr, h} + w_h \cdot u_h$$
+2. **Per-Hop Reaction:** The sender computes a candidate rate for *every* hop using its $U_{next, h}$, and then enforces the strict minimum across all calculated rates.
 
-This smoothing is **fixed and not configurable**.
+This smoothing feature is **fixed and not configurable** (it is inherently tied to the BaseRTT).
 
 ---
 

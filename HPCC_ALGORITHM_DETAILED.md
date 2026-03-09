@@ -128,21 +128,22 @@ struct IntHop {
 
 ### 3.2. Order of Operations: Max vs. Smooth
 
-The user asked: *Is $U_{path}$ the max over $U_h$? And is smoothing applied per hop?*
+*Is $U_{path}$ the max over $U_h$? And is smoothing applied per hop?*
 
 **Answer:** It depends on the mode (**Aggregate** vs **Per-Hop**).
 
-#### Mode A: Aggregate Rate (Default, `m_multipleRate = 0`)
+#### Mode A: Aggregate Rate (`m_multipleRate = 0`, Default)
 1.  **Find Max Instantaneous Utilization**: The algorithm iterates over all hops and finds the single maximum utilization value among them.
-    $$U_{inst\_max} = \max_{h \in Path} \{ u_h \}$$
-2.  **Smooth the Bottleneck**: This *single maximum value* is then fed into the EWMA filter.
-    $$U_{next} = (1 - w) \cdot U_{curr} + w \cdot U_{inst\_max}$$
-    *The smoothing logic applies to the aggregate bottleneck value, not each hop individually.*
+    $$U_{inst\_max} = \max_h \{ u_h \}$$
+2.  **Smooth the Bottleneck**: This *single maximum value* is then fed into the flow's global EWMA state $U_{curr}$, using the time delta $\tau_{max}$ from the bottleneck hop:
+    $$U_{next} = (1 - w_{max}) \cdot U_{curr} + w_{max} \cdot U_{inst\_max}$$
+    *(The smoothing logic applies to the aggregate bottleneck value, not each hop individually)*
+3.  **Rate Update**: The rate update law runs once using $U_{next}$.
 
-#### Mode B: Per-Hop Rate (`m_multipleRate = 1`)
-1.  **Smooth Per Hop**: Each hop maintains its own smoothed utilization state.
-    $$U_{next, h} = (1 - w) \cdot U_{curr, h} + w \cdot u_h$$
-2.  **Per-Hop Reaction**: The rate update logic runs for each hop independently.
+#### Mode B: Per-Hop Rate (`m_multipleRate = 1`, Recommended)
+1.  **Smooth Per Hop**: Each hop $h$ maintains its own independent EWMA state $U_{curr, h}$, and is smoothed using its own time delta $\tau_{h}$:
+    $$U_{next, h} = (1 - w_h) \cdot U_{curr, h} + w_h \cdot u_h$$
+2.  **Per-Hop Reaction**: The rate update logic runs for *every* hop independently, and the strict minimum across all calculated rates is enforced.
 
 **Code Snippet (`RdmaHw::UpdateRateHp`, Aggregate Mode):**
 ```cpp
@@ -172,13 +173,21 @@ if (!m_multipleRate){
 ### 3.3. Utilization Smoothing (EWMA)
 
 **Formula:**
+The theoretical EWMA low-pass filter formula is:
 $$
 U_{next} = (1 - w) \cdot U_{curr} + w \cdot U_{measured}
 $$
-Where weight $w = \frac{\Delta t}{RTT_{base}}$.
+Where the dynamic weight $w = \frac{\Delta t}{RTT_{base}}$.
+
+**Code Equivalence:**
+If we substitute $w$ into the formula and multiply to get a common denominator, we get the exact mathematical form used in the C++ simulation code:
+
+$$U_{next} = \left(1 - \frac{\Delta t}{RTT_{base}}\right) \cdot U_{curr} + \left(\frac{\Delta t}{RTT_{base}}\right) \cdot U_{measured}$$
+
+$$U_{next} = \frac{U_{curr} \cdot (RTT_{base} - \Delta t) + U_{measured} \cdot \Delta t}{RTT_{base}}$$
 
 **What is $\Delta t$?**
-$\Delta t$ is the **time elapsed** between the current INT feedback sample and the previous sample **for the same flow at the specific hop**.
+$\Delta t$ (or $\tau$) is the **time elapsed** between the current INT feedback sample and the previous sample **for the same flow at the specific hop**.
 *   **Small $\Delta t$**: High-frequency feedback $\rightarrow$ Small weight (Stable).
 *   **Large $\Delta t$**: Sparse feedback $\rightarrow$ Large weight (Responsive).
 
