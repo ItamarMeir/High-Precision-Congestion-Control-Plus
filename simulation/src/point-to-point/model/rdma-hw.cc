@@ -17,6 +17,7 @@
 
 
 std::ofstream queue_depth_log; /* global log file for queue depth */
+std::string queue_depth_file = "queue_depth.csv"; /* global log file path for queue depth */
 
 #define printf(...) // silence
 namespace ns3{
@@ -888,7 +889,7 @@ void RdmaHw::HyperIncreaseMlx(Ptr<RdmaQueuePair> q){
  ***********************/
 void RdmaHw::HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
        if (!queue_depth_log.is_open()) {
-           queue_depth_log.open("queue_depth.csv", std::ios_base::app);
+           queue_depth_log.open(queue_depth_file, std::ios_base::app);
            queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
        }
        IntHeader &ih = ch.ack.ih;
@@ -1221,7 +1222,7 @@ void RdmaHw::SetPintSmplThresh(double p){
 
 void RdmaHw::HandleAckHpPint(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
        if (!queue_depth_log.is_open()) {
-           queue_depth_log.open("queue_depth.csv", std::ios_base::app);
+           queue_depth_log.open(queue_depth_file, std::ios_base::app);
            queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
        }
        IntHeader &ih_log = ch.ack.ih;
@@ -1307,7 +1308,7 @@ double RdmaHw::GetCurrentRxPullRate(){
  ********************/
 void RdmaHw::HandleAckHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
        if (!queue_depth_log.is_open()) {
-           queue_depth_log.open("queue_depth.csv", std::ios_base::app);
+           queue_depth_log.open(queue_depth_file, std::ios_base::app);
            queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
        }
        IntHeader &ih_log = ch.ack.ih;
@@ -1358,6 +1359,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
 	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
 
+	double sw_u_saved = 0.0;
 	// 1. Process switch hops (all except last)
 	for (uint32_t i = 0; i < nhop; i++){
 		if (i == nhop - 1) break; // skip host hop in this loop
@@ -1373,6 +1375,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 		double txRate = ih.hop[i].GetBytesDelta(qp->hpccPlus.hop[i]) * 8.0 / duration;
 		double q_term = (double)std::min(ih.hop[i].GetQlen(), qp->hpccPlus.hop[i].GetQlen()) * 8.0 / (ih.hop[i].GetLineRate() * qp->m_baseRtt * 1e-9);
 		double u = txRate / ih.hop[i].GetLineRate() + q_term;
+		if (i == 0) sw_u_saved = u;
 
 		if (!m_multipleRate){
 			if (u > U){
@@ -1406,32 +1409,46 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				double R_delivered = qp->hpccPlus.m_r_delivered_smooth;
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 				trace_r_delivered = R_delivered;
+				trace_c_host = qp->hpccPlus.m_c_host; // ensure trace var is populated
+				
+				// DEBUG: Output to file (u_switch overlay)
+				if (nhop > 1 && sw_u_saved > 0) {
+					uint32_t sid = (qp->sip.Get() >> 8) & 0xffff;
+					static FILE* fdebug = NULL;
+					if (!fdebug) {
+						fdebug = fopen("/workspace/results/study_cases/case4_test/data/debug_uswitch.txt", "w");
+					}
+					if (fdebug) {
+						fprintf(fdebug, "%lu %u %.3f\n", Simulator::Now().GetTimeStep(), sid, sw_u_saved);
+						fflush(fdebug);
+					}
+				}
 
 				// Conditional C_host update (only during full RTT update)
 				// Because R_delivered is computed from a shared aggregate counter (rxBytesTotal),
 				// all flows will converge their C_host estimates to the true aggregate pull rate.
 				if (!fast_react) {
-					if (rxQlen > 0) {
+					if (rxQlen > 0 || R_delivered > qp->hpccPlus.m_c_host) {
 						// Queue building → R_delivered reflects true capacity
 						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
 					} else {
-						// No queue → Receiver is uncongested. Probe for available capacity!
-						if (R_delivered > qp->hpccPlus.m_c_host) {
-							// If delivering faster than current estimate, jump up via EWMA
-							qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
-						} else {
-							// Otherwise, gently additive-increase C_host to probe for more bandwidth
-							// Use same additive increase step as the rate algorithm (m_rai)
-							qp->hpccPlus.m_c_host += m_rai.GetBitRate();
-						}
-						
-						// C_host can never logically exceed the physical link capacity
+						// No queue: additive probe toward line rate using the requested formulation.
+						// d = 1 - min(R_delivered, C_link) / C_link, ai_step = R_AI * d
 						double nic_line_rate = ih.hop[host_idx].GetLineRate();
-						if (qp->hpccPlus.m_c_host > nic_line_rate) {
-							qp->hpccPlus.m_c_host = nic_line_rate;
-						}
+						// double bounded_r_delivered = std::min(R_delivered, nic_line_rate);
+						// double distance_ratio = 1.0 - (bounded_r_delivered / nic_line_rate);
+						// double ai_step = m_rai.GetBitRate() * distance_ratio;
+						// double probe_target = std::min(qp->hpccPlus.m_c_host + ai_step, nic_line_rate);
+						// qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * probe_target;
+						qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * std::min(qp->hpccPlus.m_c_host + m_rai.GetBitRate(), nic_line_rate);
 					}
-				}
+
+					// C_host can never logically exceed the physical link capacity
+					double nic_line_rate = ih.hop[host_idx].GetLineRate();
+					if (qp->hpccPlus.m_c_host > nic_line_rate) {
+						qp->hpccPlus.m_c_host = nic_line_rate;
+					}
+					}
 
 				// Host utilization: use the estimated aggregate pull rate (m_c_host)
 				double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
@@ -1533,7 +1550,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 	if (!fast_react && updated_any) {
 		if (trace_u_max < 0)
 			trace_u_max = max_u;
-		m_traceUtilization(qp, m_cc_mode, fast_react, max_u, trace_r_delivered, trace_c_host, trace_u_host);
+		m_traceUtilization(qp, m_cc_mode, fast_react, trace_u_max, trace_r_delivered, trace_c_host, trace_u_host);
 	}
 
 	if (!fast_react && updated_any) {

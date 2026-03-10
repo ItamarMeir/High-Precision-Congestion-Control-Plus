@@ -52,7 +52,7 @@ PLOT_SCRIPTS = [
     ("plot_utilization_metrics.py", "Utilization Metrics Analysis"),
     ("plot_utilization_metrics_interactive.py", "Interactive Utilization Metrics Analysis"),
     ("plot_ack_analysis.py", "ACK Analysis Dashboard"),
-    ("plot_cwnd_rtt_analysis.py", "CWND Analysis Dashboard"),
+    ("plot_cwnd_rtt_analysis.py", "CWND/Rate Analysis Dashboard"),
     ("plot_switch_throughput.py", "Switch Throughput"),
     ("plot_dashboard.py", "Comprehensive Dashboard"),
     ("plot_interactive_dashboard.py", "Interactive Dashboard"),
@@ -225,7 +225,7 @@ def run_plot_script(script_name, description, data_files):
                     
                     cmd = [sys.executable, str(script_path), 
                                str(cwnd_file),
-                               str(PLOTS_DIR / f"cwnd_rtt_analysis_{exp_name}.png")]
+                               str(PLOTS_DIR / f"cwnd_rate_analysis_{exp_name}.png")]
                     
                     if config_file:
                         cmd.append(str(config_file))

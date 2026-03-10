@@ -117,15 +117,11 @@ echo ""
 echo -e "${GREEN}✓ Simulation completed!${NC}"
 echo ""
 
-# Move SW queue depth data to results directory if it exists
-if [ -f "queue_depth.csv" ]; then
-    echo -e "${BLUE}Saving switch queue depth data...${NC}"
-    mv queue_depth.csv /workspace/results/data/
-    echo -e "${GREEN}✓ Switch queue depth saved to /workspace/results/data/queue_depth.csv${NC}"
-    echo ""
-fi
 
-echo "Results saved to: /workspace/results/data/"
-echo ""
+DATAPATH=$(grep "^DATA_DIR" $CONF | awk '{print $2}')
+if [ -z "$DATAPATH" ]; then
+    DATAPATH="/workspace/results/data/"
+fi
+echo "Sim data saved to: $DATAPATH"
 echo "Next step: Generate plots with:"
 echo "  cd /workspace && python3 results/run_all_plots.py"

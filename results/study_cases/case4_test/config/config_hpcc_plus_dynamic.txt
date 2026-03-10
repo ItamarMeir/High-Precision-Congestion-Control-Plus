@@ -16,12 +16,12 @@ RX_PULL_RATE_NODE 0 1.0
 RX_PULL_RATE_NODE 1 1.0
 RX_PULL_RATE_NODE 2 0.1 {receiver: start with 10% rate}
 
-TOPOLOGY_FILE ../results/study_cases/case4_pull_100_5_20_50_100_HPCC_Plus/config/topology_two_senders.txt
-FLOW_FILE ../results/study_cases/case4_pull_100_5_20_50_100_HPCC_Plus/config/flow_two_senders_long.txt
+TOPOLOGY_FILE ../results/study_cases/case4_test/config/topology_two_senders.txt
+FLOW_FILE ../results/study_cases/case4_test/config/flow_two_senders_long.txt
 TRACE_FILE mix/inputs/trace.txt
 
 # Main Outputs
-DATA_DIR ../results/study_cases/case4_pull_100_5_20_50_100_HPCC_Plus/data
+DATA_DIR ../results/study_cases/case4_test/data
 EXP_NAME hpcc_plus_dynamic_4
 
 # Queue Length Monitoring

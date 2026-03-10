@@ -17,12 +17,8 @@ TOPOLOGY_FILE mix/topologies/topology_two_senders.txt {input file: topology}
 FLOW_FILE mix/flows/flow_two_senders_long.txt {input file: flow to generate}
 TRACE_FILE mix/inputs/trace.txt {input file: nodes to monitor packet-level events}
 # Main Outputs
-TRACE_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/mix_full_rate_pull.tr {output file: packet-level events}
-FCT_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/fct_full_rate_pull.txt {output file: flow completion time}
-PFC_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/pfc_full_rate_pull.txt {output file: PFC}
-CWND_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/cwnd_full_rate_pull.txt {output file: qp rate/window trace}
-UTILIZATION_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/utilization_full_rate_pull.txt {output file: compact utilization trace}
-RXBUF_OUTPUT_FILE ../results/study_cases/case0_full_rate_pull/data/rxbuf_full_rate_pull.txt {output file: NIC RX buffer bytes}
+DATA_DIR ../results/study_cases/case0_full_rate_pull/data
+EXP_NAME full_rate_pull
 
 SIMULATOR_STOP_TIME 6.00 {simulation stop time}
 
@@ -69,6 +65,5 @@ KMAX_MAP 7 1000000000 16 10000000000 160 20000000000 320 25000000000 400 5000000
 KMIN_MAP 7 1000000000 4 10000000000 40 20000000000 80 25000000000 100 50000000000 200 100000000000 400 100000000000 400 {bandwidth->kmin map}
 PMAX_MAP 7 1000000000 0.2 10000000000 0.2 20000000000 0.2 25000000000 0.2 50000000000 0.2 100000000000 0.2 100000000000 0.2 {bandwidth->pmax map}
 BUFFER_SIZE 32 {buffer size per switch (MB)}
-QLEN_MON_FILE ../results/study_cases/case0_full_rate_pull/data/qlen_full_rate_pull.txt {output file: queue length}
 QLEN_MON_START 0 {start time of dumping qlen}
 QLEN_MON_END 6000000000 {end time of dumping qlen}

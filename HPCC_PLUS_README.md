@@ -117,7 +117,7 @@ The $C_{host}$ update logic is conditional:
 
 $$C_{host} \leftarrow \begin{cases}
 (1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
-\min(C_{host} + R_{AI}, \ C_{link,host}) & \text{otherwise}
+(1 - g) \cdot C_{host} + g \cdot \min(C_{host} + R_{AI}, \ C_{link,host}) & \text{otherwise}
 \end{cases}$$
 
 **Why Additively Increase $C_{host}$ when uncongested?**

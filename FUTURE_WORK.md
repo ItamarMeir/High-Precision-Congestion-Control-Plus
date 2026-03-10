@@ -8,17 +8,18 @@ Under sub-100% receiver pull rates, HPCC+ senders exhibit CWND and rate oscillat
 
 Currently, when the receiver is uncongested, `C_host` increases by a fixed `R_AI`:
 
-```
-C_host = C_host + R_AI
-```
+$$C_{host} \leftarrow \begin{cases}
+(1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
+\min(C_{host} + R_{AI}, \ C_{link,host}) & \text{otherwise}
+\end{cases}$$
 
-This fixed step is too aggressive when `C_host` is small relative to the link rate, causing overshoot. Replace with a proportional step:
+This fixed step is too aggressive when $C_{host}$ is small relative to the link rate, causing overshoot. Replace with a proportional step + EWMA for the second if case:
 
-```
-C_host = C_host + R_AI * (C_host / C_link)
-```
+$$C_{host} \leftarrow \begin{cases}
+(1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
+(1 - g) \cdot C_{host} + g \cdot \min(C_{host} + R_{AI}/2, \ C_{link,host}) & \text{otherwise}
+\end{cases}$$
 
-This scales the probe step relative to current estimated capacity—small when `C_host` is low, larger as it approaches link rate.
 
 ### 1.2 RTT-Granularity C_host Updates
 

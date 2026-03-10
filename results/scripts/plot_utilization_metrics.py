@@ -111,47 +111,76 @@ def plot_trace(trace_file, out_path, config_file=None):
     min_time_s = min(row["time_ns"] for row in rows) / 1e9
     max_time_s = max(row["time_ns"] for row in rows) / 1e9
 
+    # Load high-res u_switch if exists
+    hires_data = defaultdict(list)
+    uswitch_path = Path(trace_file).parent / "debug_uswitch.txt"
+    if uswitch_path.exists():
+        print(f"Loading high-res u_switch from {uswitch_path}")
+        with open(uswitch_path, "r") as f:
+            for line in f:
+                p = line.split()
+                if len(p) >= 3:
+                    # ns, sid, u
+                    hires_data[int(p[1])].append((int(p[0])/1e9, float(p[2])))
+
     if is_hpcc_plus:
-        fig, axes = plt.subplots(2, 2, figsize=(14, 9), sharex=True)
-        axes = axes.flatten()
+        # 5 plots: U_max, R_delivered, C_host, u_host, u_switch_hires
+        fig, axes = plt.subplots(3, 2, figsize=(14, 15), sharex=True)
+        axes = [ax for row in axes for ax in row]
         metric_specs = [
-            ("u_max", "U_max", 1.0),
-            ("r_delivered_bps", "R_delivered (Gb/s)", 1e-9),
-            ("c_host_bps", "C_host (Gb/s)", 1e-9),
-            ("u_host", "u_host", 1.0),
+            ("u_max", "U_max (INT max)", 1.0, "trace"),
+            ("r_delivered_bps", "R_delivered (Gb/s)", 1e-9, "trace"),
+            ("c_host_bps", "C_host (Gb/s)", 1e-9, "trace"),
+            ("u_host", "u_host (INT host)", 1.0, "trace"),
+            ("u_switch", "u_switch (High-Res Export)", 1.0, "hires"),
         ]
-        title = "HPCC+ Utilization Metrics"
+        
+        # Hide the 6th subplot
+        fig.delaxes(axes[5])
+        axes = axes[:5]
+        title = "HPCC+ Utilization Metrics (5-Plot Dashboard)"
     else:
         fig, ax = plt.subplots(1, 1, figsize=(12, 4.5))
         axes = [ax]
-        metric_specs = [("u_max", "U_max", 1.0)]
+        metric_specs = [("u_max", "U_max", 1.0, "trace")]
         title = "HPCC Utilization Metric"
 
-    for axis, (field, ylabel, scale) in zip(axes, metric_specs):
+    for axis, (field, ylabel, scale, source) in zip(axes, metric_specs):
         max_y = 0
-        for qp_id, qp_rows in sorted(grouped.items()):
-            sampled = _subsample(qp_rows)
-            times = [row["time_ns"] / 1e9 for row in sampled]
-            values = []
-            filtered_times = []
-            for time_s, row in zip(times, sampled):
-                value = row[field]
-                if field != "u_max" and value < 0:
+        if source == "trace":
+            for qp_id, qp_rows in sorted(grouped.items()):
+                sampled = _subsample(qp_rows)
+                times = [row["time_ns"] / 1e9 for row in sampled]
+                values = []
+                filtered_times = []
+                for time_s, row in zip(times, sampled):
+                    value = row[field]
+                    # Don't skip R_delivered if it's 0 (it might be -1 early on)
+                    if value < 0:
+                        continue
+                    filtered_times.append(time_s)
+                    values.append(value * scale)
+                if not filtered_times:
                     continue
-                filtered_times.append(time_s)
-                values.append(value * scale)
-            if not filtered_times:
-                continue
-            max_y = max(max_y, max(values))
-            axis.plot(filtered_times, values, linewidth=1.2, label=_label(qp_rows))
+                max_y = max(max_y, max(values) if values else 0)
+                axis.plot(filtered_times, values, linewidth=1.2, label=_label(qp_rows))
+        elif source == "hires":
+            for sid, pts in sorted(hires_data.items()):
+                pts.sort()
+                xt = [pt[0] for pt in pts]
+                yt = [pt[1] for pt in pts]
+                if xt:
+                    max_y = max(max_y, max(yt))
+                    axis.plot(xt, yt, linewidth=1.2, label=f"Sender {sid}")
 
         axis.set_ylabel(ylabel)
         axis.grid(True, alpha=0.3)
         axis.set_xlim(min_time_s, max_time_s)
         if max_y > 0:
-            axis.set_ylim(bottom=0, top=max_y * 1.05)
+            axis.set_ylim(bottom=0, top=max_y * 1.1)
         else:
-            axis.set_ylim(bottom=0)
+            axis.set_ylim(bottom=0, top=1.2) # default for utilization
+            
         if schedules:
             _draw_schedule_lines(axis, schedules)
 
@@ -160,7 +189,7 @@ def plot_trace(trace_file, out_path, config_file=None):
 
     handles, labels = axes[0].get_legend_handles_labels()
     if handles:
-        fig.legend(handles, labels, loc="upper center", ncol=max(1, len(labels)))
+        fig.legend(handles, labels, loc="upper center", ncol=min(4, len(labels)))
 
     fig.suptitle(title)
     plt.tight_layout(rect=[0, 0, 1, 0.95])

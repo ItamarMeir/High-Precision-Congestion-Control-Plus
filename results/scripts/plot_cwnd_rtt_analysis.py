@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate comprehensive CWND/Rate/RTT analysis dashboard.
+Generate comprehensive CWND/Rate analysis dashboard.
 Dynamically adapts to any simulation data - robust for different topologies/flows.
 
 Input:
@@ -8,11 +8,9 @@ Input:
   - output_file: Output PNG path
 
 Features:
-  - Plots all flows in Window over Time panel
-  - Extracts RTT from steady-state data
-  - Rate vs CWND mathematical relationship
-  - Per-flow throughput distribution
-  - RTT component breakdown
+    - Plots all flows in Window over Time panel
+    - Sender rate over time panel
+    - Per-flow throughput summary in console output
 """
 import sys
 import argparse
@@ -37,34 +35,6 @@ def _extract_steady_state_period(data):
     steady_end = t_min + duration * 0.9    # Use up to 90%
     
     return steady_start, steady_end
-
-
-def _calculate_rtt_from_cwnd_data(cwnd_file):
-    """Extract RTT from steady-state CWND data using rate = cwnd * 8 / RTT."""
-    rtt_samples = []
-    
-    with open(cwnd_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) < 7:
-                continue
-            try:
-                t_ns = int(parts[0])
-                rate = int(parts[5])
-                win = int(parts[6])
-                t_s = t_ns / 1e9
-                
-                # Use steady-state period (middle 70% of transmission)
-                if rate > 0 and win > 0:
-                    rtt = (win * 8) / rate
-                    rtt_samples.append(rtt)
-            except (ValueError, IndexError):
-                continue
-    
-    if rtt_samples:
-        # Use median to avoid outliers
-        return statistics.median(rtt_samples)
-    return None
 
 
 def _parse_cwnd_file(cwnd_file):
@@ -287,7 +257,7 @@ def _draw_lines(ax, schedules):
 
 
 def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=None, rtt_ymax=None):
-    """Generate comprehensive CWND/Rate/RTT analysis dashboard."""
+    """Generate comprehensive CWND/Rate analysis dashboard."""
     
     # Parse data
     flows = _parse_cwnd_file(cwnd_file)
@@ -301,9 +271,6 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
     
     # Get statistics
     stats = _get_steady_state_stats(flows, fct_throughput_map)
-    rtt = _calculate_rtt_from_cwnd_data(cwnd_file)
-    rtt_us = rtt * 1e6 if rtt else None
-    
     # Parse schedules
     schedules = _parse_schedules(config_path) if config_path else {}
 
@@ -319,8 +286,8 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
     # Get line rate from topology
     line_rate_bps = _parse_topology_min_rate(topo_path) if topo_path else 1e9  # Default 1 Gbps
     
-    # Create figure with three plots
-    fig = plt.figure(figsize=(12, 14))
+    # Create figure with two plots
+    fig = plt.figure(figsize=(12, 10))
     
     # Add spacing at top for title
     fig.suptitle('CWND and Rate Analysis', 
@@ -357,7 +324,7 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
     if schedules: _draw_lines(ax1, schedules)
     
     # Rate vs Time (senders only - nodes 0 and 1)
-    ax2 = plt.subplot(312)
+    ax2 = plt.subplot(212)
     
     for idx, (flow_key, data) in enumerate(sorted(flows.items())):
         src, dst, sport, dport = flow_key
@@ -391,42 +358,6 @@ def plot_cwnd_rtt_analysis(cwnd_file, output_file, config_path=None, topo_path=N
     if line_rate_bps:
         ax2.set_ylim([0, line_rate_gbps * 1.1])
     if schedules: _draw_lines(ax2, schedules)
-    
-    # RTT vs Time (all flows)
-    ax3 = plt.subplot(313)
-    
-    for idx, (flow_key, data) in enumerate(sorted(flows.items())):
-        src, dst, sport, dport = flow_key
-        label = f"Flow {src}→{dst} ({sport})"
-        
-        # Calculate RTT for this flow dynamically
-        # RTT = (Win * 8) / Rate
-        rtt_us_series = []
-        t_series = []
-        for t, w, r in zip(data["t"], data["win"], data["rate"]):
-            if r > 0 and w > 0:
-                val = (w * 8.0 * 1e6) / r
-                # Cap RTT at 1s to avoid crazy plot scales
-                if val > 1e6: val = 1e6
-                rtt_us_series.append(val)
-                t_series.append(t)
-
-        line_style = linestyles[idx % len(linestyles)]
-        color = colors[idx % len(colors)]
-        
-        if rtt_us_series:
-            ax3.plot(t_series, rtt_us_series, label=label, linewidth=1.5,
-                    linestyle=line_style, color=color, alpha=0.9)
-    
-    ax3.set_xlabel('Time (s)', fontsize=11, fontweight='bold')
-    ax3.set_ylabel('RTT (µs)', fontsize=11, fontweight='bold')
-    if rtt_ymax:
-        ax3.set_ylim([0, rtt_ymax])
-    ax3.set_title('Round Trip Time Over Time', fontsize=12, fontweight='bold', pad=10)
-    ax3.grid(True, alpha=0.3)
-    ax3.legend(loc='best', fontsize=9)
-    if schedules: _draw_lines(ax3, schedules)
-
     
     plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.savefig(output_file, dpi=150, bbox_inches='tight')

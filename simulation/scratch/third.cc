@@ -443,6 +443,8 @@ void TakeDownLink(NodeContainer n, Ptr<Node> a, Ptr<Node> b){
 	}
 }
 
+extern std::string queue_depth_file;
+
 uint64_t get_nic_rate(NodeContainer &n){
 	for (uint32_t i = 0; i < n.GetN(); i++)
 		if (n.Get(i)->GetNodeType() == 0)
@@ -450,8 +452,37 @@ uint64_t get_nic_rate(NodeContainer &n){
 	return 0;
 }
 
+void print_progress(double stop_time) {
+	double now = Simulator::Now().GetSeconds();
+	int percent = (int)((now / stop_time) * 100);
+	
+	// Create a progress bar
+	int bar_width = 50;
+	int pos = bar_width * (now / stop_time);
+	
+	if (percent <= 100) {
+		std::cout << "[";
+		for (int i = 0; i < bar_width; ++i) {
+			if (i < pos) std::cout << "=";
+			else if (i == pos) std::cout << ">";
+			else std::cout << " ";
+		}
+		std::cout << "] " << percent << " %\r";
+		std::cout.flush();
+		
+		if (percent < 100) {
+			Simulator::Schedule(Seconds(0.1), &print_progress, stop_time);
+		} else {
+			std::cout << std::endl;
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
+	std::string data_dir = "";
+	std::string exp_name = "data";
+
 	clock_t begint, endt;
 	begint = clock();
 #ifndef PGO_TRAINING
@@ -828,6 +859,21 @@ int main(int argc, char *argv[])
 			}else if (key.compare("QLEN_MON_FILE") == 0){
 				conf >> qlen_mon_file;
 				std::cout << "QLEN_MON_FILE\t\t\t\t" << qlen_mon_file << '\n';
+				
+				// Set global queue depth file to be in the same directory
+				size_t last_slash = qlen_mon_file.find_last_of("\\/");
+				if (last_slash != std::string::npos) {
+					queue_depth_file = qlen_mon_file.substr(0, last_slash) + "/queue_depth.csv";
+				} else {
+					queue_depth_file = "queue_depth.csv";
+				}
+				std::cout << "QUEUE_DEPTH_FILE\t\t\t" << queue_depth_file << '\n';
+			}else if (key.compare("DATA_DIR") == 0){
+				conf >> data_dir;
+				std::cout << "DATA_DIR\t\t\t\t" << data_dir << '\n';
+			}else if (key.compare("EXP_NAME") == 0){
+				conf >> exp_name;
+				std::cout << "EXP_NAME\t\t\t\t" << exp_name << '\n';
 			}else if (key.compare("QLEN_MON_START") == 0){
 				conf >> qlen_mon_start;
 				std::cout << "QLEN_MON_START\t\t\t\t" << qlen_mon_start << '\n';
@@ -853,6 +899,32 @@ int main(int argc, char *argv[])
 			}
 			fflush(stdout);
 		}
+		
+		// Apply DATA_DIR and EXP_NAME to unify output paths if provided
+		if (!data_dir.empty()) {
+			if (data_dir.back() != '/') data_dir += '/';
+			fct_output_file = data_dir + "fct_" + exp_name + ".txt";
+			pfc_output_file = data_dir + "pfc_" + exp_name + ".txt";
+			cwnd_output_file = data_dir + "cwnd_" + exp_name + ".txt";
+			utilization_output_file = data_dir + "utilization_" + exp_name + ".txt";
+			rxbuf_output_file = data_dir + "rxbuf_" + exp_name + ".txt";
+			qlen_mon_file = data_dir + "qlen_" + exp_name + ".txt";
+			drop_output_file = data_dir + "drop_" + exp_name + ".txt";
+			trace_output_file = data_dir + "mix_" + exp_name + ".tr";
+			queue_depth_file = data_dir + "queue_depth.csv";
+			
+			std::cout << "\n--- Applied Unified Data Paths ---\n";
+			std::cout << "TRACE_OUTPUT_FILE\t\t" << trace_output_file << '\n';
+			std::cout << "FCT_OUTPUT_FILE\t\t\t" << fct_output_file << '\n';
+			std::cout << "PFC_OUTPUT_FILE\t\t\t" << pfc_output_file << '\n';
+			std::cout << "CWND_OUTPUT_FILE\t\t" << cwnd_output_file << '\n';
+			std::cout << "UTILIZATION_OUTPUT_FILE\t" << utilization_output_file << '\n';
+			std::cout << "RXBUF_OUTPUT_FILE\t\t" << rxbuf_output_file << '\n';
+			std::cout << "QLEN_MON_FILE\t\t\t" << qlen_mon_file << '\n';
+			std::cout << "QUEUE_DEPTH_FILE\t\t" << queue_depth_file << '\n';
+			std::cout << "----------------------------------\n\n";
+		}
+		
 		conf.close();
 	}
 	else
@@ -1338,6 +1410,9 @@ int main(int argc, char *argv[])
 	FILE* qlen_output = fopen(qlen_mon_file.c_str(), "w");
 	Simulator::Schedule(NanoSeconds(qlen_mon_start), &monitor_buffer, qlen_output, &n);
 
+	// Start progress print
+	Simulator::Schedule(Seconds(0.1), &print_progress, simulator_stop_time);
+
 	//
 	// Now, do the actual simulation.
 	//
@@ -1346,6 +1421,8 @@ int main(int argc, char *argv[])
 	NS_LOG_INFO("Run Simulation.");
 	Simulator::Stop(Seconds(simulator_stop_time));
 	Simulator::Run();
+	// Print final newline after progress bar
+	std::cout << "\n";
 	Simulator::Destroy();
 	/*
 	if (enable_anim && anim){
@@ -1357,6 +1434,8 @@ int main(int argc, char *argv[])
 	fclose(trace_output);
 	if (cwnd_output)
 		fclose(cwnd_output);
+	if (utilization_output)
+		fclose(utilization_output);
 
 	endt = clock();
 	std::cout << (double)(endt - begint) / CLOCKS_PER_SEC << "\n";
