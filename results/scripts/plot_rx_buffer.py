@@ -20,6 +20,8 @@ def parse_config(config_file):
         "rx_buffer_per_queue": None,
         "receiver_nodes": set(),
         "flow_file": None,
+        "exp_name": None,
+        "flow_start_times": [],
     }
     if not config_file or not os.path.exists(config_file):
         return config
@@ -52,11 +54,18 @@ def parse_config(config_file):
                     pass
             elif parts[0] == 'FLOW_FILE':
                 config["flow_file"] = parts[1]
+            elif parts[0] == 'EXP_NAME':
+                config["exp_name"] = parts[1]
 
     if not config["receiver_nodes"] and config["flow_file"]:
         flow_path = _resolve_relative_path(config_file, config["flow_file"])
         if flow_path and flow_path.exists():
             config["receiver_nodes"] = _parse_flow_receivers(flow_path)
+
+    if config["flow_file"]:
+        flow_path = _resolve_relative_path(config_file, config["flow_file"])
+        if flow_path and flow_path.exists():
+            config["flow_start_times"] = _parse_flow_start_times(flow_path)
 
     return config
 
@@ -65,7 +74,19 @@ def _resolve_relative_path(config_file, path_str):
     path = Path(path_str)
     if path.is_absolute():
         return path
-    return (Path(config_file).parent / path).resolve()
+
+    # Support both config-relative and repo-relative conventions used across cases.
+    repo_root = Path(__file__).resolve().parents[2]
+    candidates = [
+        (Path(config_file).parent / path).resolve(),
+        (Path.cwd() / path).resolve(),
+        (repo_root / path).resolve(),
+        (repo_root / "simulation" / path).resolve(),
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return candidates[0]
 
 
 def _parse_flow_receivers(flow_path):
@@ -82,6 +103,22 @@ def _parse_flow_receivers(flow_path):
                 except ValueError:
                     continue
     return receivers
+
+
+def _parse_flow_start_times(flow_path):
+    starts = []
+    with open(flow_path, 'r') as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if len(parts) >= 6:
+                try:
+                    starts.append(float(parts[5]))
+                except ValueError:
+                    continue
+    return sorted(set(starts))
 
 
 def parse_schedules(config_file):
@@ -157,6 +194,8 @@ def plot_rx_buffer(filename, output_file=None, config_file=None):
     max_buffer_per_queue = 1048576
     receiver_nodes = set()
     schedules = {}
+    exp_name = None
+    flow_start_times = []
     if config_file:
         parsed = parse_config(config_file)
         if parsed["rx_buffer_size"] is not None:
@@ -164,6 +203,8 @@ def plot_rx_buffer(filename, output_file=None, config_file=None):
         if parsed["rx_buffer_per_queue"] is not None:
             max_buffer_per_queue = parsed["rx_buffer_per_queue"]
         receiver_nodes = parsed["receiver_nodes"]
+        exp_name = parsed.get("exp_name")
+        flow_start_times = parsed.get("flow_start_times", [])
         schedules = parse_schedules(config_file)
 
     if receiver_nodes:
@@ -241,6 +282,15 @@ def plot_rx_buffer(filename, output_file=None, config_file=None):
                 plt.axvline(x=time, color='gray', linestyle=':', alpha=0.6)
                 # Annotate the rate
                 plt.text(time, plt.ylim()[1] * 0.95, f' t={time}s\nRate={rate}', rotation=90, verticalalignment='top', fontsize=8, color='black', fontweight='bold')
+
+    # Case-specific markers for elephants_rx_buffer experiments only.
+    if exp_name in {"elephants_rx_buffer_HPPC", "elephants_rx_buffer_HPPC_Plus"} and flow_start_times:
+        ymax = plt.ylim()[1]
+        for idx, t in enumerate(flow_start_times):
+            plt.axvline(x=t, color='purple', linestyle='--', alpha=0.7, linewidth=1.2)
+            if idx % 2 == 0:
+                plt.text(t, ymax * 0.90, f'flow start {t:.1f}s', rotation=90,
+                         verticalalignment='top', fontsize=8, color='purple')
 
 
     plt.xlabel("Time (s)")
