@@ -15,6 +15,7 @@ results/data/*.png
 results/data/*.xml
 **/*.png
 .agents/
+.vscode/
 
 # Study Cases configuration
 !results/study_cases/

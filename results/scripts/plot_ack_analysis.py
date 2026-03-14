@@ -5,39 +5,45 @@ from pathlib import Path
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
-def parse_cwnd_extra(cwnd_file):
+import struct
+import os
+from trace_parsers import parse_cwnd_ack
+
+
+def _new_flow_state():
+    return {
+        "t": [],
+        "seq": [],
+        "rtt": [],
+        "step": 1,
+        "i": 0,
+    }
+
+
+def _append_sampled(flow, t_s, ack_seq, rtt_us, max_points):
+    # One-pass bounded decimation: append at current stride and compact when needed.
+    if flow["i"] % flow["step"] == 0:
+        flow["t"].append(t_s)
+        flow["seq"].append(ack_seq)
+        flow["rtt"].append(rtt_us)
+
+        if len(flow["t"]) > max_points:
+            flow["t"] = flow["t"][::2]
+            flow["seq"] = flow["seq"][::2]
+            flow["rtt"] = flow["rtt"][::2]
+            flow["step"] *= 2
+
+    flow["i"] += 1
+
+
+def parse_cwnd_extra(cwnd_file, max_points_per_flow=120000, read_stride=1):
     """Parse CWND file returning flows with time, seq, and rtt."""
-    flows = defaultdict(lambda: {"t": [], "seq": [], "rtt": []})
-    
-    with open(cwnd_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) < 9:
-                continue
-            try:
-                t_ns = int(parts[0])
-                src = int(parts[1])
-                dst = int(parts[2])
-                sport = int(parts[3])
-                dport = int(parts[4])
-                
-                # Check if rtt and seq are available and valid
-                lastRtt = int(parts[7])
-                lastAckSeq = int(parts[8])
-                
-                key = (src, dport)  # simplify key to src and dport for flow identification
-                flows[key]["t"].append(t_ns / 1e9)
-                flows[key]["seq"].append(lastAckSeq)
-                # Filter out garbage timestamps (integer underflows)
-                # Max realistic RTT in this network is < 100ms (100,000,000 ns)
-                if lastRtt < 100000000:
-                    flows[key]["rtt"].append(lastRtt / 1000.0) # convert to us
-                else:
-                    # Append None to maintain index alignment if necessary, or just skip
-                    flows[key]["rtt"].append(None)
-            except (ValueError, IndexError):
-                pass
-                
+    flows = parse_cwnd_ack(cwnd_file, read_stride=read_stride)
+    for flow in flows.values():
+        while len(flow["t"]) > max_points_per_flow:
+            flow["t"] = flow["t"][::2]
+            flow["seq"] = flow["seq"][::2]
+            flow["rtt"] = flow["rtt"][::2]
     return flows
 
 def _parse_schedules(config_file):
@@ -91,8 +97,8 @@ def _draw_lines(ax, schedules):
                         transform=ax.get_xaxis_transform(),
                         verticalalignment='top', fontsize=8, color='black', alpha=0.7)
 
-def plot_ack_analysis(cwnd_file, output_file, config_path=None):
-    flows = parse_cwnd_extra(cwnd_file)
+def plot_ack_analysis(cwnd_file, output_file, config_path=None, max_points_per_flow=120000, read_stride=1):
+    flows = parse_cwnd_extra(cwnd_file, max_points_per_flow=max_points_per_flow, read_stride=read_stride)
     if not flows:
         print("ERROR: No tracking data found in CWND file. Make sure simulator logs the extra 2 columns.")
         return
@@ -165,7 +171,17 @@ if __name__ == "__main__":
     parser.add_argument("cwnd_file", help="Input CWND text file")
     parser.add_argument("output_file", nargs="?", help="Output PNG file")
     parser.add_argument("config_path", nargs="?", help="Configuration file path")
+    parser.add_argument("--max-points-per-flow", type=int, default=120000,
+                        help="Bounded sampled points per flow to prevent plot hangs")
+    parser.add_argument("--read-stride", type=int, default=1,
+                        help="Read every Nth record to speed up very large traces")
     args = parser.parse_args()
-    
+
     output_file = args.output_file if args.output_file else args.cwnd_file.replace('.txt', '_ack_analysis.png')
-    plot_ack_analysis(args.cwnd_file, output_file, config_path=args.config_path)
+    plot_ack_analysis(
+        args.cwnd_file,
+        output_file,
+        config_path=args.config_path,
+        max_points_per_flow=args.max_points_per_flow,
+        read_stride=max(1, args.read_stride),
+    )

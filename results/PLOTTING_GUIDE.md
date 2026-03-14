@@ -14,7 +14,7 @@ cd /workspaces/High-Precision-Congestion-Control-Plus/results
 python3 run_all_plots.py
 
 # Run for a specific study case or alternative directory
-python3 run_all_plots.py --base-dir study_cases/case4_large_rx_buffer_HPCC
+python3 run_all_plots.py --base-dir study_cases/dynamic_pulling_rate/case1_dynamic_pulling_rate_HPCC
 ```
 
 ## What It Does
@@ -24,6 +24,7 @@ The script automatically:
 2. **Runs** all plot scripts with appropriate arguments
 3. **Generates** visualization PNG files
 4. **Reports** success/failure for each script
+5. **Writes outputs in-place** under the selected base directory's `plots/` and `interactive_plots/`
 
 ## Plots Generated
 
@@ -56,11 +57,15 @@ The master script generates both static PNGs (in `plots/`) and interactive HTML 
 
 Generated static plots are saved in the `plots/` directory, while interactive HTML files are saved to `interactive_plots/`. Filenames are descriptive and include the specific simulation tag.
 
+When you pass `--base-dir`, those output directories are resolved relative to that case directory. This is the intended way to regenerate plots for study cases after running `simulation/run.sh` for a case-specific config.
+
 ## Notes
 
 - The script handles various argument formats and config finding automatically
+- For study cases, prefer `run_all_plots.py --base-dir <case_dir>` over running individual plot scripts manually
 - Some scripts may have specific data requirements (e.g., traces)
 - Failed scripts are reported in the summary but don't halt execution
+- Static plot counts can vary slightly by case even when the summary reports success for all scripts
 - Typical runtime: 2-5 minutes depending on data size
 
 ## Manual Running Individual Scripts

@@ -115,7 +115,7 @@ def parse_flows_details(flows_file):
                         # Expected format: src dst proto dst_port size start_time
                         dstport = int(parts[3]) if parts[3].isdigit() else None
                         size = int(parts[4]) if parts[4].isdigit() else None
-                        start_time = int(parts[5]) if parts[5].isdigit() else None
+                        start_time = float(parts[5])
                     except (ValueError, IndexError):
                         continue
                     flows.append({
@@ -230,7 +230,9 @@ def plot_topology(topo_file, output_file='topology.png', flows_file=None):
             src_label = nodes.get(f['src'], f"H{f['src']}")
             dst_label = nodes.get(f['dst'], f"H{f['dst']}")
             size_fmt = format_size(f['size'])
-            table_data.append([i, src_label, dst_label, f['dstport'], size_fmt, f"{f['start_time']:.1f} s"])
+            start_time = f['start_time']
+            start_label = f"{start_time:.1f} s" if start_time is not None else "N/A"
+            table_data.append([i, src_label, dst_label, f['dstport'], size_fmt, start_label])
 
         col_labels = ['Flow ID', 'Source', 'Destination', 'Dest Port', 'Flow Size', 'Start Time']
         table = ax_table.table(cellText=table_data, colLabels=col_labels, loc='center', cellLoc='center')

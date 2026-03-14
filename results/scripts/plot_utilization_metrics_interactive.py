@@ -72,14 +72,27 @@ def group_by_qp(rows):
     return grouped
 
 
-def subsample_rows(rows, max_points=10000):
+def subsample_rows(rows, max_points=10000, value_fn=None):
     if len(rows) <= max_points:
         return rows
     step = max(1, len(rows) // max_points)
-    sampled = rows[::step]
-    if sampled[-1] is not rows[-1]:
-        sampled.append(rows[-1])
-    return sampled
+    indices = list(range(0, len(rows), step))
+    if indices[-1] != len(rows) - 1:
+        indices.append(len(rows) - 1)
+
+    if value_fn is not None:
+        values = []
+        for idx, row in enumerate(rows):
+            v = value_fn(row)
+            if v is None:
+                continue
+            values.append((idx, v))
+        if values:
+            indices.append(max(values, key=lambda iv: iv[1])[0])
+            indices.append(min(values, key=lambda iv: iv[1])[0])
+
+    indices = sorted(set(indices))
+    return [rows[i] for i in indices]
 
 
 def label(rows):
@@ -150,7 +163,10 @@ def build_interactive_plot(trace_file, output_file, config_file=None):
     traces = []
     for field, _, scale, yaxis, xaxis, _ in metric_specs:
         for _, qp_rows in sorted(grouped.items()):
-            sampled = subsample_rows(qp_rows)
+            sampled = subsample_rows(
+                qp_rows,
+                value_fn=(lambda row, f=field: row[f] if (f == 'u_max' or row[f] >= 0) else None),
+            )
             xs = []
             ys = []
             for row in sampled:

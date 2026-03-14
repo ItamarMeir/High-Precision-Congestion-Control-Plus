@@ -4,6 +4,7 @@ import argparse
 import struct
 from collections import defaultdict
 from pathlib import Path
+import numpy as np
 
 import matplotlib.pyplot as plt
 import ctypes
@@ -83,6 +84,24 @@ class Trace(ctypes.LittleEndianStructure):
     ]
 
 
+TRACE_DTYPE = np.dtype([
+    ("time", "<u8"),
+    ("node", "<u2"),
+    ("intf", "<u1"),
+    ("qidx", "<u1"),
+    ("qlen", "<u4"),
+    ("sip", "<u4"),
+    ("dip", "<u4"),
+    ("size", "<u2"),
+    ("l3Prot", "<u1"),
+    ("event", "<u1"),
+    ("ecn", "<u1"),
+    ("nodeType", "<u1"),
+    ("_pad0", "<u2"),
+    ("u_raw", "V24"),
+])
+
+
 def _read_sim_setting(f):
     raw = f.read(4)
     if len(raw) < 4:
@@ -112,22 +131,97 @@ def _iter_traces(trace_path):
             yield port_speed, Trace.from_buffer_copy(buf)
 
 
+def parse_switch_dequeue_bins(trace_path, bin_s, peak_bin_s=None):
+    """Parse switch dequeue events from mix trace into coarse/fine bins.
+
+    Returns: (port_speed, node_intf_bytes, node_intf_bytes_fine)
+    """
+    trace_path = Path(trace_path)
+    bin_ns = int(float(bin_s) * 1e9)
+    fine_bin_ns = int(float(peak_bin_s) * 1e9) if peak_bin_s else None
+
+    with trace_path.open("rb") as f:
+        port_speed = _read_sim_setting(f)
+        node_intf_bytes = defaultdict(lambda: defaultdict(int))
+        node_intf_bytes_fine = defaultdict(lambda: defaultdict(int)) if fine_bin_ns else None
+
+        rec_size = TRACE_DTYPE.itemsize
+        chunk_records = 1 << 18
+        chunk_size = rec_size * chunk_records
+
+        while True:
+            raw = f.read(chunk_size)
+            if not raw:
+                break
+            valid = len(raw) - (len(raw) % rec_size)
+            if valid <= 0:
+                break
+            arr = np.frombuffer(raw[:valid], dtype=TRACE_DTYPE)
+
+            # Some traces do not set nodeType reliably; event==2 marks dequeue samples.
+            mask = arr["event"] == 2
+            if not np.any(mask):
+                continue
+
+            data = arr[mask]
+            bins = (data["time"] // bin_ns).astype(np.int64)
+            keys = np.empty(data.shape[0], dtype=[("b", "<i8"), ("n", "<u2"), ("i", "<u1")])
+            keys["b"] = bins
+            keys["n"] = data["node"]
+            keys["i"] = data["intf"]
+            uniq, inv = np.unique(keys, return_inverse=True)
+            sums = np.bincount(inv, weights=data["size"].astype(np.float64))
+            for k, s in zip(uniq, sums):
+                node_intf_bytes[(int(k["n"]), int(k["i"]))][int(k["b"])] += int(s)
+
+            if node_intf_bytes_fine is not None and fine_bin_ns and fine_bin_ns > 0:
+                fine_bins = (data["time"] // fine_bin_ns).astype(np.int64)
+                fkeys = np.empty(data.shape[0], dtype=[("b", "<i8"), ("n", "<u2"), ("i", "<u1")])
+                fkeys["b"] = fine_bins
+                fkeys["n"] = data["node"]
+                fkeys["i"] = data["intf"]
+                funiq, finv = np.unique(fkeys, return_inverse=True)
+                fsums = np.bincount(finv, weights=data["size"].astype(np.float64))
+                for k, s in zip(funiq, fsums):
+                    node_intf_bytes_fine[(int(k["n"]), int(k["i"]))][int(k["b"])] += int(s)
+
+    return port_speed, node_intf_bytes, node_intf_bytes_fine
+
+
 def _parse_topology_links(topo_path):
     links = []
+    switch_ids = set()
     with open(topo_path, "r") as f:
-        for raw in f:
-            line = raw.strip()
-            if not line or line.startswith("#"):
+        lines = [raw.strip() for raw in f if raw.strip() and not raw.startswith("#")]
+
+    if not lines:
+        return links, switch_ids
+
+    start_idx = 1
+    header = lines[0].split()
+    if len(lines) > 1 and len(header) > 1:
+        second = lines[1].split()
+        try:
+            num_switches = int(header[1])
+        except ValueError:
+            num_switches = 0
+        if num_switches > 0 and len(second) == num_switches:
+            try:
+                switch_ids = {int(value) for value in second}
+            except ValueError:
+                switch_ids = set()
+            start_idx = 2
+
+    for line in lines[start_idx:]:
+        parts = line.split()
+        if len(parts) >= 3:
+            try:
+                a = int(parts[0])
+                b = int(parts[1])
+            except ValueError:
                 continue
-            parts = line.split()
-            if len(parts) >= 3:
-                try:
-                    a = int(parts[0])
-                    b = int(parts[1])
-                except ValueError:
-                    continue
-                links.append((a, b))
-    return links
+            links.append((a, b))
+    return links, switch_ids
 
 
 def _build_port_map(links):
@@ -225,34 +319,39 @@ def plot_switch_throughput(trace_path, out_path, bin_ms, topo_path=None, flow_pa
     port_speed = None
     bytes_per_bin_switch = defaultdict(lambda: defaultdict(int))
     bytes_per_bin_port = defaultdict(int)
-    t0 = None
 
     port_map = None
     intf_map = None
+    switch_ids = set()
     if topo_path:
-        links = _parse_topology_links(topo_path)
+        links, switch_ids = _parse_topology_links(topo_path)
         port_map, intf_map = _build_port_map(links)
     if dst_node is None and flow_path:
         dst_node = _infer_receiver_from_flows(flow_path)
     if sw_node is None and dst_node is not None and port_map is not None:
         sw_node = _infer_switch_for_receiver(port_map, dst_node)
 
-    for ps, tr in _iter_traces(trace_path):
-        if port_speed is None:
-            port_speed = ps
-        if tr.nodeType != 1:
+    port_speed, node_intf_bytes, _ = parse_switch_dequeue_bins(trace_path, bin_ms / 1000.0)
+    for (node, intf), bins in node_intf_bytes.items():
+        if switch_ids and node not in switch_ids:
             continue
-        switch_nodes.add(tr.node)
-        if tr.event != 2:  # Dequ
-            continue
-        # Use absolute time for binning (no t0 shift)
-        idx = tr.time // bin_ns
-        bytes_per_bin_switch[idx][tr.node] += int(tr.size)
+        switch_nodes.add(node)
+        for idx, bsum in bins.items():
+            bytes_per_bin_switch[idx][node] += int(bsum)
 
-        if sw_node is not None and dst_node is not None and intf_map is not None:
-            dst_intf = intf_map.get((sw_node, dst_node))
-            if dst_intf is not None and tr.node == sw_node and tr.intf == dst_intf:
-                bytes_per_bin_port[idx] += int(tr.size)
+    if not bytes_per_bin_switch and node_intf_bytes:
+        print("Warning: Topology switch IDs do not match dequeue trace nodes; using all dequeue-producing nodes")
+        for (node, intf), bins in node_intf_bytes.items():
+            switch_nodes.add(node)
+            for idx, bsum in bins.items():
+                bytes_per_bin_switch[idx][node] += int(bsum)
+
+    if sw_node is not None and dst_node is not None and intf_map is not None:
+        dst_intf = intf_map.get((sw_node, dst_node))
+        if dst_intf is not None:
+            bins = node_intf_bytes.get((sw_node, dst_intf), {})
+            for idx, bsum in bins.items():
+                bytes_per_bin_port[idx] += int(bsum)
 
     
     # helper for plotting lines
@@ -280,40 +379,40 @@ def plot_switch_throughput(trace_path, out_path, bin_ms, topo_path=None, flow_pa
             raise RuntimeError("Port speed for selected switch/port not found in trace header")
 
         if not bytes_per_bin_port:
-            raise RuntimeError("No dequeue events found for selected switch port")
+            print("Warning: No dequeue events found for inferred switch port; falling back to aggregate switch throughput")
+        else:
+            max_bin = max(bytes_per_bin_port.keys())
+            times = []
+            thr_bps = []
+            util = []
+            cap = port_speed[sw_node][dst_port]
+            for b in range(max_bin + 1):
+                bytes_sw = bytes_per_bin_port.get(b, 0)
+                bps = (bytes_sw * 8.0) / (bin_ms / 1000.0)
+                thr_bps.append(bps)
+                util.append((bps / cap) * 100.0 if cap > 0 else 0.0)
+                times.append((b * bin_ns) / 1e9)
 
-        max_bin = max(bytes_per_bin_port.keys())
-        times = []
-        thr_bps = []
-        util = []
-        cap = port_speed[sw_node][dst_port]
-        for b in range(max_bin + 1):
-            bytes_sw = bytes_per_bin_port.get(b, 0)
-            bps = (bytes_sw * 8.0) / (bin_ms / 1000.0)
-            thr_bps.append(bps)
-            util.append((bps / cap) * 100.0 if cap > 0 else 0.0)
-            times.append((b * bin_ns) / 1e9)
+            plt.figure(figsize=(10, 6))
+            ax1 = plt.subplot(2, 1, 1)
+            ax1.plot(times, [v / 1e9 for v in thr_bps], linewidth=1.3)
+            ax1.set_ylabel("Throughput (Gbps)")
+            ax1.set_title(f"Switch {sw_node} -> Node {dst_node} Throughput")
+            ax1.grid(True, alpha=0.3)
+            if schedules: _draw_lines(ax1, schedules)
 
-        plt.figure(figsize=(10, 6))
-        ax1 = plt.subplot(2, 1, 1)
-        ax1.plot(times, [v / 1e9 for v in thr_bps], linewidth=1.3)
-        ax1.set_ylabel("Throughput (Gbps)")
-        ax1.set_title(f"Switch {sw_node} -> Node {dst_node} Throughput")
-        ax1.grid(True, alpha=0.3)
-        if schedules: _draw_lines(ax1, schedules)
+            ax2 = plt.subplot(2, 1, 2)
+            ax2.plot(times, util, linewidth=1.3, color="orange")
+            ax2.set_xlabel("Time (s)")
+            ax2.set_ylabel("Utilization (%)")
+            ax2.set_title(f"Switch {sw_node} -> Node {dst_node} Utilization")
+            ax2.grid(True, alpha=0.3)
+            if schedules: _draw_lines(ax2, schedules)
 
-        ax2 = plt.subplot(2, 1, 2)
-        ax2.plot(times, util, linewidth=1.3, color="orange")
-        ax2.set_xlabel("Time (s)")
-        ax2.set_ylabel("Utilization (%)")
-        ax2.set_title(f"Switch {sw_node} -> Node {dst_node} Utilization")
-        ax2.grid(True, alpha=0.3)
-        if schedules: _draw_lines(ax2, schedules)
-
-        plt.tight_layout()
-        plt.savefig(out_path, dpi=150)
-        plt.close()
-        return
+            plt.tight_layout()
+            plt.savefig(out_path, dpi=150)
+            plt.close()
+            return
 
     if not bytes_per_bin_switch:
         raise RuntimeError("No switch dequeue events found in trace")

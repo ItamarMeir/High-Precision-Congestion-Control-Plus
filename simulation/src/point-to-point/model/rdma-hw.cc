@@ -14,10 +14,11 @@
 #include "cn-header.h"
 #include <algorithm>
 #include <fstream>
+#include "trace-format.h"
 
 
 std::ofstream queue_depth_log; /* global log file for queue depth */
-std::string queue_depth_file = "queue_depth.csv"; /* global log file path for queue depth */
+std::string queue_depth_file = "queue_depth.tr"; /* global log file path for queue depth */
 
 #define printf(...) // silence
 namespace ns3{
@@ -889,15 +890,16 @@ void RdmaHw::HyperIncreaseMlx(Ptr<RdmaQueuePair> q){
  ***********************/
 void RdmaHw::HandleAckHp(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader &ch){
        if (!queue_depth_log.is_open()) {
-           queue_depth_log.open(queue_depth_file, std::ios_base::app);
-           queue_depth_log << "Time,QpId,Hop,Qlen" << std::endl;
+           queue_depth_log.open(queue_depth_file, std::ios_base::binary | std::ios_base::app);
        }
        IntHeader &ih = ch.ack.ih;
        for (uint32_t i = 0; i < ih.nhop; i++) {
-           queue_depth_log << Simulator::Now().GetSeconds() << "," 
-                          << qp->GetHash() << "," 
-                          << i << "," 
-                          << ih.hop[i].GetQlen() << std::endl;
+           QueueDepthTrace entry;
+           entry.time = Simulator::Now().GetNanoSeconds();
+           entry.qpId = qp->GetHash();
+           entry.hop = i;
+           entry.qlen = ih.hop[i].GetQlen();
+           queue_depth_log.write(reinterpret_cast<const char*>(&entry), sizeof(entry));
        }
 	uint32_t ack_seq = ch.ack.seq;
 	// update rate

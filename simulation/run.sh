@@ -118,7 +118,11 @@ echo -e "${GREEN}✓ Simulation completed!${NC}"
 echo ""
 
 
-DATAPATH=$(grep "^DATA_DIR" $CONF | awk '{print $2}')
+# Resolve output data path from the config used for this run.
+DATAPATH=""
+if [ -f "$CONFIG_FILE" ]; then
+    DATAPATH=$(awk '$1=="DATA_DIR" {print $2; exit}' "$CONFIG_FILE")
+fi
 if [ -z "$DATAPATH" ]; then
     DATAPATH="/workspace/results/data/"
 fi

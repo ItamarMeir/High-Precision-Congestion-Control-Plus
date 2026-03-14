@@ -97,7 +97,7 @@ def _select_file_in(base_dir, subdir, preferred, fallback):
 
 
 def _parse_queue_depth_csv(csv_path):
-    """Parse queue_depth.csv (INT per-packet data) and return time-binned max Qlen.
+    """Parse queue_depth.csv/.tr (INT per-packet data) and return time-binned max Qlen.
     Returns (times_s, max_qlen_bytes) aggregated into 1ms bins.
     """
     if not csv_path or not os.path.exists(csv_path):
@@ -105,25 +105,46 @@ def _parse_queue_depth_csv(csv_path):
 
     raw = defaultdict(int)  # bin_index -> max qlen in that bin
     bin_s = 0.001  # 1ms bins
-    try:
-        with open(csv_path, "r") as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            for row in reader:
-                if not row or len(row) < 4:
-                    continue
-                try:
-                    t = float(row[0])
-                    # For dashboard, we take max across all hops for simplicity
-                    qlen = int(row[3])
-                    b = int(t / bin_s)
+    is_binary = csv_path.endswith('.tr')
+    if is_binary:
+        try:
+            import struct
+            # QueueDepthTrace: time(Q), qpId(I), hop(I), qlen(I)
+            fmt = "QIII"
+            sz = struct.calcsize(fmt)
+            with open(csv_path, 'rb') as f:
+                while True:
+                    data = f.read(sz)
+                    if not data or len(data) < sz:
+                        break
+                    t_ns, qp_id, hop, qlen = struct.unpack(fmt, data)
+                    b = int((t_ns / 1e9) / bin_s)
                     if qlen > raw[b]:
                         raw[b] = qlen
-                except (ValueError, IndexError):
-                    continue
-    except Exception as e:
-        print(f"Error parsing {csv_path}: {e}")
-        return [], []
+        except Exception as e:
+            print(f"Error parsing binary {csv_path}: {e}")
+            is_binary = False
+
+    if not is_binary:
+        try:
+            with open(csv_path, "r") as f:
+                reader = csv.reader(f)
+                header = next(reader, None)
+                for row in reader:
+                    if not row or len(row) < 4:
+                        continue
+                    try:
+                        t = float(row[0])
+                        # For dashboard, we take max across all hops for simplicity
+                        qlen = int(row[3])
+                        b = int(t / bin_s)
+                        if qlen > raw[b]:
+                            raw[b] = qlen
+                    except (ValueError, IndexError):
+                        continue
+        except Exception as e:
+            print(f"Error parsing {csv_path}: {e}")
+            return [], []
 
     if not raw:
         return [], []
@@ -152,9 +173,11 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
         q_csv = kwargs['qlen_file']
     else:
         # Check standard data locations
-        q_csv = _select_file(base_dir, 'queue_depth.csv', 'data/queue_depth.csv')
+        q_csv = _select_file(base_dir, 'queue_depth.tr', 'queue_depth.csv')
         if not q_csv:
-            q_csv = _select_file_in(base_dir, 'outputs', 'queue_depth.csv', 'qlen.txt')
+            q_csv = _select_file(base_dir, 'data/queue_depth.tr', 'data/queue_depth.csv')
+        if not q_csv:
+            q_csv = _select_file_in(base_dir, 'outputs', 'queue_depth.tr', 'queue_depth.csv')
         
     if q_csv and os.path.exists(q_csv):
         qlen_times, qlen_values = _parse_queue_depth_csv(q_csv)
@@ -171,19 +194,45 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
         fct_file = _select_file_in(base_dir, os.path.join('outputs', 'fct'), 'fct_fat_k4.txt', 'fct.txt')
         
     if fct_file and os.path.exists(fct_file):
-        with open(fct_file, 'r') as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) >= 8:
-                    try:
+        # Try binary first
+        is_binary = fct_file.endswith('.tr')
+        if is_binary:
+            try:
+                import struct
+                # FctTrace: sip(I), dip(I), sport(I), dport(I), size(Q), startTime(Q), fct(Q), standaloneFct(Q)
+                fmt = "IIIIQQQQ"
+                sz = struct.calcsize(fmt)
+                with open(fct_file, 'rb') as f:
+                    while True:
+                        data = f.read(sz)
+                        if not data or len(data) < sz:
+                            break
+                        parts = struct.unpack(fmt, data)
                         fct_data.append({
-                            'size': int(parts[7]),
-                            'fct': int(parts[6]) / 1e6,  # ms
-                            'base_fct': int(parts[4]) / 1e6,
-                            'start': int(parts[5]) / 1e9  # s
+                            'size': parts[4],
+                            'fct': parts[6] / 1e6,  # ms
+                            'base_fct': parts[7] / 1e6,
+                            'start': parts[5] / 1e9  # s
                         })
-                    except ValueError:
-                        pass
+            except Exception as e:
+                print(f"Error parsing binary FCT file {fct_file}: {e}")
+                is_binary = False
+
+        if not is_binary:
+            with open(fct_file, 'r') as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if len(parts) >= 8:
+                        try:
+                            # Format in third.cc: sip dip sport dport size start_time fct standalone_fct
+                            fct_data.append({
+                                'size': int(parts[4]),
+                                'fct': int(parts[6]) / 1e6,  # ms
+                                'base_fct': int(parts[7]) / 1e6,
+                                'start': int(parts[5]) / 1e9  # s
+                            })
+                        except ValueError:
+                            pass
     
     # Config Logic
     config_path = _select_file_in(base_dir, 'configs', 'config_fat_k4.txt', 'config.txt')

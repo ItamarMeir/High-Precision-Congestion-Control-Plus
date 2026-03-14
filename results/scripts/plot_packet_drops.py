@@ -17,22 +17,44 @@ def _parse_pfc(pfc_file, bin_us):
     bin_ns = bin_us * 1000
     bins = {}
     min_time = None
-    with open(pfc_file, "r") as f:
-        for raw in f:
-            parts = raw.strip().split()
-            if len(parts) < 5:
-                continue
-            try:
-                t_ns = int(parts[0])
-                event_type = int(parts[4])
-            except ValueError:
-                continue
-            if event_type != 1:
-                continue  # pause only
-            if min_time is None or t_ns < min_time:
-                min_time = t_ns
-            b = t_ns // bin_ns
-            bins[b] = bins.get(b, 0) + 1
+    is_binary = pfc_file.endswith('.tr')
+    if is_binary:
+        try:
+            import struct
+            # PfcTrace: time(Q), node(I), nodeType(I), intf(I), pfcType(I)
+            fmt = "QIIII"
+            sz = struct.calcsize(fmt)
+            with open(pfc_file, 'rb') as f:
+                while True:
+                    data = f.read(sz)
+                    if not data or len(data) < sz: break
+                    p = struct.unpack(fmt, data)
+                    t_ns, event_type = p[0], p[4]
+                    if event_type != 1: continue 
+                    if min_time is None or t_ns < min_time: min_time = t_ns
+                    b = t_ns // bin_ns
+                    bins[b] = bins.get(b, 0) + 1
+        except Exception as e:
+            print(f"Error parsing binary PFC: {e}")
+            is_binary = False
+
+    if not is_binary:
+        with open(pfc_file, "r") as f:
+            for raw in f:
+                parts = raw.strip().split()
+                if len(parts) < 5:
+                    continue
+                try:
+                    t_ns = int(parts[0])
+                    event_type = int(parts[4])
+                except ValueError:
+                    continue
+                if event_type != 1:
+                    continue  # pause only
+                if min_time is None or t_ns < min_time:
+                    min_time = t_ns
+                b = t_ns // bin_ns
+                bins[b] = bins.get(b, 0) + 1
             
     if not bins:
         return [], []
@@ -57,26 +79,51 @@ def plot_packet_drops(filename, output_file=None, pfc_file=None, pfc_bin_us=1000
     total_bytes_dropped = 0
     
     if filename and os.path.exists(filename):
-        with open(filename, "r") as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) < 5:
-                    continue
-                try:
-                    t_ns = int(parts[0])
-                    node = int(parts[1])
-                    ifidx = int(parts[2])
-                    qidx = int(parts[3])
-                    pkt_size = int(parts[4])
-                except ValueError:
-                    continue
-                
-                drops_per_node[node] += 1
-                drops_per_node_bytes[node] += pkt_size
-                drops_per_queue[node][qidx] += 1
-                total_drops += 1
-                total_bytes_dropped += pkt_size
-                drops_timeline[node].append((t_ns / 1e9, drops_per_node[node]))
+        is_binary = filename.endswith('.tr')
+        if is_binary:
+            try:
+                import struct
+                # DropTrace: time(Q), node(I), intf(I), qIndex(I), size(I)
+                fmt = "QIIII"
+                sz = struct.calcsize(fmt)
+                with open(filename, 'rb') as f:
+                    while True:
+                        data = f.read(sz)
+                        if not data or len(data) < sz: break
+                        p = struct.unpack(fmt, data)
+                        t_ns, node, ifidx, qidx, pkt_size = p
+                        
+                        drops_per_node[node] += 1
+                        drops_per_node_bytes[node] += pkt_size
+                        drops_per_queue[node][qidx] += 1
+                        total_drops += 1
+                        total_bytes_dropped += pkt_size
+                        drops_timeline[node].append((t_ns / 1e9, drops_per_node[node]))
+            except Exception as e:
+                print(f"Error parsing binary Drops: {e}")
+                is_binary = False
+
+        if not is_binary:
+            with open(filename, "r") as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if len(parts) < 5:
+                        continue
+                    try:
+                        t_ns = int(parts[0])
+                        node = int(parts[1])
+                        ifidx = int(parts[2])
+                        qidx = int(parts[3])
+                        pkt_size = int(parts[4])
+                    except ValueError:
+                        continue
+                    
+                    drops_per_node[node] += 1
+                    drops_per_node_bytes[node] += pkt_size
+                    drops_per_queue[node][qidx] += 1
+                    total_drops += 1
+                    total_bytes_dropped += pkt_size
+                    drops_timeline[node].append((t_ns / 1e9, drops_per_node[node]))
     
     # Parse PFC if provided
     pfc_times, pfc_counts = [], []

@@ -124,21 +124,16 @@ def plot_trace(trace_file, out_path, config_file=None):
                     hires_data[int(p[1])].append((int(p[0])/1e9, float(p[2])))
 
     if is_hpcc_plus:
-        # 5 plots: U_max, R_delivered, C_host, u_host, u_switch_hires
-        fig, axes = plt.subplots(3, 2, figsize=(14, 15), sharex=True)
+        # 4 plots: U_max, R_delivered, C_host, u_host
+        fig, axes = plt.subplots(2, 2, figsize=(14, 10), sharex=True)
         axes = [ax for row in axes for ax in row]
         metric_specs = [
             ("u_max", "U_max (INT max)", 1.0, "trace"),
             ("r_delivered_bps", "R_delivered (Gb/s)", 1e-9, "trace"),
             ("c_host_bps", "C_host (Gb/s)", 1e-9, "trace"),
             ("u_host", "u_host (INT host)", 1.0, "trace"),
-            ("u_switch", "u_switch (High-Res Export)", 1.0, "hires"),
         ]
-        
-        # Hide the 6th subplot
-        fig.delaxes(axes[5])
-        axes = axes[:5]
-        title = "HPCC+ Utilization Metrics (5-Plot Dashboard)"
+        title = "HPCC+ Utilization Metrics"
     else:
         fig, ax = plt.subplots(1, 1, figsize=(12, 4.5))
         axes = [ax]

@@ -7,6 +7,9 @@ import math
 from matplotlib.ticker import LogLocator, NullFormatter, FuncFormatter
 import sys
 
+import struct
+import os
+
 def plot_fct(filename, output_file=None):
     flow_sizes = []
     fcts = []
@@ -14,28 +17,39 @@ def plot_fct(filename, output_file=None):
     slowdowns = []
     flow_details = [] # Store (src, dst, size, start, end, fct, slowdown)
     
-    with open(filename, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) >= 8:
-                try:
-                    # Format: src dst sport dport base_fct start_time end_time size
-                    src = parts[0]
-                    dst = parts[1]
-                    size = int(parts[7])
-                    start_time = int(parts[5])
-                    fct_val = int(parts[6]) # This is actually duration in ns
-                    base_fct = int(parts[4])
+    # Try reading as binary first if it has .tr extension or if it's binary
+    is_binary = filename.endswith('.tr')
+    if not is_binary:
+        try:
+            with open(filename, 'rb') as f:
+                header = f.read(4)
+                if len(header) == 4:
+                    # Heuristic: if it contains null bytes or non-ASCII, it's likely binary
+                    if any(b == 0 for b in header):
+                        is_binary = True
+        except:
+            pass
+
+    if is_binary:
+        try:
+            # FctTrace: sip(I), dip(I), sport(I), dport(I), size(Q), startTime(Q), fct(Q), standaloneFct(Q)
+            fmt = "IIIIQQQQ"
+            sz = struct.calcsize(fmt)
+            with open(filename, 'rb') as f:
+                while True:
+                    data = f.read(sz)
+                    if not data or len(data) < sz:
+                        break
+                    parts = struct.unpack(fmt, data)
+                    # sip, dip, sport, dport, size, startTime, fct, standaloneFct
+                    src = f"{parts[0]:08x}"
+                    dst = f"{parts[1]:08x}"
+                    size = parts[4]
+                    start_time = parts[5]
+                    fct = parts[6]
+                    base_fct = parts[7]
                     
-                    # If fct_val is very large (e.g. > 100s in ns), it might be an absolute end time
-                    # but usually it's duration. Standard HPCC is duration.
-                    if fct_val > start_time and fct_val > 1e12: # Heuristic for end time
-                        fct = fct_val - start_time
-                        end_time = fct_val
-                    else:
-                        fct = fct_val
-                        end_time = start_time + fct_val
-                    
+                    end_time = start_time + fct
                     slowdown = float(fct) / float(base_fct) if base_fct > 0 else 1.0
                     
                     flow_sizes.append(size)
@@ -47,8 +61,41 @@ def plot_fct(filename, output_file=None):
                         'start': start_time / 1e9, 'end': end_time / 1e9,
                         'fct': fct / 1e6, 'slowdown': slowdown
                     })
-                except:
-                    continue
+            if flow_sizes:
+                print(f"Successfully parsed binary FCT file: {filename}")
+        except Exception as e:
+            print(f"Error parsing binary file {filename}: {e}")
+            is_binary = False # Fallback
+
+    if not is_binary:
+        with open(filename, 'r') as f:
+            for line in f:
+                parts = line.strip().split()
+                if len(parts) >= 8:
+                    try:
+                        # Format in third.cc: sip dip sport dport size start_time fct standalone_fct
+                        src = parts[0]
+                        dst = parts[1]
+                        # Corrected mapping based on third.cc output
+                        size = int(parts[4])
+                        start_time = int(parts[5])
+                        fct = int(parts[6]) 
+                        base_fct = int(parts[7])
+                        
+                        end_time = start_time + fct
+                        slowdown = float(fct) / float(base_fct) if base_fct > 0 else 1.0
+                        
+                        flow_sizes.append(size)
+                        fcts.append(fct / 1e6)  # Convert to ms
+                        base_fcts.append(base_fct / 1e6)
+                        slowdowns.append(slowdown)
+                        flow_details.append({
+                            'src': src, 'dst': dst, 'size': size, 
+                            'start': start_time / 1e9, 'end': end_time / 1e9,
+                            'fct': fct / 1e6, 'slowdown': slowdown
+                        })
+                    except:
+                        continue
     
     if not flow_sizes:
         print("No data found in file")

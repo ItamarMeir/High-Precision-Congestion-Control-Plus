@@ -196,44 +196,33 @@ def _draw_lines(ax, schedules):
                         verticalalignment='top', fontsize=8, color='black', alpha=0.7)
 
 
+import struct
+from trace_parsers import parse_queue_depth_binned
+
 def _parse_queue_depth_csv(csv_path, allowed_hops=None):
-    """Parse queue_depth.csv (INT per-packet data) and return time-binned max Qlen.
+    """Parse queue_depth.csv/.tr (INT per-packet data) and return time-binned max Qlen.
 
     Returns (times_s, max_qlen_bytes) aggregated into 1ms bins.
     """
     if not csv_path or not os.path.exists(csv_path):
         return [], []
 
-    raw = defaultdict(int)  # bin_index -> max qlen in that bin
     bin_s = 0.001  # 1ms bins
-    with open(csv_path, "r") as f:
-        reader = csv.reader(f)
-        header = next(reader, None)
-        for row in reader:
-            if not row:
-                continue
-            try:
-                t = float(row[0])
-                hop = int(row[2])
-                if allowed_hops is not None and hop not in allowed_hops:
-                    continue
-                qlen = int(row[3])
-                b = int(t / bin_s)
-                if qlen > raw[b]:
-                    raw[b] = qlen
-            except (ValueError, IndexError):
-                continue
+    raw, _ = parse_queue_depth_binned(
+        csv_path,
+        allowed_hops=allowed_hops,
+        bin_s=bin_s,
+        collect_all_qlens=False,
+        max_sim_time_s=600.0,
+    )
 
     if not raw:
         return [], []
 
-    min_b = min(raw.keys())
-    max_b = max(raw.keys())
-    times = []
-    vals = []
-    for b in range(min_b, max_b + 1):
-        times.append(b * bin_s)
-        vals.append(raw.get(b, 0))
+    # Use sorted keys directly — never expand sparse ranges which can be huge on misread data.
+    sb = sorted(raw.keys())
+    times = [b * bin_s for b in sb]
+    vals = [raw[b] for b in sb]
     return times, vals
 
 
@@ -345,22 +334,45 @@ def _plot_pfc(pfc_file: str, out_path: str, bin_us: int):
     bin_ns = bin_us * 1000
     bins = {}
     min_time = None
-    with open(pfc_file, "r") as f:
-        for raw in f:
-            parts = raw.strip().split()
-            if len(parts) < 5:
-                continue
-            try:
-                t_ns = int(parts[0])
-                event_type = int(parts[4])
-            except ValueError:
-                continue
-            if event_type != 1:
-                continue  # pause only
-            if min_time is None or t_ns < min_time:
-                min_time = t_ns
-            b = t_ns // bin_ns
-            bins[b] = bins.get(b, 0) + 1
+    is_binary = pfc_file.endswith('.tr')
+    if is_binary:
+        try:
+            # PfcTrace: time(Q), node(I), nodeType(I), intf(I), pfcType(I)
+            fmt = "QIIII"
+            sz = struct.calcsize(fmt)
+            with open(pfc_file, 'rb') as f:
+                while True:
+                    data = f.read(sz)
+                    if not data or len(data) < sz:
+                        break
+                    t_ns, node, node_type, intf, event_type = struct.unpack(fmt, data)
+                    if event_type != 1:
+                        continue
+                    if min_time is None or t_ns < min_time:
+                        min_time = t_ns
+                    b = t_ns // bin_ns
+                    bins[b] = bins.get(b, 0) + 1
+        except Exception as e:
+            print(f"Error parsing binary PFC: {e}")
+            is_binary = False
+
+    if not is_binary:
+        with open(pfc_file, "r") as f:
+            for raw in f:
+                parts = raw.strip().split()
+                if len(parts) < 5:
+                    continue
+                try:
+                    t_ns = int(parts[0])
+                    event_type = int(parts[4])
+                except ValueError:
+                    continue
+                if event_type != 1:
+                    continue  # pause only
+                if min_time is None or t_ns < min_time:
+                    min_time = t_ns
+                b = t_ns // bin_ns
+                bins[b] = bins.get(b, 0) + 1
 
     if not bins:
         plt.figure(figsize=(8, 4))

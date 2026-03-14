@@ -8,26 +8,80 @@ import argparse
 import sys
 import os
 from collections import defaultdict
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
 
 def parse_config(config_file):
-    """Parse config file to extract RX_BUFFER_PER_QUEUE value."""
-    if not os.path.exists(config_file):
-        return None
-    
+    """Parse config file and extract RX buffer settings and receiver nodes."""
+    config = {
+        "rx_buffer_size": None,
+        "rx_buffer_per_queue": None,
+        "receiver_nodes": set(),
+        "flow_file": None,
+    }
+    if not config_file or not os.path.exists(config_file):
+        return config
+
     with open(config_file, 'r') as f:
         for line in f:
             line = line.strip()
-            if line.startswith('RX_BUFFER_PER_QUEUE'):
-                parts = line.split()
-                if len(parts) >= 2:
-                    try:
-                        return int(parts[1])
-                    except ValueError:
-                        pass
-    return None
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if len(parts) < 2:
+                continue
+            if parts[0] == 'RX_BUFFER_SIZE':
+                try:
+                    config["rx_buffer_size"] = int(parts[1])
+                except ValueError:
+                    pass
+            elif parts[0] == 'RX_BUFFER_PER_QUEUE':
+                try:
+                    config["rx_buffer_per_queue"] = int(parts[1])
+                except ValueError:
+                    pass
+            elif parts[0] == 'RX_PULL_MODE_NODE' and len(parts) >= 3:
+                try:
+                    node_id = int(parts[1])
+                    pull_mode = int(parts[2])
+                    if pull_mode == 1:
+                        config["receiver_nodes"].add(node_id)
+                except ValueError:
+                    pass
+            elif parts[0] == 'FLOW_FILE':
+                config["flow_file"] = parts[1]
+
+    if not config["receiver_nodes"] and config["flow_file"]:
+        flow_path = _resolve_relative_path(config_file, config["flow_file"])
+        if flow_path and flow_path.exists():
+            config["receiver_nodes"] = _parse_flow_receivers(flow_path)
+
+    return config
+
+
+def _resolve_relative_path(config_file, path_str):
+    path = Path(path_str)
+    if path.is_absolute():
+        return path
+    return (Path(config_file).parent / path).resolve()
+
+
+def _parse_flow_receivers(flow_path):
+    receivers = set()
+    with open(flow_path, 'r') as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith('#'):
+                continue
+            parts = line.split()
+            if len(parts) >= 2:
+                try:
+                    receivers.add(int(parts[1]))
+                except ValueError:
+                    continue
+    return receivers
 
 
 def parse_schedules(config_file):
@@ -85,49 +139,54 @@ def _draw_lines(plt, schedules):
             plt.text(time, plt.gca().get_ylim()[1], f' t={time}s\nRate={rate}', 
                     rotation=90, verticalalignment='top', fontsize=8, alpha=0.7)
 
+import struct
+import os
+from trace_parsers import parse_rxbuf_series
+
 def plot_rx_buffer(filename, output_file=None, config_file=None):
-    data = defaultdict(lambda: {"t": [], "bytes": []})
-    with open(filename, "r") as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) < 4:
-                continue
-            try:
-                t_ns = int(parts[0])
-                node = int(parts[1])
-                ifidx = int(parts[2])
-                b = int(parts[3])
-            except ValueError:
-                continue
-            key = (node, ifidx)
-            data[key]["t"].append(t_ns / 1e9)
-            data[key]["bytes"].append(b)
+    data = parse_rxbuf_series(filename)
+    if filename.endswith('.tr') and data:
+        print(f"Successfully parsed binary RX buffer file: {filename}")
 
     if not data:
         print("No data found in file")
         return
 
-    # Determine best unit for Y-axis
+    # Get max buffer limits and which nodes are actual receivers.
+    max_buffer_size = 8 * 1024 * 1024
+    max_buffer_per_queue = 1048576
+    receiver_nodes = set()
+    schedules = {}
+    if config_file:
+        parsed = parse_config(config_file)
+        if parsed["rx_buffer_size"] is not None:
+            max_buffer_size = parsed["rx_buffer_size"]
+        if parsed["rx_buffer_per_queue"] is not None:
+            max_buffer_per_queue = parsed["rx_buffer_per_queue"]
+        receiver_nodes = parsed["receiver_nodes"]
+        schedules = parse_schedules(config_file)
+
+    if receiver_nodes:
+        data = defaultdict(lambda: {"t": [], "bytes": []}, {
+            key: value for key, value in data.items() if key[0] in receiver_nodes
+        })
+
+    if not data:
+        print("No RX buffer samples found for receiver nodes")
+        return
+
+    # Determine best unit for Y-axis after receiver filtering.
     max_data_val = 0
     for series in data.values():
         if series["bytes"]:
             max_data_val = max(max_data_val, max(series["bytes"]))
-            
-    # Get max buffer limit
-    max_buffer_per_queue = 1048576  # default value (1MB)
-    schedules = {}
-    if config_file:
-        parsed_value = parse_config(config_file)
-        if parsed_value is not None:
-            max_buffer_per_queue = parsed_value
-        schedules = parse_schedules(config_file)
 
     # Determine scale factor and unit
     # Use the larger of data max or limit to guide scaling, but prefer data readability
     # If usage is tiny (e.g. 6KB) vs Limit (1MB), we might want to scale for Data
     # but still show the limit line context.
     
-    reference_val = max(max_data_val, max_buffer_per_queue / 10) # Heuristic
+    reference_val = max(max_data_val, max_buffer_size / 10) # Heuristic
     
     if reference_val >= 1024 * 1024:
         scale = 1024 * 1024
@@ -167,10 +226,10 @@ def plot_rx_buffer(filename, output_file=None, config_file=None):
                             arrowprops=dict(arrowstyle='->', color=line.get_color(), lw=1))
                 annotated_series.append((node, ifidx, max_bytes, max_time))
 
-    # Add reference line for maximum per-queue buffer size
-    scaled_limit = max_buffer_per_queue / scale
-    plt.axhline(y=scaled_limit, color='red', linestyle='--', linewidth=2, 
-                label=f'Max buffer/queue ({scaled_limit:.2f} {unit})', alpha=0.7)
+    # Show only configured per-queue limit as requested.
+    scaled_queue_limit = max_buffer_per_queue / scale
+    plt.axhline(y=scaled_queue_limit, color='red', linestyle='--', linewidth=2.0,
+                label=f'Per-queue limit ({scaled_queue_limit:.2f} {unit})', alpha=0.9, zorder=10)
 
     # Add vertical lines for pulling rate schedule
     colors = ['green', 'purple', 'orange', 'brown'] # Cycle colors for different nodes if needed
@@ -186,7 +245,13 @@ def plot_rx_buffer(filename, output_file=None, config_file=None):
 
     plt.xlabel("Time (s)")
     plt.ylabel(f"RX buffer ({unit})")
-    plt.title(f"NIC RX Buffer Occupancy Over Time (Max: {max_data_val/scale:.2f} {unit})")
+    receiver_text = ""
+    if receiver_nodes:
+        receiver_text = f" - Receiver node(s): {', '.join(str(n) for n in sorted(receiver_nodes))}"
+    plt.title(f"NIC RX Buffer Occupancy Over Time{receiver_text} (Max: {max_data_val/scale:.2f} {unit})")
+    # Clamp axis to 1.05x per-queue limit for visibility and consistent comparison.
+    ymax = scaled_queue_limit * 1.05 if scaled_queue_limit > 0 else 1
+    plt.ylim(0, ymax)
     plt.grid(True, alpha=0.3)
     plt.legend(loc='best', framealpha=0.9)
     plt.tight_layout()

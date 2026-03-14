@@ -73,6 +73,55 @@ struct TraceFormat{
 	}
 };
 
+struct FctTrace {
+	uint32_t sip, dip;
+	uint32_t sport, dport;
+	uint64_t size;
+	uint64_t startTime;
+	uint64_t fct;
+	uint64_t standaloneFct;
+};
+
+struct CwndTrace {
+	uint64_t time;
+	uint32_t sip, dip;
+	uint32_t sport, dport;
+	uint64_t rate;
+	uint64_t win;
+	uint64_t lastRtt;
+	uint32_t lastAckSeq;
+};
+
+struct RxBufTrace {
+	uint64_t time;
+	uint32_t node;
+	uint32_t intf;
+	uint64_t bytes;
+};
+
+struct PfcTrace {
+	uint64_t time;
+	uint32_t node;
+	uint32_t nodeType;
+	uint32_t intf;
+	uint32_t pfcType;
+};
+
+struct DropTrace {
+	uint64_t time;
+	uint32_t node;
+	uint32_t intf;
+	uint32_t qIndex;
+	uint32_t size;
+};
+
+struct QueueDepthTrace {
+	uint64_t time;
+	uint32_t qpId;
+	uint32_t hop;
+	uint32_t qlen;
+};
+
 static inline const char* EventToStr(enum Event e){
 	switch (e){
 		case Recv:

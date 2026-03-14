@@ -66,32 +66,59 @@ def parse_int_hop_metadata(config_path):
     return meta
 
 
+import struct
+
 def parse_queue_depth_csv(csv_path, config_path=None):
-    """Parse queue_depth.csv and return per-QP time series."""
+    """Parse queue_depth.csv/.tr and return per-QP time series."""
     qp_data = defaultdict(lambda: {'times': [], 'qlens': []})
     hop_meta = parse_int_hop_metadata(config_path)
     allowed_hops = None
     if hop_meta.get('cc_mode') == 11 and hop_meta.get('switch_hops') is not None:
         allowed_hops = set(range(hop_meta['switch_hops']))
     
-    with open(csv_path, 'r') as f:
-        reader = csv.reader(f)
-        header = next(reader, None)
-        for row in reader:
-            if not row:
-                continue
-            try:
-                t = float(row[0])
-                qp_id = row[1]
-                hop = int(row[2])
-                if allowed_hops is not None and hop not in allowed_hops:
+    is_binary = csv_path.endswith('.tr')
+    if is_binary:
+        try:
+            # QueueDepthTrace: time(Q), qpId(I), hop(I), qlen(I)
+            fmt = "QIII"
+            sz = struct.calcsize(fmt)
+            with open(csv_path, 'rb') as f:
+                while True:
+                    data = f.read(sz)
+                    if not data or len(data) < sz: break
+                    t_ns, qp_id, hop, qlen = struct.unpack(fmt, data)
+                    if allowed_hops is not None and hop not in allowed_hops:
+                        continue
+                    key = f"QP {qp_id} Hop {hop}"
+                    qp_data[key]['times'].append(t_ns / 1e9)
+                    qp_data[key]['qlens'].append(qlen)
+            if qp_data:
+                is_binary = True
+            else:
+                is_binary = False
+        except Exception as e:
+            print(f"Error parsing binary queue depth: {e}")
+            is_binary = False
+
+    if not is_binary:
+        with open(csv_path, 'r') as f:
+            reader = csv.reader(f)
+            header = next(reader, None)
+            for row in reader:
+                if not row:
                     continue
-                qlen = int(row[3])
-                key = f"QP {qp_id} Hop {hop}"
-                qp_data[key]['times'].append(t)
-                qp_data[key]['qlens'].append(qlen)
-            except (ValueError, IndexError):
-                continue
+                try:
+                    t = float(row[0])
+                    qp_id = row[1]
+                    hop = int(row[2])
+                    if allowed_hops is not None and hop not in allowed_hops:
+                        continue
+                    qlen = int(row[3])
+                    key = f"QP {qp_id} Hop {hop}"
+                    qp_data[key]['times'].append(t)
+                    qp_data[key]['qlens'].append(qlen)
+                except (ValueError, IndexError):
+                    continue
 
     # Also create a combined "max across QPs" trace, binned to 0.1ms
     bin_s = 0.0001  # 0.1ms bins

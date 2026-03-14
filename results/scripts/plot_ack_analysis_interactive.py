@@ -4,36 +4,66 @@ import argparse
 import json
 from pathlib import Path
 from collections import defaultdict
+import struct
+from trace_parsers import parse_cwnd_ack
 
-def parse_cwnd_extra(cwnd_file):
+
+def _new_flow_state():
+    return {
+        "t": [],
+        "seq": [],
+        "rtt": [],
+        "step": 1,
+        "i": 0,
+    }
+
+
+def _compact_flow_preserve_extrema(flow):
+    """Compact one flow while preserving key extrema samples."""
+    n = len(flow["t"])
+    if n <= 1:
+        return
+
+    indices = list(range(0, n, 2))
+    if indices[-1] != (n - 1):
+        indices.append(n - 1)
+
+    if flow["seq"]:
+        seq_max_idx = max(range(n), key=lambda i: flow["seq"][i])
+        indices.append(seq_max_idx)
+
+    valid_rtt = [(i, v) for i, v in enumerate(flow["rtt"]) if v is not None]
+    if valid_rtt:
+        rtt_max_idx = max(valid_rtt, key=lambda iv: iv[1])[0]
+        rtt_min_idx = min(valid_rtt, key=lambda iv: iv[1])[0]
+        indices.extend([rtt_max_idx, rtt_min_idx])
+
+    indices = sorted(set(indices))
+    flow["t"] = [flow["t"][i] for i in indices]
+    flow["seq"] = [flow["seq"][i] for i in indices]
+    flow["rtt"] = [flow["rtt"][i] for i in indices]
+
+
+def _append_sampled(flow, t_s, ack_seq, rtt_us, max_points):
+    # One-pass bounded decimation: append at current stride and compact when needed.
+    if flow["i"] % flow["step"] == 0:
+        flow["t"].append(t_s)
+        flow["seq"].append(ack_seq)
+        flow["rtt"].append(rtt_us)
+
+        if len(flow["t"]) > max_points:
+            _compact_flow_preserve_extrema(flow)
+            flow["step"] *= 2
+
+    flow["i"] += 1
+
+
+def parse_cwnd_extra(cwnd_file, max_points_per_flow=50000, read_stride=1):
     """Parse CWND file returning flows with time, seq, and rtt."""
-    flows = defaultdict(lambda: {"t": [], "seq": [], "rtt": []})
-    
-    with open(cwnd_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) < 9:
-                continue
-            try:
-                t_ns = int(parts[0])
-                src = int(parts[1])
-                dst = int(parts[2])
-                sport = int(parts[3])
-                dport = int(parts[4])
-                
-                lastRtt = int(parts[7])
-                lastAckSeq = int(parts[8])
-                
-                key = (src, dport)
-                flows[key]["t"].append(t_ns / 1e9)
-                flows[key]["seq"].append(lastAckSeq)
-                if lastRtt < 100000000:
-                    flows[key]["rtt"].append(lastRtt / 1000.0)
-                else:
-                    flows[key]["rtt"].append(None)
-            except (ValueError, IndexError):
-                pass
-                
+    flows = parse_cwnd_ack(cwnd_file, read_stride=read_stride)
+    for flow in flows.values():
+        while len(flow["t"]) > max_points_per_flow:
+            _compact_flow_preserve_extrema(flow)
     return flows
 
 def parse_schedules(config_file):
@@ -45,18 +75,40 @@ def parse_schedules(config_file):
     with open(config_file, 'r') as f:
         for line in f:
             line = line.strip()
-            if line.startswith('#'): continue
+            if not line or line.startswith('#'):
+                continue
             if 'RX_PULL_RATE_SCHEDULE' in line:
                 parts = line.split()
-                try:
-                    idx = parts.index('RX_PULL_RATE_SCHEDULE') + 2
-                    count = int(parts[idx])
-                    idx += 1
-                    for _ in range(count):
-                        t, r = float(parts[idx]), float(parts[idx+1])
-                        schedules.append((t, r))
-                        idx += 2
-                except (ValueError, IndexError): continue
+                if len(parts) < 2 or parts[0] != 'RX_PULL_RATE_SCHEDULE':
+                    continue
+
+                # New format: node:time,rate;time,rate...
+                if ':' in parts[1]:
+                    try:
+                        _, sched_str = parts[1].split(':', 1)
+                        for entry in sched_str.split(';'):
+                            if ',' in entry:
+                                t_str, r_str = entry.split(',', 1)
+                                t = float(t_str)
+                                if t > 1000000:
+                                    t /= 1e9
+                                schedules.append((t, float(r_str)))
+                    except Exception:
+                        pass
+                # Old format: node count time1 rate1 ...
+                elif len(parts) >= 4:
+                    try:
+                        count = int(parts[2])
+                        idx = 3
+                        for _ in range(count):
+                            if idx + 1 < len(parts):
+                                t = float(parts[idx])
+                                if t > 1000000:
+                                    t /= 1e9
+                                schedules.append((t, float(parts[idx+1])))
+                                idx += 2
+                    except (ValueError, IndexError):
+                        pass
     return schedules
 
 def generate_plotly_html(traces, layout, output_path, title="Interactive Plot", extra_html="", extra_script=""):
@@ -92,8 +144,8 @@ def generate_plotly_html(traces, layout, output_path, title="Interactive Plot", 
         f.write(html)
     print(f"Saved: {output_path}")
 
-def plot_ack_analysis_interactive(cwnd_file, output_file, config_path=None):
-    flows = parse_cwnd_extra(cwnd_file)
+def plot_ack_analysis_interactive(cwnd_file, output_file, config_path=None, max_points_per_flow=50000, read_stride=1):
+    flows = parse_cwnd_extra(cwnd_file, max_points_per_flow=max_points_per_flow, read_stride=read_stride)
     if not flows:
         print("ERROR: No tracking data found in CWND file. Make sure simulator logs the extra 2 columns.")
         return
@@ -215,7 +267,17 @@ if __name__ == "__main__":
     parser.add_argument("cwnd_file", help="Input CWND text file")
     parser.add_argument("output_file", nargs="?", help="Output HTML file")
     parser.add_argument("config_path", nargs="?", help="Configuration file path")
+    parser.add_argument("--max-points-per-flow", type=int, default=50000,
+                        help="Bounded sampled points per flow to prevent browser hangs")
+    parser.add_argument("--read-stride", type=int, default=1,
+                        help="Read every Nth record to speed up very large traces")
     args = parser.parse_args()
-    
+
     output_file = args.output_file if args.output_file else args.cwnd_file.replace('.txt', '_ack_analysis.html')
-    plot_ack_analysis_interactive(args.cwnd_file, output_file, config_path=args.config_path)
+    plot_ack_analysis_interactive(
+        args.cwnd_file,
+        output_file,
+        config_path=args.config_path,
+        max_points_per_flow=args.max_points_per_flow,
+        read_stride=max(1, args.read_stride),
+    )

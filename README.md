@@ -165,6 +165,15 @@ cd /workspace
 python3 results/run_all_plots.py
 ```
 
+For a specific study case, point the plotting script at that case directory instead of running individual plot scripts manually:
+
+```bash
+cd /workspace
+python3 results/run_all_plots.py --base-dir results/study_cases/dynamic_pulling_rate/case1_dynamic_pulling_rate_HPCC
+```
+
+When `--base-dir` is used, plots are written into that case's `plots/` and `interactive_plots/` directories and the script reports a per-plot success summary.
+
 This will run a suite of analysis scripts and save the output to `/workspace/results/plots/`.
 **Generated Plots include:**
 *   `cwnd_rtt_analysis_hpcc_plus_dynamic.png`: Congestion Window & RTT Dashboard
@@ -197,6 +206,9 @@ cd /workspace/simulation && ./build.sh
 
 # 4. Generate Plots (in /workspace)
 cd /workspace && python3 results/run_all_plots.py
+
+# 4b. Generate plots for a specific study case
+cd /workspace && python3 results/run_all_plots.py --base-dir results/study_cases/dynamic_pulling_rate/case1_dynamic_pulling_rate_HPCC
 
 # 5. View Results
 ls -lh /workspace/results/plots/

@@ -187,7 +187,7 @@ def run_plot_script(script_name, description, data_files):
         
         elif "switch_throughput" in script_name:
             # This script needs --trace, --topo, and --flows flags
-            trace_files = list(DATA_DIR.glob("*.tr"))
+            trace_files = sorted(DATA_DIR.glob("mix_*.tr"))
             
             if trace_files:
                 for trace_file in trace_files:
@@ -237,7 +237,7 @@ def run_plot_script(script_name, description, data_files):
         elif "cwnd_rtt_analysis" in script_name:
             # This script generates CWND/RTT analysis dashboard
             # Find all cwnd files
-            cwnd_files = list(DATA_DIR.glob("cwnd_*.txt"))
+            cwnd_files = list(DATA_DIR.glob("cwnd_*.tr")) + list(DATA_DIR.glob("cwnd_*.txt"))
             
             if cwnd_files:
                 for cwnd_file in cwnd_files:
@@ -257,6 +257,19 @@ def run_plot_script(script_name, description, data_files):
                         cmd.append(str(config_file))
                     if topo_file.exists():
                         cmd.append(str(topo_file))
+
+                    # Keep full-fidelity parsing and cap plotted points per flow.
+                    cwnd_size_mb = cwnd_file.stat().st_size / (1024 * 1024)
+                    stride = 1
+                    max_pts = 1000000
+                    cmd.extend([
+                        "--read-stride", str(stride),
+                        "--max-points-per-flow", str(max_pts),
+                        "--max-flows", "16",
+                        "--max-flows-plot", "4",
+                        "--plot-start-time", "0.0",
+                    ])
+                    print(f"  CWND trace {cwnd_size_mb:.0f} MB → stride={stride}, max_pts={max_pts}")
                     
                     print(f"Command: {' '.join(cmd)}")
                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=900) # Increased default timeout for large traces
@@ -277,7 +290,7 @@ def run_plot_script(script_name, description, data_files):
 
         elif "plot_ack_analysis" in script_name:
             # Shared logic for static and interactive ack analysis
-            cwnd_files = list(DATA_DIR.glob("cwnd_*.txt"))
+            cwnd_files = list(DATA_DIR.glob("cwnd_*.tr")) + list(DATA_DIR.glob("cwnd_*.txt"))
             
             if cwnd_files:
                 for cwnd_file in cwnd_files:
@@ -289,9 +302,16 @@ def run_plot_script(script_name, description, data_files):
                     out_file = out_dir / f"ack_analysis_{exp_name}{ext}"
                     
                     cmd = [sys.executable, str(script_path), str(cwnd_file), str(out_file)]
-                    
+
+                    # Keep positional args before optional flags for argparse compatibility.
                     if config_file:
                         cmd.append(str(config_file))
+
+                    if "interactive" in script_name:
+                        cmd.extend(["--max-points-per-flow", "30000"])
+                    else:
+                        cmd.extend(["--max-points-per-flow", "60000"])
+                    cmd.extend(["--read-stride", "1"])
                     
                     print(f"Command: {' '.join(cmd)}")
                     result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)  # Large timeout for big cwnd files
@@ -314,44 +334,77 @@ def run_plot_script(script_name, description, data_files):
             # This script needs --qlen, optional --pfc, and --out-dir
             # Find all qlen files
             qlen_files = list(DATA_DIR.glob("qlen_*.txt"))
+            queue_depth_tr = DATA_DIR / "queue_depth.tr"
+            queue_depth_csv = DATA_DIR / "queue_depth.csv"
             
-            if qlen_files:
-                for qlen_file in qlen_files:
-                    exp_name = qlen_file.stem.replace("qlen_", "")
-                    pfc_file = DATA_DIR / f"pfc_{exp_name}.txt"
-                    
-                    # Infer config file
-                    exp_name = qlen_file.stem.replace("qlen_", "")
-                    config_file = find_config_file(exp_name)
+            if qlen_files or queue_depth_tr.exists() or queue_depth_csv.exists():
+                # Prefer INT binary queue depth for binary pipeline
+                queue_depth_file = queue_depth_tr if queue_depth_tr.exists() else queue_depth_csv
 
-                    cmd = [sys.executable, str(script_path), 
-                           "--qlen", str(qlen_file),
-                           "--out-dir", str(PLOTS_DIR)]
-                    
-                    if pfc_file.exists():
-                        cmd.extend(["--pfc", str(pfc_file)])
-
-                    if config_file:
-                        cmd.extend(["--config", str(config_file)])
-
-                    # Pass INT queue depth CSV if available in the specific data folder
-                    queue_depth_csv = DATA_DIR / "queue_depth.csv"
-                    if queue_depth_csv.exists():
-                        cmd.extend(["--queue-depth-csv", str(queue_depth_csv)])
+                if qlen_files:
+                    for qlen_file in qlen_files:
+                        exp_name = qlen_file.stem.replace("qlen_", "")
+                        pfc_file = DATA_DIR / f"pfc_{exp_name}.txt"
+                        if not pfc_file.exists():
+                            pfc_file = DATA_DIR / f"pfc_{exp_name}.tr"
                         
-                    print(f"Command: {' '.join(cmd)}")
-                    result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
-                    
-                    if result.returncode == 0:
-                        print(f"✓ {description} ({qlen_file.name}) completed successfully")
-                        if result.stdout:
-                            print(result.stdout)
-                    else:
-                        print(f"✗ {description} ({qlen_file.name}) failed")
-                        if result.stderr:
-                             print(f"Error: {result.stderr[:300]}")
-                             return False
-                return True
+                        # Infer config file
+                        exp_name = qlen_file.stem.replace("qlen_", "")
+                        config_file = find_config_file(exp_name)
+
+                        cmd = [sys.executable, str(script_path), 
+                               "--qlen", str(qlen_file),
+                               "--out-dir", str(PLOTS_DIR)]
+                        
+                        if pfc_file.exists():
+                            cmd.extend(["--pfc", str(pfc_file)])
+
+                        if config_file:
+                            cmd.extend(["--config", str(config_file)])
+
+                        if queue_depth_file and queue_depth_file.exists():
+                            cmd.extend(["--queue-depth-csv", str(queue_depth_file)])
+                            
+                        print(f"Command: {' '.join(cmd)}")
+                        result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+                        
+                        if result.returncode == 0:
+                            print(f"✓ {description} ({qlen_file.name}) completed successfully")
+                            if result.stdout:
+                                print(result.stdout)
+                        else:
+                            print(f"✗ {description} ({qlen_file.name}) failed")
+                            if result.stderr:
+                                 print(f"Error: {result.stderr[:300]}")
+                                 return False
+                    return True
+
+                # If qlen_*.txt is absent, still run queue metrics once using INT queue depth.
+                cmd = [sys.executable, str(script_path), "--out-dir", str(PLOTS_DIR)]
+                if queue_depth_file and queue_depth_file.exists():
+                    cmd.extend(["--queue-depth-csv", str(queue_depth_file)])
+
+                # Use best-effort config discovery.
+                config_file = find_config_file()
+                if config_file:
+                    cmd.extend(["--config", str(config_file)])
+
+                # Use first available PFC trace (binary preferred, then text).
+                pfc_candidates = sorted(DATA_DIR.glob("pfc_*.tr")) + sorted(DATA_DIR.glob("pfc_*.txt"))
+                if pfc_candidates:
+                    cmd.extend(["--pfc", str(pfc_candidates[0])])
+
+                print(f"Command: {' '.join(cmd)}")
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+                if result.returncode == 0:
+                    print(f"✓ {description} (INT queue depth mode) completed successfully")
+                    if result.stdout:
+                        print(result.stdout)
+                    return True
+                print(f"✗ {description} (INT queue depth mode) failed")
+                if result.stderr:
+                    print(f"Error: {result.stderr[:300]}")
+                return False
             else:
                  print(f"⚠️  Skipping {description}: No qlen files found")
                  return False
@@ -396,7 +449,7 @@ def run_plot_script(script_name, description, data_files):
         elif "plot_rx_buffer" in script_name or "rx_buffer" in script_name:
             # This script needs RX buffer trace
             # Find all rxbuf files
-            rxbuf_files = list(DATA_DIR.glob("rxbuf_*.txt"))
+            rxbuf_files = list(DATA_DIR.glob("rxbuf_*.tr")) + list(DATA_DIR.glob("rxbuf_*.txt"))
             
             if rxbuf_files:
                 for rxbuf_file in rxbuf_files:
@@ -430,7 +483,7 @@ def run_plot_script(script_name, description, data_files):
         elif "plot_fct" in script_name:
              # FCT Plot
              # Find all fct files
-             fct_files = list(DATA_DIR.glob("fct_*.txt"))
+             fct_files = list(DATA_DIR.glob("fct_*.tr")) + list(DATA_DIR.glob("fct_*.txt"))
              if fct_files:
                  for fct_file in fct_files:
                      exp_name = fct_file.stem.replace("fct_", "")
@@ -454,12 +507,14 @@ def run_plot_script(script_name, description, data_files):
         elif "packet_drops" in script_name or "drop" in script_name:
             # This script needs packet drop trace AND pfc trace for unified plot
             # Find all drop files
-            drop_files = list(DATA_DIR.glob("drop_*.txt"))
+            drop_files = list(DATA_DIR.glob("drop_*.tr")) + list(DATA_DIR.glob("drop_*.txt"))
             
             if drop_files:
                 for drop_file in drop_files:
                     exp_name = drop_file.stem.replace("drop_", "")
                     pfc_file = DATA_DIR / f"pfc_{exp_name}.txt"
+                    if not pfc_file.exists():
+                        pfc_file = DATA_DIR / f"pfc_{exp_name}.tr"
                     
                     cmd = [sys.executable, str(script_path), 
                            "-o", str(PLOTS_DIR / f"reliability_analysis_{exp_name}.png")]
@@ -487,7 +542,7 @@ def run_plot_script(script_name, description, data_files):
         elif "dashboard" in script_name and "interactive" not in script_name:
              # Comprehensive Dashboard (Matplotlib)
              # Needs FCT and Qlen files
-             fct_files = list(DATA_DIR.glob("fct_*.txt"))
+             fct_files = list(DATA_DIR.glob("fct_*.tr")) + list(DATA_DIR.glob("fct_*.txt"))
              
              if fct_files:
                  for fct_file in fct_files:
@@ -520,16 +575,13 @@ def run_plot_script(script_name, description, data_files):
 
         elif "interactive_dashboard" in script_name:
              # Interactive Dashboard (Plotly)
-             # Find all qlen files to get experiment names
-             # Find all qlen files to get experiment names (fallback to fct/cwnd)
+               # Find all qlen/cwnd files to get experiment names.
              qlen_files = list(DATA_DIR.glob("qlen_*.txt"))
-             fct_files = list(DATA_DIR.glob("fct_*.txt"))
-             cwnd_files = list(DATA_DIR.glob("cwnd_*.txt"))
+             cwnd_files = list(DATA_DIR.glob("cwnd_*.tr")) + list(DATA_DIR.glob("cwnd_*.txt"))
              
              # Collect unique experiment names
              exp_names = set()
              for f in qlen_files: exp_names.add(f.stem.replace("qlen_", ""))
-             for f in fct_files: exp_names.add(f.stem.replace("fct_", ""))
              for f in cwnd_files: exp_names.add(f.stem.replace("cwnd_", ""))
              
              if exp_names:
@@ -539,7 +591,8 @@ def run_plot_script(script_name, description, data_files):
                      cmd = [sys.executable, str(script_path), 
                             "--data-dir", str(DATA_DIR),
                             "--out-dir", str(INTERACTIVE_PLOTS_DIR),
-                            "--exp-name", exp_name]
+                        "--exp-name", exp_name,
+                        "--throughput-peak-envelope"]
                      
                      if config_file:
                          cmd.extend(["--config", str(config_file)])

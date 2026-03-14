@@ -52,12 +52,12 @@ bool enable_qcn = true, use_dynamic_pfc_threshold = true;
 uint32_t packet_payload_size = 1000, l2_chunk_size = 0, l2_ack_interval = 0;
 double pause_time = 5, simulator_stop_time = 3.01;
 std::string data_rate, link_delay, topology_file, flow_file, trace_file, trace_output_file;
-std::string fct_output_file = "fct.txt";
-std::string pfc_output_file = "pfc.txt";
-std::string cwnd_output_file = "cwnd.txt";
-std::string rxbuf_output_file = "rxbuf.txt";
+std::string fct_output_file = "fct.tr";
+std::string pfc_output_file = "pfc.tr";
+std::string cwnd_output_file = "cwnd.tr";
+std::string rxbuf_output_file = "rxbuf.tr";
 std::string utilization_output_file;
-std::string drop_output_file = "drop.txt";
+std::string drop_output_file = "drop.tr";
 
 double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0, r_delivered_gain = 1.0;
 double rate_decrease_interval = 4;
@@ -242,8 +242,17 @@ void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 	uint64_t base_rtt = pairRtt[sid][did], b = pairBw[sid][did];
 	uint32_t total_bytes = q->m_size + ((q->m_size-1) / packet_payload_size + 1) * (CustomHeader::GetStaticWholeHeaderSize() - IntHeader::GetStaticSize()); // translate to the minimum bytes required (with header but no INT)
 	uint64_t standalone_fct = base_rtt + total_bytes * 8000000000lu / b;
-	// sip, dip, sport, dport, size (B), start_time, fct (ns), standalone_fct (ns)
-	fprintf(fout, "%08x %08x %u %u %lu %lu %lu %lu\n", q->sip.Get(), q->dip.Get(), q->sport, q->dport, q->m_size, q->startTime.GetTimeStep(), (Simulator::Now() - q->startTime).GetTimeStep(), standalone_fct);
+	
+	FctTrace t;
+	t.sip = q->sip.Get();
+	t.dip = q->dip.Get();
+	t.sport = q->sport;
+	t.dport = q->dport;
+	t.size = q->m_size;
+	t.startTime = q->startTime.GetTimeStep();
+	t.fct = (Simulator::Now() - q->startTime).GetTimeStep();
+	t.standaloneFct = standalone_fct;
+	fwrite(&t, sizeof(FctTrace), 1, fout);
 	fflush(fout);
 
 	// remove rxQp from the receiver
@@ -254,7 +263,17 @@ void qp_finish(FILE* fout, Ptr<RdmaQueuePair> q){
 
 void trace_qp_rate(FILE* fout, Ptr<RdmaQueuePair> q, uint64_t rate, uint64_t win){
 	uint32_t sid = ip_to_node_id(q->sip), did = ip_to_node_id(q->dip);
-	fprintf(fout, "%lu %u %u %u %u %lu %lu %lu %u\n", Simulator::Now().GetTimeStep(), sid, did, q->sport, q->dport, rate, win, q->m_lastRtt, q->m_lastAckSeq);
+	CwndTrace t;
+	t.time = Simulator::Now().GetTimeStep();
+	t.sip = sid;
+	t.dip = did;
+	t.sport = q->sport;
+	t.dport = q->dport;
+	t.rate = rate;
+	t.win = win;
+	t.lastRtt = q->m_lastRtt;
+	t.lastAckSeq = q->m_lastAckSeq;
+	fwrite(&t, sizeof(CwndTrace), 1, fout);
 	fflush(fout);
 }
 
@@ -278,17 +297,34 @@ void trace_qp_utilization(FILE* fout, Ptr<RdmaQueuePair> q, uint32_t cc_mode, bo
 }
 
 void trace_rxbuf(FILE* fout, Ptr<QbbNetDevice> dev, uint64_t oldv, uint64_t newv){
-	fprintf(fout, "%lu %u %u %lu\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetIfIndex(), newv);
+	RxBufTrace t;
+	t.time = Simulator::Now().GetTimeStep();
+	t.node = dev->GetNode()->GetId();
+	t.intf = dev->GetIfIndex();
+	t.bytes = newv;
+	fwrite(&t, sizeof(RxBufTrace), 1, fout);
 	fflush(fout);
 }
 
 void trace_drop(FILE* fout, Ptr<QbbNetDevice> dev, Ptr<const Packet> p, uint32_t qIndex){
-	fprintf(fout, "%lu %u %u %u %u\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetIfIndex(), qIndex, p->GetSize());
+	DropTrace t;
+	t.time = Simulator::Now().GetTimeStep();
+	t.node = dev->GetNode()->GetId();
+	t.intf = dev->GetIfIndex();
+	t.qIndex = qIndex;
+	t.size = p->GetSize();
+	fwrite(&t, sizeof(DropTrace), 1, fout);
 	fflush(fout);
 }
 
 void get_pfc(FILE* fout, Ptr<QbbNetDevice> dev, uint32_t type){
-	fprintf(fout, "%lu %u %u %u %u\n", Simulator::Now().GetTimeStep(), dev->GetNode()->GetId(), dev->GetNode()->GetNodeType(), dev->GetIfIndex(), type);
+	PfcTrace t;
+	t.time = Simulator::Now().GetTimeStep();
+	t.node = dev->GetNode()->GetId();
+	t.nodeType = dev->GetNode()->GetNodeType();
+	t.intf = dev->GetIfIndex();
+	t.pfcType = type;
+	fwrite(&t, sizeof(PfcTrace), 1, fout);
 }
 
 struct QlenDistribution{
@@ -903,15 +939,15 @@ int main(int argc, char *argv[])
 		// Apply DATA_DIR and EXP_NAME to unify output paths if provided
 		if (!data_dir.empty()) {
 			if (data_dir.back() != '/') data_dir += '/';
-			fct_output_file = data_dir + "fct_" + exp_name + ".txt";
-			pfc_output_file = data_dir + "pfc_" + exp_name + ".txt";
-			cwnd_output_file = data_dir + "cwnd_" + exp_name + ".txt";
+			fct_output_file = data_dir + "fct_" + exp_name + ".tr";
+			pfc_output_file = data_dir + "pfc_" + exp_name + ".tr";
+			cwnd_output_file = data_dir + "cwnd_" + exp_name + ".tr";
 			utilization_output_file = data_dir + "utilization_" + exp_name + ".txt";
-			rxbuf_output_file = data_dir + "rxbuf_" + exp_name + ".txt";
+			rxbuf_output_file = data_dir + "rxbuf_" + exp_name + ".tr";
 			qlen_mon_file = data_dir + "qlen_" + exp_name + ".txt";
-			drop_output_file = data_dir + "drop_" + exp_name + ".txt";
+			drop_output_file = data_dir + "drop_" + exp_name + ".tr";
 			trace_output_file = data_dir + "mix_" + exp_name + ".tr";
-			queue_depth_file = data_dir + "queue_depth.csv";
+			queue_depth_file = data_dir + "queue_depth.tr";
 			
 			std::cout << "\n--- Applied Unified Data Paths ---\n";
 			std::cout << "TRACE_OUTPUT_FILE\t\t" << trace_output_file << '\n';
@@ -1041,10 +1077,10 @@ int main(int argc, char *argv[])
 	rem->SetAttribute("ErrorRate", DoubleValue(error_rate_per_link));
 	rem->SetAttribute("ErrorUnit", StringValue("ERROR_UNIT_PACKET"));
 
-	FILE *pfc_file = fopen(pfc_output_file.c_str(), "w");
+	FILE *pfc_file = fopen(pfc_output_file.c_str(), "wb");
 	FILE *cwnd_output = nullptr;
-	FILE *rxbuf_output = fopen(rxbuf_output_file.c_str(), "w");
-	FILE *drop_output = fopen(drop_output_file.c_str(), "w");
+	FILE *rxbuf_output = fopen(rxbuf_output_file.c_str(), "wb");
+	FILE *drop_output = fopen(drop_output_file.c_str(), "wb");
 
 	QbbHelper qbb;
 	Ipv4AddressHelper ipv4;
@@ -1173,11 +1209,12 @@ int main(int argc, char *argv[])
 			for (uint32_t j = 0; j < node->GetNDevices(); j++){
 				Ptr<QbbNetDevice> dev = DynamicCast<QbbNetDevice>(node->GetDevice(j));
 				if (dev && dev->GetRxPullMode() == 0){
-					fprintf(rxbuf_output, "%lu %u %u %lu\n",
-						Simulator::Now().GetTimeStep(),
-						dev->GetNode()->GetId(),
-						dev->GetIfIndex(),
-						0lu);
+					RxBufTrace t;
+					t.time = Simulator::Now().GetTimeStep();
+					t.node = dev->GetNode()->GetId();
+					t.intf = dev->GetIfIndex();
+					t.bytes = 0;
+					fwrite(&t, sizeof(RxBufTrace), 1, rxbuf_output);
 				}
 			}
 		}
@@ -1218,11 +1255,11 @@ int main(int argc, char *argv[])
 	}
 
 	#if ENABLE_QP
-	FILE *fct_output = fopen(fct_output_file.c_str(), "w");
+	FILE *fct_output = fopen(fct_output_file.c_str(), "wb");
 	FILE *utilization_output = NULL;
 	if (enable_cwnd_trace)
-		cwnd_output = fopen(cwnd_output_file.c_str(), "w");
-	if (!utilization_output_file.empty()){
+		cwnd_output = fopen(cwnd_output_file.c_str(), "wb");
+	if (utilization_output_file != ""){
 		utilization_output = fopen(utilization_output_file.c_str(), "w");
 		if (utilization_output)
 			fprintf(utilization_output, "time_ns qp_id src dst sport dport cc_mode u_max r_delivered_bps c_host_bps u_host\n");
