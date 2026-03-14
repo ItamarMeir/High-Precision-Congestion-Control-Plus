@@ -87,13 +87,13 @@ def find_config_file(exp_name=None):
         for c in candidates:
             if c.exists(): return c
 
-    # 2. Fallback: Any .txt file in the local config/ or configs/ directory
+    # 2. Fallback: Any file starting with 'config' in the local config/ directory
     for subdir in ["config", "configs"]:
         cfg_dir = RESULTS_DIR / subdir
         if cfg_dir.exists():
-            txt_files = list(cfg_dir.glob("*.txt"))
+            # Be more specific: must contain 'config' and end with .txt
+            txt_files = [f for f in cfg_dir.glob("*.txt") if "config" in f.name.lower()]
             if txt_files:
-                # Filter out obvious non-configs if necessary, or just pick the first
                 return txt_files[0]
                 
     # 3. Global default
@@ -101,6 +101,33 @@ def find_config_file(exp_name=None):
     if global_default.exists():
         return global_default
         
+    return None
+
+def extract_file_from_config(config_file, key):
+    """Extract a file path from NS-3 config file."""
+    if not config_file or not os.path.exists(config_file):
+        return None
+    try:
+        with open(config_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    parts = line.split()
+                    if parts[0] == key and len(parts) >= 2:
+                        path_str = parts[1]
+                        # Resolve path relative to config file if not absolute
+                        if not os.path.isabs(path_str):
+                            # Try relative to results dir first, then config dir
+                            candidates = [
+                                RESULTS_DIR / path_str,
+                                Path(config_file).parent / path_str,
+                                DEFAULT_RESULTS_DIR.parent / "simulation" / path_str
+                            ]
+                            for c in candidates:
+                                if c.exists(): return c.resolve()
+                        return Path(path_str).resolve()
+    except:
+        pass
     return None
 
 def run_plot_script(script_name, description, data_files):
@@ -117,30 +144,31 @@ def run_plot_script(script_name, description, data_files):
     print(f"{'='*70}")
     
     try:
-        # Special handling for scripts with specific requirements
         if "topology" in script_name:
             # This script visualizes the network topology
-            # Use the topology that matches the flows being tested
-            topo_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt").resolve()
+            # 1. Try to find config to get real topology/flow files
+            config_file = find_config_file()
+            topo_file = extract_file_from_config(config_file, "TOPOLOGY_FILE")
+            flows_file = extract_file_from_config(config_file, "FLOW_FILE")
+
+            if not topo_file or not topo_file.exists():
+                topo_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt").resolve()
             
             if not topo_file.exists():
-                # Fallback to data folder topology if primary doesn't exist
                 topo_file = DATA_DIR / "topology.txt"
             
             if topo_file.exists():
-                # Unified Topology Analysis (Full + Flows side-by-side)
-                flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
-                
                 cmd = [sys.executable, str(script_path), 
                        str(topo_file),
                        "--out", str(PLOTS_DIR / "topology_analysis.png")]
                 
-                if flows_file.exists():
+                if flows_file and flows_file.exists():
                     cmd.extend(["--flows", str(flows_file)])
-                    print(f"Generating unified topology analysis (Full + Flows)...")
+                    print(f"Generating unified topology analysis (using {flows_file.name})...")
                 else:
                     print(f"Generating topology analysis (Full view only)...")
 
+                print(f"Command: {' '.join(cmd)}")
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
                 
                 if result.returncode == 0:
@@ -159,38 +187,34 @@ def run_plot_script(script_name, description, data_files):
         
         elif "switch_throughput" in script_name:
             # This script needs --trace, --topo, and --flows flags
-            # Find all trace files (excluding pcap or other types if necessary)
             trace_files = list(DATA_DIR.glob("*.tr"))
             
             if trace_files:
                 for trace_file in trace_files:
-                    # mix_dynamic_pull.tr -> config_dynamic_pull.txt
                     exp_name = trace_file.stem
-                    # Try to deduce config components from experiment name
-                    # Fallback to standard locations if dynamic deduction fails
+                    # Infer config file (strip "mix_" prefix added by trace naming)
+                    config_exp = exp_name.replace("mix_", "", 1) if exp_name.startswith("mix_") else exp_name
+                    config_file = find_config_file(config_exp)
+
+                    topo_file = extract_file_from_config(config_file, "TOPOLOGY_FILE")
+                    if not topo_file or not topo_file.exists():
+                        topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
                     
-                    topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
-                    # Try to find a specific topology? For now default is safe or we can try to find config
-                    
-                    flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_long.txt").resolve()
-                    if not flows_file.exists():
-                         flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_heavy.txt").resolve()
+                    flows_file = extract_file_from_config(config_file, "FLOW_FILE")
+                    if not flows_file or not flows_file.exists():
+                         flows_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "flows" / "flow_two_senders_long.txt").resolve()
 
                     if trace_file.exists():
                         cmd = [sys.executable, str(script_path), 
                                "--trace", str(trace_file),
                                "--out", str(PLOTS_DIR / f"switch_throughput_{exp_name}.png")]
                         
-                        # Infer config file (strip "mix_" prefix added by trace naming)
-                        config_exp = exp_name.replace("mix_", "", 1) if exp_name.startswith("mix_") else exp_name
-                        config_file = find_config_file(config_exp)
-                        
                         if config_file:
                             cmd.extend(["--config", str(config_file)])
                         
-                        if topo_file.exists():
+                        if topo_file and topo_file.exists():
                              cmd.extend(["--topo", str(topo_file)])
-                        if flows_file.exists():
+                        if flows_file and flows_file.exists():
                              cmd.extend(["--flows", str(flows_file)])
                         
                         print(f"Command: {' '.join(cmd)}")
@@ -220,8 +244,10 @@ def run_plot_script(script_name, description, data_files):
                     exp_name = cwnd_file.stem.replace("cwnd_", "")
                     config_file = find_config_file(exp_name)
 
-                    # Default topo
-                    topo_file = DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt"
+                    # Try to get topo from config
+                    topo_file = extract_file_from_config(config_file, "TOPOLOGY_FILE")
+                    if not topo_file or not topo_file.exists():
+                        topo_file = (DEFAULT_RESULTS_DIR.parent / "simulation" / "mix" / "topologies" / "topology_two_senders.txt").resolve()
                     
                     cmd = [sys.executable, str(script_path), 
                                str(cwnd_file),

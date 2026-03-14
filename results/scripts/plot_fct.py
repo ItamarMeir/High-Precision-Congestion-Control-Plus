@@ -12,6 +12,7 @@ def plot_fct(filename, output_file=None):
     fcts = []
     base_fcts = []
     slowdowns = []
+    flow_details = [] # Store (src, dst, size, start, end, fct, slowdown)
     
     with open(filename, 'r') as f:
         for line in f:
@@ -19,18 +20,21 @@ def plot_fct(filename, output_file=None):
             if len(parts) >= 8:
                 try:
                     # Format: src dst sport dport base_fct start_time end_time size
+                    src = parts[0]
+                    dst = parts[1]
                     size = int(parts[7])
                     start_time = int(parts[5])
-                    end_time = int(parts[6])
-                    
-                    # FCT is duration
-                    fct = end_time - start_time
+                    fct_val = int(parts[6]) # This is actually duration in ns
                     base_fct = int(parts[4])
                     
-                    if fct <= 0:
-                         # Fallback if fct is actually duration (unlikely based on data)
-                         if end_time < 100 * 1e9: 
-                             fct = end_time
+                    # If fct_val is very large (e.g. > 100s in ns), it might be an absolute end time
+                    # but usually it's duration. Standard HPCC is duration.
+                    if fct_val > start_time and fct_val > 1e12: # Heuristic for end time
+                        fct = fct_val - start_time
+                        end_time = fct_val
+                    else:
+                        fct = fct_val
+                        end_time = start_time + fct_val
                     
                     slowdown = float(fct) / float(base_fct) if base_fct > 0 else 1.0
                     
@@ -38,6 +42,11 @@ def plot_fct(filename, output_file=None):
                     fcts.append(fct / 1e6)  # Convert to ms
                     base_fcts.append(base_fct / 1e6)
                     slowdowns.append(slowdown)
+                    flow_details.append({
+                        'src': src, 'dst': dst, 'size': size, 
+                        'start': start_time / 1e9, 'end': end_time / 1e9,
+                        'fct': fct / 1e6, 'slowdown': slowdown
+                    })
                 except:
                     continue
     
@@ -48,7 +57,7 @@ def plot_fct(filename, output_file=None):
     # Create subplots
     # Create subplots with compact stats panel
     fig = plt.figure(figsize=(14, 8))
-    gs = gridspec.GridSpec(2, 3, figure=fig, width_ratios=[1, 1, 0.7])
+    gs = gridspec.GridSpec(2, 3, figure=fig, width_ratios=[1, 1, 1.1])
     ax_fct = fig.add_subplot(gs[0, 0])
     ax_slow = fig.add_subplot(gs[0, 1])
     ax_hist = fig.add_subplot(gs[1, 0:2])
@@ -165,10 +174,35 @@ def plot_fct(filename, output_file=None):
     stats_text += "  Min: {:.3f}\n".format(min(slowdowns))
     stats_text += "  Max: {:.3f}\n".format(max(slowdowns))
     stats_text += "  Mean: {:.3f}\n".format(sum(slowdowns)/len(slowdowns))
-    ax_stats.text(0.05, 0.95, stats_text, fontsize=10, family='monospace',
+    
+    ax_stats.text(0.02, 0.95, stats_text, fontsize=10, family='monospace',
                   verticalalignment='top')
+    
+    # Detailed Flow List (if manageable)
+    if len(flow_details) <= 25:
+        detail_text = "Detailed Flow List:\n"
+        detail_text += "ID | Size | Start      | End        | FCT(ms)   | Slow\n"
+        detail_text += "-" * 60 + "\n"
+        # Sort by start time once and use for EVERYTHING
+        flow_details.sort(key=lambda x: x['start'])
+        for i, fd in enumerate(flow_details):
+            s_str = _format_bytes(fd['size']).rjust(6)
+            # Use 7 decimals for start/end to distinguish small mice flows
+            # Use 6 decimals for FCT as requested
+            detail_text += f"{i:2d} |{s_str} | {fd['start']:10.7f}s| {fd['end']:10.7f}s| {fd['fct']:10.6f} | {fd['slowdown']:4.2f}\n"
+        
+        ax_stats.text(0.02, 0.55, detail_text, fontsize=8, family='monospace',
+                      verticalalignment='top')
+        
+        # Add labels to scatter plot using the SAME sorted order
+        for i, fd in enumerate(flow_details):
+            sz_scaled = fd['size'] / size_scale
+            # Label on FCT plot
+            ax_fct.annotate(str(i), (sz_scaled, fd['fct']), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
+            # Label on Slowdown plot
+            ax_slow.annotate(str(i), (sz_scaled, fd['slowdown']), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
 
-    fig.subplots_adjust(left=0.10, right=0.98, bottom=0.12, top=0.92, wspace=0.35, hspace=0.4)
+    fig.subplots_adjust(left=0.10, right=0.94, bottom=0.12, top=0.92, wspace=0.35, hspace=0.4)
     if output_file is None:
         output_file = filename.replace('.txt', '.png')
     plt.savefig(output_file, dpi=150)

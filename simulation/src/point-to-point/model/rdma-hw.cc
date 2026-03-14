@@ -1411,18 +1411,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				trace_r_delivered = R_delivered;
 				trace_c_host = qp->hpccPlus.m_c_host; // ensure trace var is populated
 				
-				// DEBUG: Output to file (u_switch overlay)
-				if (nhop > 1 && sw_u_saved > 0) {
-					uint32_t sid = (qp->sip.Get() >> 8) & 0xffff;
-					static FILE* fdebug = NULL;
-					if (!fdebug) {
-						fdebug = fopen("/workspace/results/study_cases/case4_test/data/debug_uswitch.txt", "w");
-					}
-					if (fdebug) {
-						fprintf(fdebug, "%lu %u %.3f\n", Simulator::Now().GetTimeStep(), sid, sw_u_saved);
-						fflush(fdebug);
-					}
-				}
+
 
 				// Conditional C_host update (only during full RTT update)
 				// Because R_delivered is computed from a shared aggregate counter (rxBytesTotal),

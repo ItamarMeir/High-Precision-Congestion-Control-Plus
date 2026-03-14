@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import sys
 import os
+import csv
+from collections import defaultdict
 
 def parse_config(config_file):
     """Parse simulation configuration"""
@@ -94,42 +96,46 @@ def _select_file_in(base_dir, subdir, preferred, fallback):
     return _select_file(os.path.join(base_dir, subdir), preferred, fallback)
 
 
-def _parse_qlen_time_blocks(qlen_file):
-    """Parse qlen file with 'time:' blocks and per-link queue lengths."""
-    times = []
-    max_values = []
+def _parse_queue_depth_csv(csv_path):
+    """Parse queue_depth.csv (INT per-packet data) and return time-binned max Qlen.
+    Returns (times_s, max_qlen_bytes) aggregated into 1ms bins.
+    """
+    if not csv_path or not os.path.exists(csv_path):
+        return [], []
 
-    current_time = None
-    current_max = None
-
-    with open(qlen_file, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            if line.startswith('time:'):
-                if current_time is not None and current_max is not None:
-                    times.append(current_time / 1e9)
-                    max_values.append(current_max)
-                current_time = int(line.split(':')[1].strip())
-                current_max = 0
-                continue
-            parts = line.split()
-            if len(parts) >= 3 and current_time is not None:
-                try:
-                    qlen = int(parts[2])
-                    if current_max is None:
-                        current_max = qlen
-                    else:
-                        current_max = max(current_max, qlen)
-                except ValueError:
+    raw = defaultdict(int)  # bin_index -> max qlen in that bin
+    bin_s = 0.001  # 1ms bins
+    try:
+        with open(csv_path, "r") as f:
+            reader = csv.reader(f)
+            header = next(reader, None)
+            for row in reader:
+                if not row or len(row) < 4:
                     continue
+                try:
+                    t = float(row[0])
+                    # For dashboard, we take max across all hops for simplicity
+                    qlen = int(row[3])
+                    b = int(t / bin_s)
+                    if qlen > raw[b]:
+                        raw[b] = qlen
+                except (ValueError, IndexError):
+                    continue
+    except Exception as e:
+        print(f"Error parsing {csv_path}: {e}")
+        return [], []
 
-    if current_time is not None and current_max is not None:
-        times.append(current_time / 1e9)
-        max_values.append(current_max)
+    if not raw:
+        return [], []
 
-    return times, max_values
+    min_b = min(raw.keys())
+    max_b = max(raw.keys())
+    times = []
+    vals = []
+    for b in range(min_b, max_b + 1):
+        times.append(b * bin_s)
+        vals.append(raw.get(b, 0))
+    return times, vals
 
 
 
@@ -140,15 +146,19 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
     qlen_times, qlen_values = [], []
     fct_data = []
     
-    # Qlen logic
-    qlen_file = None
-    if kwargs.get('qlen_file'):
-        qlen_file = kwargs['qlen_file']
+    # Queue Depth logic (INT per-packet)
+    q_csv = None
+    if kwargs.get('qlen_file'): # Keep argument name for compatibility
+        q_csv = kwargs['qlen_file']
     else:
-        qlen_file = _select_file_in(base_dir, os.path.join('outputs', 'qlen'), 'qlen_fat_k4.txt', 'qlen.txt')
+        # Check standard data locations
+        q_csv = _select_file(base_dir, 'queue_depth.csv', 'data/queue_depth.csv')
+        if not q_csv:
+            q_csv = _select_file_in(base_dir, 'outputs', 'queue_depth.csv', 'qlen.txt')
         
-    if qlen_file and os.path.exists(qlen_file):
-        qlen_times, qlen_values = _parse_qlen_time_blocks(qlen_file)
+    if q_csv and os.path.exists(q_csv):
+        qlen_times, qlen_values = _parse_queue_depth_csv(q_csv)
+        # Shift times if needed (already binned from 0 generally)
         if qlen_times:
             t0 = qlen_times[0]
             qlen_times = [max(0.0, t - t0) for t in qlen_times]
@@ -181,7 +191,7 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
     if not config_path or not os.path.exists(config_path):
         search_dirs = []
         if fct_file: search_dirs.append(os.path.dirname(os.path.dirname(fct_file))) # Assuming results/caseX/data/fct.txt -> results/caseX/
-        if qlen_file: search_dirs.append(os.path.dirname(os.path.dirname(qlen_file)))
+        if q_csv: search_dirs.append(os.path.dirname(os.path.dirname(q_csv)))
         
         for d in search_dirs:
             cfg = _select_file(os.path.join(d, 'config'), 'config_dynamic_pull_HPCC.txt', 'config_hpcc_plus_dynamic.txt')
@@ -234,7 +244,7 @@ def plot_dashboard(base_dir='simulation/mix', output_file=None, **kwargs):
         ax_qlen.plot(qlen_times, qlen_values, linewidth=0.8, color='blue', alpha=0.7)
         ax_qlen.set_xlabel('Time (s)')
         ax_qlen.set_ylabel('Max Queue Length (bytes)')
-        ax_qlen.set_title('Max Queue Length Over Time')
+        ax_qlen.set_title('Max Queue Depth Over Time (INT Data)')
         ax_qlen.grid(True, alpha=0.3)
         ax_qlen.fill_between(qlen_times, qlen_values, alpha=0.2)
         if schedules: _draw_lines(ax_qlen, schedules)

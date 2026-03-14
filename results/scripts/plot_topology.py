@@ -32,27 +32,29 @@ def parse_topology(topo_file):
         # Second line: either a switch-id list (fat.txt) or a type indicator (topology.txt)
         if len(lines) > 1:
             second_parts = lines[1].strip().split()
-            if len(second_parts) > 1 and len(second_parts) == num_switches:
+            # If specified length matches num_switches, assume they are switch IDs
+            if len(second_parts) == num_switches and num_switches > 0:
                 try:
                     switch_ids = set(int(x) for x in second_parts)
                 except ValueError:
                     switch_ids = set()
 
-        # Create node labels
+        # Create node labels and identify roles
         if switch_ids:
             for i in range(total_nodes):
                 if i in switch_ids:
                     nodes[i] = f'S{i}'
                 else:
                     nodes[i] = f'H{i}'
-            num_hosts = total_nodes - len(switch_ids)
             num_switches = len(switch_ids)
+            num_hosts = total_nodes - num_switches
         else:
             for i in range(total_nodes):
                 if i < num_hosts:
-                    nodes[i] = f'H{i}'  # Host
+                    nodes[i] = f'H{i}'
                 else:
-                    nodes[i] = f'S{i-num_hosts}'  # Switch
+                    nodes[i] = f'S{i-num_hosts}'
+            switch_ids = set(range(num_hosts, total_nodes))
 
         # Parse links
         for line_idx in range(2, len(lines)):
@@ -70,7 +72,7 @@ def parse_topology(topo_file):
                 except (ValueError, IndexError):
                     continue
 
-    return nodes, links, num_hosts, num_switches
+    return nodes, links, num_hosts, num_switches, switch_ids
 
 def _extract_topology_from_config(config_file):
     try:
@@ -92,41 +94,6 @@ def _extract_topology_from_config(config_file):
         return None
     return None
 
-def parse_flows(flows_file):
-    """Parse flows file and return set of involved node IDs.
-    
-    Format:
-    <num_flows>
-    <src0> <dst0> <port0> <port0_dst> <size0> <start_time0>
-    <src1> <dst1> <port1> <port1_dst> <size1> <start_time1>
-    ...
-    """
-    active_nodes = set()
-    try:
-        with open(flows_file, 'r') as f:
-            lines = f.readlines()
-            if len(lines) > 0:
-                try:
-                    num_flows = int(lines[0].strip())
-                except ValueError:
-                    return active_nodes
-                
-                for i in range(1, min(1 + num_flows, len(lines))):
-                    parts = lines[i].strip().split()
-                    if len(parts) >= 2:
-                        try:
-                            src = int(parts[0])
-                            dst = int(parts[1])
-                            active_nodes.add(src)
-                            active_nodes.add(dst)
-                        except ValueError:
-                            continue
-    except (OSError, IOError):
-        pass
-    
-    return active_nodes
-
-
 def parse_flows_details(flows_file):
     """Return list of flow dicts with keys: src, dst, dstport, size, start_time"""
     flows = []
@@ -145,7 +112,7 @@ def parse_flows_details(flows_file):
                     try:
                         src = int(parts[0])
                         dst = int(parts[1])
-                        # Expected format: src dst <proto> dst_port size start_time
+                        # Expected format: src dst proto dst_port size start_time
                         dstport = int(parts[3]) if parts[3].isdigit() else None
                         size = int(parts[4]) if parts[4].isdigit() else None
                         start_time = int(parts[5]) if parts[5].isdigit() else None
@@ -162,173 +129,124 @@ def parse_flows_details(flows_file):
         pass
     return flows
 
+def format_size(size_bytes):
+    """Format flow size with appropriate units."""
+    if size_bytes is None:
+        return "N/A"
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    elif size_bytes < 1024 * 1024:
+        return f"{size_bytes/1024:.1f} KB"
+    else:
+        return f"{size_bytes/(1024*1024):.1f} MB"
 
 def plot_topology(topo_file, output_file='topology.png', flows_file=None):
-    """Create network topology visualization
+    """Create network topology visualization."""
+    nodes, links, num_hosts, num_switches, switch_ids = parse_topology(topo_file)
     
-    Args:
-        topo_file: Path to topology file
-        output_file: Output PNG file path
-        flows_file: Optional flows file - if provided, only show nodes involved in flows
-    """
-    nodes, links, num_hosts, num_switches = parse_topology(topo_file)
-    
-    # Parse flows if provided to filter nodes
-    active_nodes_from_flows = None
-    if flows_file and os.path.exists(flows_file):
-        active_nodes_from_flows = parse_flows(flows_file)
-        print(f"Flows file provided: showing only active nodes {sorted(active_nodes_from_flows)}")
-    
-    # Get all node IDs that actually appear in links
-    all_node_ids = set(nodes.keys())
-    for src, dst, _, _ in links:
-        all_node_ids.add(src)
-        all_node_ids.add(dst)
-    
-    # Update node count if needed
-    max_node = max(all_node_ids) if all_node_ids else 0
-    for i in range(max_node + 1):
-        if i not in nodes:
-            nodes[i] = f'Node{i}'
-    
-    # Filter links and nodes if flows file provided
-    if active_nodes_from_flows:
-        # Include any link that touches an active flow node, and include both
-        # endpoints of those links so switch nodes are shown as well.
-        filtered_links = []
-        nodes_to_show = set(active_nodes_from_flows)
-        for src, dst, speed, delay in links:
-            if (src in active_nodes_from_flows) or (dst in active_nodes_from_flows):
-                filtered_links.append((src, dst, speed, delay))
-                nodes_to_show.add(src)
-                nodes_to_show.add(dst)
-        links = filtered_links
-    else:
-        nodes_to_show = all_node_ids
-    
-    # Create graph
-    G = nx.DiGraph()
-    G.add_nodes_from(nodes_to_show)
-    
-    # Add edges
-    speeds = {}
-    for src, dst, speed, delay in links:
-        if src in nodes_to_show and dst in nodes_to_show:
-            G.add_edge(src, dst)
-            speeds[(src, dst)] = speed
-    
-    # Layout
-    if len(G.nodes()) > 100:
-        # Circular layout for dense topologies
-        pos = nx.circular_layout(G)
-    elif len(G.nodes()) <= 3:
-        # Simple layout for very small graphs
-        pos = nx.spring_layout(G, k=2, iterations=50, seed=42)
-    else:
-        # Use a spring layout
-        pos = nx.spring_layout(G, k=2, iterations=50, seed=42)
-    
-    # Create figure with two subplots side-by-side
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 10))
-    fig.suptitle('Network Topology Analysis', fontsize=16, fontweight='bold')
-    
-    # --- Helper to draw graph on a specific axis ---
-    def _draw_subgraph(ax, nodes_subset, title):
-        sub_G = nx.DiGraph(G.subgraph(nodes_subset))
-        
-        # Recalculate layout for subset to look nice
-        if len(sub_G.nodes()) > 100:
-            pos_sub = nx.circular_layout(sub_G)
-        else:
-            pos_sub = nx.spring_layout(sub_G, k=2, iterations=50, seed=42)
-            
-        ax.set_title(title, fontsize=14, fontweight='bold')
-        
-        # Edges
-        edge_colors = ['gray'] * len(sub_G.edges())
-        nx.draw_networkx_edges(sub_G, pos_sub, ax=ax, edge_color=edge_colors,
-                              width=1.5, alpha=0.7, arrows=True, arrowsize=15)
-        
-        # Edge Labels (Speed + Delay)
-        edge_labels = {}
-        for u, v in sub_G.edges():
-            if (u, v) in link_info:
-                spd, dly = link_info[(u, v)]
-                edge_labels[(u, v)] = f"{spd}\n{dly}"
-        
-        nx.draw_networkx_edge_labels(sub_G, pos_sub, edge_labels=edge_labels, ax=ax, font_size=8)
-        
-        # Nodes
-        msg_colors = []
-        for n in sub_G.nodes():
-            if n < num_hosts:
-                if active_nodes_from_flows is not None:
-                    msg_colors.append('dodgerblue' if n in active_nodes_from_flows else 'lightblue')
-                else:
-                    msg_colors.append('lightblue')
-            else:
-                if active_nodes_from_flows is not None:
-                    msg_colors.append('crimson' if n in active_nodes_from_flows else 'lightcoral')
-                else:
-                    msg_colors.append('lightcoral')
-        
-        nx.draw_networkx_nodes(sub_G, pos_sub, ax=ax, node_color=msg_colors,
-                              node_size=600, edgecolors='black', linewidths=1.5)
-        
-        # Labels
-        sub_labels = {i: nodes[i] for i in sub_G.nodes()}
-        nx.draw_networkx_labels(sub_G, pos_sub, sub_labels, ax=ax, font_size=10, font_weight='bold')
-        ax.axis('off')
-
-    # Store link info for lookup
-    link_info = {}
-    for src, dst, speed, delay in links:
-        link_info[(src, dst)] = (speed, delay)
-
-    # 1. Full Topology
-    _draw_subgraph(ax1, all_node_ids, "Full Network Topology")
-    
-    # 2. Active Flows Topology (or Stats if no flows provided)
-    if active_nodes_from_flows:
-        # User wants "Topology Flows". Let's show active endpoints and the switches they touch.
-        active_subset = set(active_nodes_from_flows)
-        relevant_switches = set()
-        for s, d, _, _ in links:
-            if s in active_subset or d in active_subset:
-                 if s >= num_hosts: relevant_switches.add(s)
-                 if d >= num_hosts: relevant_switches.add(d)
-        
-        _draw_subgraph(ax2, active_subset | relevant_switches, "Active Flows Context")
-    else:
-        ax2.text(0.5, 0.5, "No Flow Data Provided\n(Use --flows <file>)", 
-                ha='center', va='center', fontsize=14)
-        ax2.axis('off')
-
-    # Add Legend/Stats Box
-    stats_text = f"NODES:\n  • H<n>: Host\n  • S<n>: Switch\n\nLINKS:\n"
-    # Summarize unique link types
-    link_types = set()
-    for _, _, s, d in links:
-        link_types.add(f"{s}, {d}")
-    for lt in sorted(link_types):
-        stats_text += f"  • {lt}\n"
-        
+    # Parse flows
+    flow_details = []
+    active_nodes = set()
     if flows_file and os.path.exists(flows_file):
         flow_details = parse_flows_details(flows_file)
-        if flow_details:
-            stats_text += f"\nACTIVE FLOWS ({len(flow_details)}):\n"
-            for i, f in enumerate(flow_details):
-                 # Format: Flow 0: 0->2 (Size: 10000B)
-                 size_str = f"{f['size']}B" if f['size'] else "N/A"
-                 stats_text += f"  {i+1}. {f['src']} -> {f['dst']} (Size: {size_str})\n"
-        
-    # Place text box in bottom center or similar
-    plt.figtext(0.5, 0.02, stats_text, ha="center", fontsize=9, 
-                bbox={"facecolor":"white", "alpha":0.9, "pad":5}, fontfamily='monospace')
+        active_nodes = {f['src'] for f in flow_details} | {f['dst'] for f in flow_details}
+        print(f"Flows file provided: showing architecture with {len(flow_details)} active flows")
 
-    plt.tight_layout(rect=[0, 0.15, 1, 0.95]) # Adjust layout more to make room for larger legend
-    plt.savefig(output_file, dpi=150, bbox_inches='tight')
-    print(f"✅ Combined topology visualization saved to: {output_file}")
+    G = nx.DiGraph()
+    senders = {f['src'] for f in flow_details}
+    receivers = {f['dst'] for f in flow_details}
+    
+    nodes_to_show = set(nodes.keys())
+    for src, dst, _, _ in links:
+        nodes_to_show.add(src)
+        nodes_to_show.add(dst)
+
+    G.add_nodes_from(nodes_to_show)
+    
+    link_info = {}
+    for src, dst, speed, delay in links:
+        G.add_edge(src, dst)
+        link_info[(src, dst)] = (speed, delay)
+
+    pos = {}
+    pure_senders = sorted(list(senders - receivers))
+    pure_receivers = sorted(list(receivers - senders))
+    mixed_hosts = sorted(list((senders | receivers) - set(pure_senders) - set(pure_receivers)))
+    idle_hosts = sorted([n for n in nodes_to_show if n not in switch_ids and n not in active_nodes])
+    switches = sorted(list(switch_ids))
+
+    def assign_layer_positions(node_list, y_coord):
+        if not node_list: return
+        n = len(node_list)
+        width = 2.0
+        step = width / (n + 1)
+        for i, node in enumerate(node_list):
+            pos[node] = (-1.0 + (i + 1) * step, y_coord)
+
+    assign_layer_positions(pure_senders, 2.0)
+    assign_layer_positions(switches, 1.0)
+    assign_layer_positions(pure_receivers, 0.0)
+    assign_layer_positions(mixed_hosts, 2.0)
+    assign_layer_positions(idle_hosts, 0.0)
+
+    for n in G.nodes():
+        if n not in pos:
+            pos[n] = (0, 0)
+
+    fig = plt.figure(figsize=(15, 12))
+    ax_graph = plt.axes([0.05, 0.35, 0.9, 0.6])
+    ax_table = plt.axes([0.05, 0.05, 0.9, 0.25])
+    ax_table.axis('off')
+
+    plt.suptitle('Network Topology & Flow Configuration', fontsize=20, fontweight='bold', y=0.98)
+    
+    nx.draw_networkx_edges(G, pos, ax=ax_graph, edge_color='gray', width=1.5, alpha=0.6, 
+                          arrows=True, arrowsize=20, connectionstyle="arc3,rad=0.1")
+    
+    edge_labels = {edge: f"{link_info[edge][0]}\n{link_info[edge][1]}" for edge in G.edges() if edge in link_info}
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, ax=ax_graph, font_size=9, rotate=False)
+
+    node_colors = []
+    for n in G.nodes():
+        if n in switch_ids:
+            node_colors.append('#e74c3c')
+        elif n in senders:
+            node_colors.append('#3498db')
+        elif n in receivers:
+            node_colors.append('#2ecc71')
+        else:
+            node_colors.append('#bdc3c7')
+
+    nx.draw_networkx_nodes(G, pos, ax=ax_graph, node_color=node_colors, node_size=1000, 
+                          edgecolors='black', linewidths=2)
+    
+    labels = {i: nodes[i] for i in G.nodes()}
+    nx.draw_networkx_labels(G, pos, labels, ax=ax_graph, font_size=11, font_weight='bold')
+    ax_graph.axis('off')
+
+    if flow_details:
+        table_data = []
+        for i, f in enumerate(flow_details):
+            src_label = nodes.get(f['src'], f"H{f['src']}")
+            dst_label = nodes.get(f['dst'], f"H{f['dst']}")
+            size_fmt = format_size(f['size'])
+            table_data.append([i, src_label, dst_label, f['dstport'], size_fmt, f"{f['start_time']:.1f} s"])
+
+        col_labels = ['Flow ID', 'Source', 'Destination', 'Dest Port', 'Flow Size', 'Start Time']
+        table = ax_table.table(cellText=table_data, colLabels=col_labels, loc='center', cellLoc='center')
+        table.auto_set_font_size(False)
+        table.set_fontsize(11)
+        table.scale(1.2, 1.8)
+        
+        for (row, col), cell in table.get_celld().items():
+            if row == 0:
+                cell.set_text_props(weight='bold', color='white')
+                cell.set_facecolor('#2c3e50')
+            elif row % 2 == 0:
+                cell.set_facecolor('#f2f2f2')
+
+    plt.savefig(output_file, dpi=200, bbox_inches='tight')
+    print(f"✅ Enhanced topology visualization saved to: {output_file}")
     plt.close()
 
 if __name__ == '__main__':
@@ -345,7 +263,4 @@ if __name__ == '__main__':
         topo_file = _extract_topology_from_config(topo_file) or topo_file
     
     output = args.out or topo_file.replace('.txt', '_analysis.png')
-    
-    # Ensure flows file is absolute or correct relative path if needed
-    flows_file = args.flows
-    plot_topology(topo_file, output, flows_file=flows_file)
+    plot_topology(topo_file, output, flows_file=args.flows)

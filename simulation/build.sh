@@ -13,7 +13,8 @@ echo -e "${BLUE}=== HPCC Simulator Build Script ===${NC}"
 echo ""
 
 # Set library path for runtime
-export LD_LIBRARY_PATH=/workspace/simulation/build:$LD_LIBRARY_PATH
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/build:$LD_LIBRARY_PATH"
 
 # Check if waf exists
 if [ ! -f "./waf" ]; then

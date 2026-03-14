@@ -6,19 +6,9 @@ Under sub-100% receiver pull rates, HPCC+ senders exhibit CWND and rate oscillat
 
 ### 1.1 Proportional Additive Probe
 
-Currently, when the receiver is uncongested, `C_host` increases by a fixed `R_AI`:
+**Status:** Implemented except for the proportional $R_{AI}/2$ step (we kept it just $R_{AI}$, see `HPCC_PLUS_README.md`).
 
-$$C_{host} \leftarrow \begin{cases}
-(1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
-\min(C_{host} + R_{AI}, \ C_{link,host}) & \text{otherwise}
-\end{cases}$$
-
-This fixed step is too aggressive when $C_{host}$ is small relative to the link rate, causing overshoot. Replace with a proportional step + EWMA for the second if case:
-
-$$C_{host} \leftarrow \begin{cases}
-(1 - g) \cdot C_{host} + g \cdot R_{delivered} & \text{if } qlen_{rx} > 0 \text{ or } R_{delivered} > C_{host} \\
-(1 - g) \cdot C_{host} + g \cdot \min(C_{host} + R_{AI}/2, \ C_{link,host}) & \text{otherwise}
-\end{cases}$$
+> **Note:** The rest of the items in section 1 are optional for the future, but we don't focus on them right now.
 
 
 ### 1.2 RTT-Granularity C_host Updates
@@ -31,7 +21,9 @@ HPCC uses `U_target = 0.95` for switch hops. For the host virtual hop, a slightl
 
 ---
 
-## 2. Simulation Experiments
+## 2. Simulation Experiments (CURRENT FOCUS)
+
+**We focus now on setting up experiments 2.1 and 2.2.**
 
 ### 2.1 Mice Flows Alongside Elephants
 

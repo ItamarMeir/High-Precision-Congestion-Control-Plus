@@ -10,8 +10,11 @@ The `run_all_plots.py` script is a convenient way to generate all simulation ana
 # From results directory
 cd /workspaces/High-Precision-Congestion-Control-Plus/results
 
-# Run all plots
+# Run all plots (uses local data/ and plots/ directories by default)
 python3 run_all_plots.py
+
+# Run for a specific study case or alternative directory
+python3 run_all_plots.py --base-dir study_cases/case4_large_rx_buffer_HPCC
 ```
 
 ## What It Does
@@ -24,23 +27,39 @@ The script automatically:
 
 ## Plots Generated
 
-| Script | Output | Purpose |
-|--------|--------|---------|
-| `plot_qlen.py` | `qlen_*.png` | Queue length over time |
-| `plot_fct.py` | `fct_*.png` | Flow completion time analysis |
-| `plot_cwnd.py` | `cwnd_*.png` | Congestion window dynamics |
-| `plot_queue_metrics.py` | `queue_metrics_*.png` | Queue statistics & metrics |
-| `plot_dashboard.py` | `dashboard.png` | Comprehensive results overview |
-| `plot_switch_throughput.py` | `switch_throughput_*.png` | Per-switch throughput analysis |
+The master script generates both static PNGs (in `plots/`) and interactive HTML dashboards (in `interactive_plots/`).
+
+### Static Plots (`plots/`)
+
+| Script | Output Pattern | Purpose |
+|--------|----------------|---------|
+| `plot_topology.py` | `topology_analysis.png` | Network Topology Visualization (Full + Flows) |
+| `plot_fct.py` | `fct_[exp].png` | Flow Completion Time Analysis |
+| `plot_rx_buffer.py` | `rx_buffer_[exp].png` | Receiver (NIC) Buffer Occupancy |
+| `plot_packet_drops.py` | `reliability_analysis_[exp].png` | Packet Drop and PFC Pause Analysis |
+| `plot_queue_metrics.py` | *Queue plots (e.g., CDFs)* | Queue statistics & metrics including PFC |
+| `plot_utilization_metrics.py` | `utilization_[exp].png` | Switch vs Host Utilization Metrics |
+| `plot_ack_analysis.py` | `ack_analysis_[exp].png` | ACK Analysis Dashboard |
+| `plot_cwnd_rtt_analysis.py` | `cwnd_rate_analysis_[exp].png` | CWND & Rate Analysis Dashboard |
+| `plot_switch_throughput.py` | `switch_throughput_[exp].png` | Per-switch Throughput Analysis |
+| `plot_dashboard.py` | `dashboard_[exp].png` | Comprehensive Static Overview |
+
+### Interactive Plots (`interactive_plots/`)
+
+| Script | Output Pattern | Purpose |
+|--------|----------------|---------|
+| `plot_interactive_dashboard.py`| *Multiple `.html` files* | Full Interactive Exploratory Dashboards |
+| `plot_utilization_metrics_interactive.py` | `utilization_[exp].html` | Interactive Utilization Metrics |
+| `plot_ack_analysis_interactive.py` | `ack_analysis_[exp].html` | Interactive ACK Analysis |
 
 ## Output
 
-All generated plots are saved in the `data/` directory with descriptive filenames based on your data file names.
+Generated static plots are saved in the `plots/` directory, while interactive HTML files are saved to `interactive_plots/`. Filenames are descriptive and include the specific simulation tag.
 
 ## Notes
 
-- The script handles various argument formats automatically
-- Some scripts may have specific data requirements
+- The script handles various argument formats and config finding automatically
+- Some scripts may have specific data requirements (e.g., traces)
 - Failed scripts are reported in the summary but don't halt execution
 - Typical runtime: 2-5 minutes depending on data size
 
@@ -49,18 +68,18 @@ All generated plots are saved in the `data/` directory with descriptive filename
 To run a specific plot script manually:
 
 ```bash
-# Queue length plot
-python3 scripts/plot_qlen.py data/qlen_two_senders_heavy.txt
+# RX buffer occupancy
+python3 scripts/plot_rx_buffer.py data/rxbuf_my_exp.txt
 
 # FCT analysis
-python3 scripts/plot_fct.py data/fct_two_senders_heavy.txt
+python3 scripts/plot_fct.py data/fct_my_exp.txt
 
-# Congestion window
-python3 scripts/plot_cwnd.py data/cwnd_two_senders_heavy.txt
-
-# Queue metrics with specific files
-python3 scripts/plot_queue_metrics.py --qlen data/qlen_two_senders_heavy.txt --pfc data/pfc_two_senders_heavy.txt
+# Congestion window and Rate
+python3 scripts/plot_cwnd_rtt_analysis.py data/cwnd_my_exp.txt config_my_exp.txt
 
 # Switch throughput with trace file
-python3 scripts/plot_switch_throughput.py --trace data/mix_two_senders_heavy.tr
+python3 scripts/plot_switch_throughput.py --trace data/mix_my_exp.tr --config config_my_exp.txt
+
+# Interactive Utilization
+python3 scripts/plot_utilization_metrics_interactive.py data/utilization_my_exp.txt interactive_plots/utilization_my_exp.html config_my_exp.txt
 ```

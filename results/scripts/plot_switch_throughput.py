@@ -120,7 +120,7 @@ def _parse_topology_links(topo_path):
             if not line or line.startswith("#"):
                 continue
             parts = line.split()
-            if len(parts) >= 5:
+            if len(parts) >= 3:
                 try:
                     a = int(parts[0])
                     b = int(parts[1])

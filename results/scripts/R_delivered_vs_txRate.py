@@ -4,7 +4,10 @@ import sys
 from collections import defaultdict
 
 def main():
-    data_dir = '/workspace/results/study_cases/case4_test/data'
+    # Use relative paths instead of hardcoded /workspace
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    data_dir = os.path.join(project_root, 'results', 'study_cases', 'case4_test', 'data')
     debug_file = os.path.join(data_dir, 'debug_txrate.txt')
     
     if not os.path.exists(debug_file):
@@ -56,7 +59,10 @@ def main():
     axes[-1].set_xlabel('Time (ms)')
     
     plt.tight_layout()
-    out_path = '/workspace/results/study_cases/case4_test/plots/debug_rdelivered_vs_txrate.png'
+    plots_dir = os.path.join(project_root, 'results', 'study_cases', 'case4_test', 'plots')
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+    out_path = os.path.join(plots_dir, 'debug_rdelivered_vs_txrate.png')
     plt.savefig(out_path, dpi=150)
     print(f"Plot saved to: {out_path}")
 
