@@ -164,6 +164,26 @@ TypeId RdmaHw::GetTypeId (void)
 				DoubleValue(1.0),
 				MakeDoubleAccessor(&RdmaHw::m_rDeliveredGain),
 				MakeDoubleChecker<double>())
+		.AddAttribute("CHostGainUpNoQ",
+				"EWMA gain for no-queue additive probing toward probe target in HPCC+ host estimator",
+				DoubleValue(0.078125),
+				MakeDoubleAccessor(&RdmaHw::m_cHostGainUpNoQ),
+				MakeDoubleChecker<double>(0.0, 1.0))
+		.AddAttribute("CHostGainDownNoQ",
+				"EWMA gain for no-queue pull-down toward R_delivered in HPCC+ host estimator",
+				DoubleValue(0.15625),
+				MakeDoubleAccessor(&RdmaHw::m_cHostGainDownNoQ),
+				MakeDoubleChecker<double>(0.0, 1.0))
+		.AddAttribute("LowPullThresh",
+				"No-queue low-pull threshold for HPCC+ host estimator",
+				DoubleValue(0.90),
+				MakeDoubleAccessor(&RdmaHw::m_lowPullThresh),
+				MakeDoubleChecker<double>(0.0, 1.0))
+		.AddAttribute("CHostRiseSlack",
+				"Slack for rising C_host with m_g when R_delivered exceeds C_host in no-queue mode",
+				DoubleValue(0.02),
+				MakeDoubleAccessor(&RdmaHw::m_cHostRiseSlack),
+				MakeDoubleChecker<double>(0.0, 1.0))
 		.AddAttribute("TimelyAlpha",
 				"Alpha of TIMELY",
 				DoubleValue(0.875),
@@ -1360,6 +1380,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 
 	// nhop layout: hops 0..nhop-2 are switches, hop nhop-1 is the host hop
 	uint32_t nhop = std::min((uint32_t)ih.nhop, IntHeader::maxHop);
+	int32_t host_idx = nhop > 0 ? (int32_t)(nhop - 1) : -1;
 
 	double sw_u_saved = 0.0;
 	// 1. Process switch hops (all except last)
@@ -1393,9 +1414,7 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 	}
 
 	// 2. Host hop (last hop) — HPCC+ with INT-based R_delivered and conditional C_host
-	if (nhop > 0) {
-		uint32_t host_idx = nhop - 1;
-
+	if (host_idx >= 0) {
 		if (m_sampleFeedback && ih.hop[host_idx].GetQlen() == 0 && fast_react) {
 			// skip host hop if qlen == 0 during fast react
 		} else {
@@ -1405,44 +1424,34 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				// Compute R_delivered from host INT deltas (like switch txRate)
 				double duration_host = tau_host * 1e-9;
 				double R_delivered_raw = ih.hop[host_idx].GetBytesDelta(qp->hpccPlus.hop[host_idx]) * 8.0 / duration_host;
+				double r_delivered_prev = qp->hpccPlus.m_r_delivered_smooth;
+				if (r_delivered_prev <= 0.0)
+					r_delivered_prev = R_delivered_raw;
 				// Apply R_delivered pre-smoothing EWMA (m_rDeliveredGain=1.0 = no smoothing, preserves current behaviour)
-				qp->hpccPlus.m_r_delivered_smooth = (1.0 - m_rDeliveredGain) * qp->hpccPlus.m_r_delivered_smooth
+				double r_delivered_smooth = (1.0 - m_rDeliveredGain) * r_delivered_prev
 				                                    + m_rDeliveredGain * R_delivered_raw;
-				double R_delivered = qp->hpccPlus.m_r_delivered_smooth;
+				qp->hpccPlus.m_r_delivered_smooth = r_delivered_smooth;
+				double R_delivered = r_delivered_smooth;
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 				trace_r_delivered = R_delivered;
 				trace_c_host = qp->hpccPlus.m_c_host; // ensure trace var is populated
-				
 
+				double line_rate = ih.hop[host_idx].GetLineRate();
+				if (rxQlen > 0 || R_delivered > qp->hpccPlus.m_c_host) {
+					qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+				} else {
+					double probe_target = std::min(qp->hpccPlus.m_c_host + m_rai.GetBitRate(), line_rate);
+					qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * probe_target;
+				}
 
-				// Conditional C_host update (only during full RTT update)
-				// Because R_delivered is computed from a shared aggregate counter (rxBytesTotal),
-				// all flows will converge their C_host estimates to the true aggregate pull rate.
-				if (!fast_react) {
-					if (rxQlen > 0 || R_delivered > qp->hpccPlus.m_c_host) {
-						// Queue building → R_delivered reflects true capacity
-						qp->hpccPlus.m_c_host = (1 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
-					} else {
-						// No queue: additive probe toward line rate using the requested formulation.
-						// d = 1 - min(R_delivered, C_link) / C_link, ai_step = R_AI * d
-						double nic_line_rate = ih.hop[host_idx].GetLineRate();
-						// double bounded_r_delivered = std::min(R_delivered, nic_line_rate);
-						// double distance_ratio = 1.0 - (bounded_r_delivered / nic_line_rate);
-						// double ai_step = m_rai.GetBitRate() * distance_ratio;
-						// double probe_target = std::min(qp->hpccPlus.m_c_host + ai_step, nic_line_rate);
-						// qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * probe_target;
-						qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * std::min(qp->hpccPlus.m_c_host + m_rai.GetBitRate(), nic_line_rate);
-					}
-
-					// C_host can never logically exceed the physical link capacity
-					double nic_line_rate = ih.hop[host_idx].GetLineRate();
-					if (qp->hpccPlus.m_c_host > nic_line_rate) {
-						qp->hpccPlus.m_c_host = nic_line_rate;
-					}
-					}
+				if (qp->hpccPlus.m_c_host > line_rate)
+					qp->hpccPlus.m_c_host = line_rate;
+				if (qp->hpccPlus.m_c_host < 1.0)
+					qp->hpccPlus.m_c_host = 1.0;
 
 				// Host utilization: use the estimated aggregate pull rate (m_c_host)
 				double c_host = std::max(qp->hpccPlus.m_c_host, 1.0); // guard division-by-zero
+				qp->hpccPlus.m_c_host = c_host;
 				trace_c_host = c_host;
 				double u_host;
 				if (rxQlen > 0) {

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hpcc-orchestrator"
+version = "0.1.0"
+description = "Multi-agent orchestration scaffold for HPCC and HPCC+ research workflows"
+readme = "docs/agent-orchestration.md"
+requires-python = ">=3.10"
+authors = [{ name = "GitHub Copilot" }]
+dependencies = []
+
+[project.scripts]
+hpcc-orchestrator = "hpcc_orchestrator.cli:main"
+
+[tool.setuptools]
+packages = ["hpcc_orchestrator"]

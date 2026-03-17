@@ -60,6 +60,8 @@ std::string utilization_output_file;
 std::string drop_output_file = "drop.tr";
 
 double alpha_resume_interval = 55, rp_timer, ewma_gain = 1.0 / 16.0, r_delivered_gain = 1.0;
+double c_host_gain_up_noq = 0.078125, c_host_gain_down_noq = 0.15625;
+double low_pull_thresh = 0.90, c_host_rise_slack = 0.02;
 double rate_decrease_interval = 4;
 uint32_t fast_recovery_times = 5;
 std::string rate_ai, rate_hai, min_rate = "100Mb/s";
@@ -700,6 +702,34 @@ int main(int argc, char *argv[])
 				r_delivered_gain = v;
 				std::cout << "R_DELIVERED_GAIN\t\t\t" << r_delivered_gain << "\n";
 			}
+			else if (key.compare("C_HOST_GAIN_UP_NOQ") == 0)
+			{
+				double v;
+				conf >> v;
+				c_host_gain_up_noq = v;
+				std::cout << "C_HOST_GAIN_UP_NOQ\t\t" << c_host_gain_up_noq << "\n";
+			}
+			else if (key.compare("C_HOST_GAIN_DOWN_NOQ") == 0)
+			{
+				double v;
+				conf >> v;
+				c_host_gain_down_noq = v;
+				std::cout << "C_HOST_GAIN_DOWN_NOQ\t" << c_host_gain_down_noq << "\n";
+			}
+			else if (key.compare("LOW_PULL_THRESH") == 0)
+			{
+				double v;
+				conf >> v;
+				low_pull_thresh = v;
+				std::cout << "LOW_PULL_THRESH\t\t\t" << low_pull_thresh << "\n";
+			}
+			else if (key.compare("C_HOST_RISE_SLACK") == 0)
+			{
+				double v;
+				conf >> v;
+				c_host_rise_slack = v;
+				std::cout << "C_HOST_RISE_SLACK\t\t" << c_host_rise_slack << "\n";
+			}
 			else if (key.compare("FAST_RECOVERY_TIMES") == 0)
 			{
 				uint32_t v;
@@ -1277,6 +1307,10 @@ int main(int argc, char *argv[])
 			rdmaHw->SetAttribute("FastRecoveryTimes", UintegerValue(fast_recovery_times));
 			rdmaHw->SetAttribute("EwmaGain", DoubleValue(ewma_gain));
 			rdmaHw->SetAttribute("RDeliveredGain", DoubleValue(r_delivered_gain));
+			rdmaHw->SetAttribute("CHostGainUpNoQ", DoubleValue(c_host_gain_up_noq));
+			rdmaHw->SetAttribute("CHostGainDownNoQ", DoubleValue(c_host_gain_down_noq));
+			rdmaHw->SetAttribute("LowPullThresh", DoubleValue(low_pull_thresh));
+			rdmaHw->SetAttribute("CHostRiseSlack", DoubleValue(c_host_rise_slack));
 
 			rdmaHw->SetAttribute("RateAI", DataRateValue(DataRate(rate_ai)));
 			rdmaHw->SetAttribute("RateHAI", DataRateValue(DataRate(rate_hai)));

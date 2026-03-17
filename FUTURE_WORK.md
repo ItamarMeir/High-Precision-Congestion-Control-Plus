@@ -1,38 +1,89 @@
 # Future Work
 
-## 1. Eliminating C_host Oscillations
+Here is how to mathematically adapt the fairness and oscillation solutions to be 100% compatible with the current HPCC+ implementation.
 
-Under sub-100% receiver pull rates, HPCC+ senders exhibit CWND and rate oscillations around the target pull rate. These stem from the `C_host` estimation dynamics. Several ideas to dampen them:
+## 1. Dynamic Additive Increase ($R_{AI}^{dyn}$)
 
-### 1.1 Proportional Additive Probe
+The current implementation uses a fixed step $R_{AI}$ (from `RATE_AI`) in two critical places:
 
-**Status:** Implemented except for the proportional $R_{AI}/2$ step (we kept it just $R_{AI}$, see `HPCC_PLUS_README.md`).
+1. Probing the sender rate update ($R_{new}$).
+2. Probing $C_{host}$ when uncongested.
 
-> **Note:** The rest of the items in section 1 are optional for the future, but we don't focus on them right now.
+To preserve proportional behavior across different host-capacity regimes, scale this step based on the estimated host capacity $C_{host}$, using the physical NIC line rate $C_{link,host}$ as the baseline.
 
+First, define baseline aggressiveness:
 
-### 1.2 RTT-Granularity C_host Updates
+$$
+\alpha = \frac{RATE\_AI}{C_{link,host}}
+$$
 
-Currently `C_host` is updated on every ACK. At high packet rates this means many small adjustments per RTT, which can amplify oscillations. Instead, accumulate `rxBytes` and `rxQLen` samples over one RTT and update `C_host` once per RTT, similar to how some TCP variants update their rate estimate.
+Then define dynamic additive increase with a minimum floor:
 
-### 1.3 Host-Specific Target Utilization
+$$
+R_{AI}^{dyn} = \max(\alpha \cdot C_{host}, \ R_{AI}^{min})
+$$
 
-HPCC uses `U_target = 0.95` for switch hops. For the host virtual hop, a slightly higher target (e.g., `U_host_target = 1.05`) could allow the sender to tolerate a small standing RX queue without backing off aggressively. This creates a deadband around the equilibrium point, reducing oscillation amplitude at the cost of a small amount of buffering.
+Inject this into the HPCC+ formulas by replacing static $R_{AI}$ with $R_{AI}^{dyn}$.
 
----
+For the uncongested host-capacity probe:
 
-## 2. Simulation Experiments (CURRENT FOCUS)
+$$
+C_{host} \leftarrow (1 - g) \cdot C_{host} + g \cdot \min(C_{host} + R_{AI}^{dyn}, \ C_{link,host})
+$$
 
-**We focus now on setting up experiments 2.1 and 2.2.**
+For sender rate adjustment:
 
-### 2.1 Mice Flows Alongside Elephants
+$$
+R_{new} = \frac{R_{current}}{U_{norm}} + R_{AI}^{dyn}
+$$
 
-Inject short, latency-sensitive mice flows in bursts while two elephant flows are active. Measure mice-flow FCT under both HPCC and HPCC+. The hypothesis is that HPCC+'s lower RX buffer occupancy translates directly into lower queueing delay for mice flows.
+Why this works: if $C_{host}$ drops to 10% of $C_{link,host}$, upward probes also drop to about 10% of their nominal magnitude, preventing synchronized overshoot by multiple senders.
 
-### 2.2 RX Buffer vs. Number of Elephant Senders
+## 2. Tuning the Dual-EWMA Architecture
 
-Using the same topology and dynamic pull rate schedule, increase the number of elephant senders (2, 4, 8, 16, ...) targeting the same receiver. Plot peak and average RX buffer occupancy as a function of sender count for both HPCC and HPCC+. This characterizes the scalability advantage of receiver-aware congestion control—under HPCC the buffer should grow linearly with senders, while HPCC+ should keep it bounded.
+The current architecture already has two smoothing stages:
 
-### 2.3 Multiple Receiver Applications with Different Pull Rates
+1. `R_DELIVERED_GAIN` ($g_R$): pre-smoothing of raw delivered-rate samples.
+2. `EWMA_GAIN` ($g$): tracking of estimated host capacity $C_{host}$.
 
-Two senders, one receiver, but two application-level consumers pulling from the RX buffer at different rates. This requires extending the receiver INT to maintain per-application `rxBytes` counters so the sender can distinguish which application's queue is backing up. This tests whether HPCC+ can handle heterogeneous receiver workloads on a single NIC.
+To reduce oscillation, make the $C_{host}$ tracking asymmetric.
+
+Goal:
+
+1. React quickly when capacity is dropping (protect RX buffer).
+2. Recover slowly when capacity appears to rise (avoid burst-induced overestimation).
+
+Use two gains:
+
+1. $g_{down}$ (for example, $1/4$) when $\hat{R}_{delivered} < C_{host}$.
+2. $g_{up}$ (for example, $1/32$) when $\hat{R}_{delivered} \ge C_{host}$.
+
+Update rule:
+
+$$
+C_{host} \leftarrow
+\begin{cases}
+(1 - g_{down}) \cdot C_{host} + g_{down} \cdot \hat{R}_{delivered} & \text{if } \hat{R}_{delivered} < C_{host} \\
+(1 - g_{up}) \cdot C_{host} + g_{up} \cdot \hat{R}_{delivered} & \text{if } \hat{R}_{delivered} \ge C_{host}
+\end{cases}
+$$
+
+This keeps the estimator conservative during recovery while still being protective under active congestion.
+
+## 3. Hysteresis Deadband on $U_{norm}$
+
+Current rate adjustment triggers multiplicative behavior when $U_{norm} \ge 1$, where:
+
+$$
+U_{norm} = \frac{U_{max}}{\eta}
+$$
+
+With $\eta = 0.95$, small telemetry noise near equilibrium can cause repeated crossing around 1.0, leading to unnecessary rate toggling and fairness instability.
+
+Introduce a deadband tolerance $\epsilon$ around the target. Inside this band, freeze the sender rate:
+
+$$
+	ext{If } |U_{norm} - 1| \le \epsilon, \text{ then } R_{new} = R_{current}
+$$
+
+Example: with $\epsilon = 0.02$, any $U_{norm} \in [0.98, 1.02]$ produces no rate change. This acts as a shock absorber against jitter in $\hat{R}_{delivered}$ and host-hop utilization estimates.

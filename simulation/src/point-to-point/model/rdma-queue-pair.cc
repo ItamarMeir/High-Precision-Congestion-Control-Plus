@@ -72,6 +72,7 @@ RdmaQueuePair::RdmaQueuePair(uint16_t pg, Ipv4Address _sip, Ipv4Address _dip, ui
 	hpccPlus.m_lastUpdateSeq = 0;
 	hpccPlus.m_incStage = 0;
 	hpccPlus.m_c_host = 0;
+	hpccPlus.m_r_delivered_smooth = 0;
 	hpccPlus.u = 1;
 	for (uint32_t i = 0; i < IntHeader::maxHop; i++){
 		hpccPlus.hopState[i].u = 1;

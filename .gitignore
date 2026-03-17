@@ -16,6 +16,10 @@ results/data/*.xml
 **/*.png
 .agents/
 .vscode/
+.github/
+.devcontainer/
+docs/
+hpcc_orchestrator/
 
 # Study Cases configuration
 !results/study_cases/
