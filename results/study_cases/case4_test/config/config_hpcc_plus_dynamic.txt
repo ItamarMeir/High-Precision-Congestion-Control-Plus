@@ -37,15 +37,14 @@ RATE_HAI 100Mb/s
 MIN_RATE 100Mb/s
 
 # Other params
-MI_THRESH 5 {inc stage threshold to use AI}
+MI_THRESH 1 {inc stage threshold to use AI - lowered from 5 to 1 to speed ramp-up after flow events}
 INT_MULTI 1 {INT info carrying 1 hop info}
 U_TARGET 0.95 {target utilization}
-FAST_REACT 1 {0: disable, 1: enable}
+FAST_REACT 1 {0: disable, 1: enable - enabled to allow sub-RTT rate probing}
 ENABLE_CS 0 {0: disable, 1: enable}
 HAS_WIN 1 {0: no window, 1: has a window}
 GLOBAL_T 1 {0: per-pair RTT, 1: global max RTT}
 VAR_WIN 1 {0: fixed window, 1: variable window}
-FAST_REACT 1 {0: react per RTT, 1: react per ACK}
 U_TARGET 0.95 {for HPCC: target utilization}
 MULTI_RATE 1 {for HPCC: 0: single rate, 1: per hop}
 SAMPLE_FEEDBACK 0 {for HPCC: 0: per packet, 1: per RTT or qlen>0}
@@ -76,8 +75,8 @@ BUFFER_SIZE 32
 L2_ACK_INTERVAL 1
 
 EWMA_GAIN 0.3125
-R_DELIVERED_GAIN 0.3125
-C_HOST_GAIN_UP_NOQ 0.0625
+R_DELIVERED_GAIN 0.25
+C_HOST_GAIN_UP_NOQ 0.25 {raised from 0.0625 to speed C_host ramp-up in no-queue regime}
 C_HOST_GAIN_DOWN_NOQ 0.1875
 LOW_PULL_THRESH 0.90
 C_HOST_RISE_SLACK 0.03

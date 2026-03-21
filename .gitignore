@@ -17,6 +17,8 @@ results/data/*.xml
 .agents/
 .vscode/
 .github/
+.claude/
+.cursor/
 .devcontainer/
 docs/
 hpcc_orchestrator/

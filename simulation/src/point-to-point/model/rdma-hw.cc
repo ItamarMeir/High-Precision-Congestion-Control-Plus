@@ -1432,17 +1432,32 @@ void RdmaHw::UpdateRateHpPlus(Ptr<RdmaQueuePair> qp, Ptr<Packet> p, CustomHeader
 				                                    + m_rDeliveredGain * R_delivered_raw;
 				qp->hpccPlus.m_r_delivered_smooth = r_delivered_smooth;
 				double R_delivered = r_delivered_smooth;
+				// HPCC+ contract: qlen_rx uses min(curr, prev) for the host hop (HPCC_PLUS_README.md Step 4)
 				double rxQlen = (double)std::min(ih.hop[host_idx].GetQlen(), qp->hpccPlus.hop[host_idx].GetQlen()) * 8.0;
 				trace_r_delivered = R_delivered;
 				trace_c_host = qp->hpccPlus.m_c_host; // ensure trace var is populated
 
 				double line_rate = ih.hop[host_idx].GetLineRate();
-				if (rxQlen > 0 || R_delivered > qp->hpccPlus.m_c_host) {
-					qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * R_delivered;
+				// C_host estimator (distributed, per-flow):
+				// - When rxQlen>0, the receiver is clearly the bottleneck: track R_delivered quickly using m_g.
+				// - When rxQlen==0, R_delivered may be < C_host (overestimate) without any queue signal.
+				//   To avoid persistent per-flow C_host drift (and resulting unfairness) in low-pull regimes,
+				//   apply asymmetric no-queue dynamics:
+				//   - If R_delivered exceeds C_host by slack -> rise using m_g (host got faster).
+				//   - If R_delivered is far below C_host (< lowPullThresh*C_host) -> pull down toward R_delivered.
+				//   - Otherwise -> probe up slowly toward min(C_host+R_AI, line_rate).
+				double c_host_est = qp->hpccPlus.m_c_host;
+				if (rxQlen > 0.0) {
+					c_host_est = (1.0 - m_g) * c_host_est + m_g * R_delivered;
+				} else if (R_delivered > (1.0 + m_cHostRiseSlack) * c_host_est) {
+					c_host_est = (1.0 - m_g) * c_host_est + m_g * R_delivered;
+				} else if (R_delivered < m_lowPullThresh * c_host_est) {
+					c_host_est = (1.0 - m_cHostGainDownNoQ) * c_host_est + m_cHostGainDownNoQ * R_delivered;
 				} else {
-					double probe_target = std::min(qp->hpccPlus.m_c_host + m_rai.GetBitRate(), line_rate);
-					qp->hpccPlus.m_c_host = (1.0 - m_g) * qp->hpccPlus.m_c_host + m_g * probe_target;
+					double probe_target = std::min(c_host_est + m_rai.GetBitRate(), line_rate);
+					c_host_est = (1.0 - m_cHostGainUpNoQ) * c_host_est + m_cHostGainUpNoQ * probe_target;
 				}
+				qp->hpccPlus.m_c_host = c_host_est;
 
 				if (qp->hpccPlus.m_c_host > line_rate)
 					qp->hpccPlus.m_c_host = line_rate;

@@ -161,7 +161,7 @@ Where $R_{AI}$ = `RATE_AI` is the additive increase step (e.g., 5 Mb/s).
 - If $U_{norm} \geq 1$ (congested) OR `incStage` ≥ `MI_THRESH`: use the above formula (multiplicative decrease + AI).
 - Otherwise (light load, early stages): pure additive increase: $R_{new} = R_{current} + R_{AI}$.
 
-**The `incStage` counter** increments on each AI update and resets on any multiplicative update. Once it exceeds `MI_THRESH`, it switches to multiplicative mode — this accelerates convergence in the low-utilization regime.
+**The `incStage` counter** increments on each AI update and resets on any multiplicative update. Once it exceeds `MI_THRESH`, it switches to multiplicative mode — this accelerates convergence in the low-utilization regime. With the default `MI_THRESH = 1`, flows effectively skip the pure-AI phase and ramp up multiplicatively after just one step, minimising recovery time after pull-rate increases.
 
 Finally, $R_{new}$ is clamped to $[R_{min}, R_{max}]$.
 
@@ -251,6 +251,36 @@ This controls how quickly $C_{host}$ tracks changes in the receiver's actual pul
 |:--|:--|:--|:--|
 | `EWMA_GAIN` | $g$ | `1.0/16` | Higher = faster tracking, more noisy; lower = smoother, slower reaction |
 
+#### No-Queue Stabilization (Optional, Configurable)
+
+In some workloads (e.g., **receiver pull-rate below line rate**) the receiver queue can remain near-zero while $R_{delivered}$ is **consistently lower** than the current $C_{host}$ estimate. In that regime, the basic “probe up unless $qlen_{rx}>0$” rule can allow **per-flow $C_{host}$ drift** due to sampling jitter in $\Delta t$ windows, which in turn can cause transient unfairness (different $u_{host}$) even though all flows observe the same receiver.
+
+To stabilize $C_{host}$ while keeping the algorithm fully distributed (each flow uses only its own ACK-carried host INT), the implementation uses asymmetric updates when $qlen_{rx}=0$:
+
+$$
+C_{host} \leftarrow \begin{cases}
+(1 - g) \cdot C_{host} + g \cdot \hat{R}_{delivered}
+  & \textbf{if } \hat{R}_{delivered} > (1+s)\,C_{host}
+  & \text{// Rise: host got faster} \\[6pt]
+(1 - g_{down}) \cdot C_{host} + g_{down} \cdot \hat{R}_{delivered}
+  & \textbf{else if } \hat{R}_{delivered} < \theta\,C_{host}
+  & \text{// Pull-down: } C_{host} \text{ is over-estimating} \\[6pt]
+(1 - g_{up}) \cdot C_{host} + g_{up} \cdot \min(C_{host} + R_{AI},\, C_{link,host})
+  & \textbf{else}
+  & \text{// Probe-up: gently test for more headroom}
+\end{cases}
+$$
+
+Where the gains map directly to config keys:
+
+| Symbol | Config Key | Default | Role in the formula above |
+|:--|:--|:--:|:--|
+| $g$ | `EWMA_GAIN` | `1/16` | Rise branch: tracks $\hat{R}_{delivered}$ aggressively upward |
+| $g_{down}$ | `C_HOST_GAIN_DOWN_NOQ` | `1/6.4` | Pull-down branch: corrects $C_{host}$ overestimate toward $\hat{R}_{delivered}$ |
+| $g_{up}$ | `C_HOST_GAIN_UP_NOQ` | `0.25` | Probe-up branch: increments $C_{host}$ toward $C_{host}+R_{AI}$ each RTT; higher = faster ramp-up after a pull-rate increase, but risks overshoot in asymmetric RTT scenarios |
+| $\theta$ | `LOW_PULL_THRESH` | `0.90` | Threshold separating pull-down from probe-up: if $\hat{R}_{delivered}$ is below 90 % of $C_{host}$, correct downward; otherwise probe up |
+| $s$ | `C_HOST_RISE_SLACK` | `0.02` | Required relative excess before treating $\hat{R}_{delivered}$ as a genuine rise signal (avoids triggering the rise branch on noise) |
+
 ---
 
 ### Smoothing Interaction by Mode
@@ -274,8 +304,8 @@ This controls how quickly $C_{host}$ tracks changes in the receiver's actual pul
 | Target utilization | `U_TARGET` | `0.95` | $\eta$: pacing target, fraction of link capacity |
 | Additive increase | `RATE_AI` | `5Mb/s` | $R_{AI}$: rate increase step per RTT |
 | Hyper AI | `RATE_HAI` | `10Mb/s` | Rate step during hyper-AI phase |
-| MI threshold | `MI_THRESH` | `5` | AI stages before switching to multiplicative mode |
-| Fast react | `FAST_REACT` | `1` | `1` = react per ACK, `0` = react per RTT only |
+| MI threshold | `MI_THRESH` | `1` | AI stages before switching to multiplicative mode. `1` means flows enter multiplicative ramp after a single AI step, minimising ramp-up delay in the low-utilisation regime |
+| Fast react | `FAST_REACT` | `1` | `1` = react per ACK (sub-RTT, temporary rate update), `0` = react per RTT only. Must be `1` for fast convergence after pull-rate events |
 | Sample feedback | `SAMPLE_FEEDBACK` | `0` | `1` = skip hops with zero queue during fast react |
 | Multiple rates | `MULTI_RATE` | `1` | `1` = per-hop rates (recommended), `0` = aggregate single rate |
 | RX pull mode | `RX_PULL_MODE` | `1` | `0` = immediate drain, `1` = fixed-rate drain |

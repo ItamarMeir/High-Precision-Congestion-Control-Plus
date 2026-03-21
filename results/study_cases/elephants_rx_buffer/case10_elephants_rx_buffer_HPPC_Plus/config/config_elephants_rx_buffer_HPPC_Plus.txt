@@ -47,7 +47,7 @@ RATE_HAI 100Mb/s
 MIN_RATE 100Mb/s
 
 # Other params
-MI_THRESH 5 {inc stage threshold to use AI}
+MI_THRESH 1 {inc stage threshold to use AI - lowered from 5 to 1 to speed ramp-up}
 INT_MULTI 1 {INT info carrying 1 hop info}
 U_TARGET 0.95 {target utilization}
 FAST_REACT 1 {0: disable, 1: enable}
@@ -83,3 +83,7 @@ L2_ACK_INTERVAL 1
 
 EWMA_GAIN 0.3125
 R_DELIVERED_GAIN 0.3125
+C_HOST_GAIN_UP_NOQ 0.25 {raised from default 1/12.8 - dominant fix for fast ramp-up after pull-rate events}
+C_HOST_GAIN_DOWN_NOQ 0.1875
+LOW_PULL_THRESH 0.90
+C_HOST_RISE_SLACK 0.03
